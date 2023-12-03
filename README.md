@@ -6,7 +6,7 @@ the goal is to provide researchers with ...
 
 ## GUI: A web-visualizer
 
-![neuroinfer_gui](./images/neuroinfer_gui.png "Title")
+![neuroinfer_gui](./neuroinfer/images/neuroinfer_gui.png "Title")
 
 ## To DO:
 
