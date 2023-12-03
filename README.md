@@ -1,8 +1,8 @@
 # *NeuroInfer*
 
-A Bayesian Analysis tool ...
-when it should be used ...
-the goal is to provide researchers with ...
+NeuroInfer (NI) is a tool for drawing Bayesian inferences on the associations between cognitive processes and brain activations based on meta-analytic data from fMRI published studies. In a nutshell, it allows neuroscientists to interpret their results and assess the reliability of their hypotheses. 
+Compared to available tools (e.g., NeuroSynth, NeuroQuery, BACON), NI implements a more sophisticated Bayesian analysis (based on Bayesian confirmation theory). 
+The NI framework includes a database of published fMRI studies and related metadata (updated in 2018 and shared with NeuroSynth and NeuroQuery), a vocabulary of terms, and a Python-based algorithm to perform the analysis. 
 
 ## GUI: A web-visualizer
 
