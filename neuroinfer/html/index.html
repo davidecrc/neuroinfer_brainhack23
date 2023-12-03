@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <link rel="stylesheet" type="text/css" href="styles.css" />
+  <script type="text/javascript" src="../rii-mango-Papaya-64a8243/papaya.js?build=1456"></script>
+  <script type="text/javascript" src="viewer-config.js"></script>
+  
+  <title>NEUROINFER - Papaya Viewer</title>
+
+</head>
+<body>
+
+  <div class="banner">
+    NEUROINFER
+  </div>
+   <div class="main-container">
+    <div class="container">
+      <h2 style="text-align: center;">Coordinate and Probability Input</h2>
+      <form id="myForm">
+        <label for="x">X Coordinate:</label>
+        <input type="number" id="x" name="x" required>
+
+        <label for="y">Y Coordinate:</label>
+        <input type="number" id="y" name="y" required>
+
+        <label for="z">Z Coordinate:</label>
+        <input type="number" id="z" name="z" required>
+
+        <label for="words">List of Words (comma-separated):</label>
+        <textarea id="words" name="words" rows="4" required></textarea>
+
+        <label for="probabilities">Probabilities (comma-separated):</label>
+        <input type="text" id="probabilities" name="probabilities" required>
+
+        <button type="button" onclick="submitForm()">Submit</button>
+      </form>
+    </div>
+
+    <div id="visualizer">
+      <div class="papaya" data-params="params"></div>
+    </div>
+
+    <div class="graphics-container" id="graphicsContainer">
+      <h2>Graphics Container</h2>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+
+</body>
+</html>
+
