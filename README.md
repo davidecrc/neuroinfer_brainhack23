@@ -32,7 +32,7 @@ the goal is to provide researchers with ...
 
 ## Folder structure
 
-    ./
+    ./neuroinfer/
     ├── code/
     │   │── plot_generator.py       # a template using flask_cors to interact with the javascript
     │   │── DataLoading.py
