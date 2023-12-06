@@ -71,7 +71,7 @@ def run_bayesian_analysis(cog_list, prior_list, x_target, y_target, z_target, ra
                                    z_target - radius < int(float(paper_z_nq[i])) < z_target + radius]
 
             total_activations_nq = len(list_activations_nq)
-            intersection_cog_nq = len(ids_cog_nq) & total_activations_nq
+            intersection_cog_nq = len(set(ids_cog_nq).intersection(list_activations_nq))
             intersection_not_cog_nq = total_activations_nq - intersection_cog_nq
 
             intersection_cog_nq_all.append(intersection_cog_nq)
@@ -80,15 +80,18 @@ def run_bayesian_analysis(cog_list, prior_list, x_target, y_target, z_target, ra
             total_database_nq = len(set(paper_id_nq))
             total_not_cog_nq = total_database_nq - len(ids_cog_nq)
 
-            lik_cog_nq = round(intersection_cog_nq / len(ids_cog_nq), 3)
+            lik_cog_nq = round(intersection_cog_nq / len(ids_cog_nq), 4)
             lik_cog_nq_all.append(lik_cog_nq)
 
-            lik_not_cog_nq = round((intersection_not_cog_nq / total_not_cog_nq) + 0.001, 3)
+            lik_not_cog_nq = round((intersection_not_cog_nq / total_not_cog_nq) + 0.001, 4)
             lik_not_cog_nq_all.append(lik_not_cog_nq)
 
             lik_ratio_nq = round((lik_cog_nq / lik_not_cog_nq), 3) if cm in {"a", "c"} else None
             lik_ratio_nq_all.append(lik_ratio_nq) if lik_ratio_nq is not None else None
 
+            print(lik_cog_nq)
+            print(lik_cog_nq * prior)
+            print(lik_not_cog_nq * (1 - prior))
             post_cog_nq = round(((lik_cog_nq * prior) / (lik_cog_nq * prior + lik_not_cog_nq * (1 - prior))), 3)
             post_cog_nq_all.append(post_cog_nq)
 
