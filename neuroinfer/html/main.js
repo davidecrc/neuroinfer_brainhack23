@@ -1,4 +1,5 @@
  function submitForm() {
+      var brainRegion = document.getElementById("brainRegion").value;
       var x = document.getElementById("x").value;
       var y = document.getElementById("y").value;
       var z = document.getElementById("z").value;
@@ -6,6 +7,7 @@
       var probabilities = document.getElementById("probabilities").value;
 
       var formData = {
+        brainRegion: brainRegion,
         x: x,
         y: y,
         z: z,
@@ -48,4 +50,21 @@ function displayPlot(imageData) {
     console.error("Graphics container element not found");
   }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  fetch('../data/atlas_list_labels.json')
+  .then(response => response.json())
+  .then(data => {
+      var brainRegions = data["har_ox_cort_maxprob-thr25-2mm"];
+      var select = document.getElementById('brainRegion');
+
+      brainRegions.forEach(function(region) {
+          var option = document.createElement('option');
+          option.value = region.id_lab;
+          option.textContent = region.lab;
+          select.appendChild(option);
+      });
+  })
+  .catch(error => console.error('Error:', error));
+});
 

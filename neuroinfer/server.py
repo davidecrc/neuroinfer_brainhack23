@@ -7,7 +7,7 @@ from flask_cors import CORS  # Import the CORS extension
 import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
-from neuroinfer.code.plot_generator import generate_plot
+from neuroinfer.code.plot_generator2 import generate_plot
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
