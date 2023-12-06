@@ -1,8 +1,11 @@
-from flask import jsonify
+from flask import Flask, request, jsonify
+from flask_cors import CORS  # Import the CORS extension
 import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
 
+app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 def generate_plot(data):
 
@@ -16,7 +19,6 @@ def generate_plot(data):
     # Perform your processing here...
     # For this example, let's create a simple plot
     plt.bar(words.split(','), [float(p) for p in probabilities.split(',')])
-    plt.show()
 
     # Save the plot to a BytesIO object
     img_buffer = BytesIO()
@@ -33,4 +35,8 @@ def generate_plot(data):
         'image': img_base64
     }
 
-    return jsonify(response)
+    return response
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
