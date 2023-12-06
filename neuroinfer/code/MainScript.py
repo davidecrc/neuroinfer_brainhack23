@@ -3,13 +3,8 @@ import argparse
 from neuroinfer.code.BayesianAnalysis import run_bayesian_analysis
 from neuroinfer.code.UserInputs import get_user_inputs
 from neuroinfer.code.DataLoading import load_data_and_create_dataframe
-<<<<<<< HEAD
-import os
-print(os.getcwd())
-=======
 
 
->>>>>>> f9e6ab9c9e49f5f6f3be70b898f1d8b5ec8ca350
 if __name__ == "__main__":
     """
     $ python MainScript.py /path/to/your/npz_tfidf_data/file.npz /path/to/your/metadata_paper/file.tsv /path/to/your/vocabulary/file.txt
@@ -35,8 +30,10 @@ if __name__ == "__main__":
     result_df, feature_names = load_data_and_create_dataframe(args.npz_file, args.metadata_file, args.vocab_file)
 
     cog_list, prior_list, x_target, y_target, z_target, radius = get_user_inputs(feature_names)
-
     print("Selected coordinates: " + str(x_target) + "; " + str(y_target) + "; " + str(z_target) + ". Radius: " + str(
         radius) + " mm.")
+    
+    print(cog_list, prior_list, x_target, y_target, z_target, radius)
+
 
     run_bayesian_analysis(cog_list, prior_list, x_target, y_target, z_target, radius, result_df)
