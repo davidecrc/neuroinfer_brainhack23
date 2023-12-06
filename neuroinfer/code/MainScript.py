@@ -4,6 +4,7 @@ from neuroinfer.code.BayesianAnalysis import run_bayesian_analysis
 from neuroinfer.code.UserInputs import get_user_inputs
 from neuroinfer.code.DataLoading import load_data_and_create_dataframe
 
+
 if __name__ == "__main__":
     """
     $ python MainScript.py /path/to/your/npz_tfidf_data/file.npz /path/to/your/metadata_paper/file.tsv /path/to/your/vocabulary/file.txt
