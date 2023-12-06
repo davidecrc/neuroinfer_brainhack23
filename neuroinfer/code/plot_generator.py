@@ -1,11 +1,8 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS  # Import the CORS extension
+from flask import jsonify
 import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
 
-app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
 
 def generate_plot(data):
 
@@ -14,18 +11,12 @@ def generate_plot(data):
     y = data.get('y')
     z = data.get('z')
     words = data.get('words')
-    radius = data.get('radius')
     probabilities = data.get('probabilities')
 
-    result_df, feature_names = ...
-    cog_list, prior_list, x_target, y_target, z_target, radius, = .. funzione(x,y,z,words,radius,probabiliteis)
-    desired_output = run_bayesian_analysis(cog_list, prior_list, x_target, y_target, z_target, radius, result_df)
-
-    final_x, final_ticks, final_y = funzione(desired_output)
     # Perform your processing here...
     # For this example, let's create a simple plot
     plt.bar(words.split(','), [float(p) for p in probabilities.split(',')])
-    plt.plot(final_x, final_y)
+    plt.show()
 
     # Save the plot to a BytesIO object
     img_buffer = BytesIO()
@@ -42,8 +33,4 @@ def generate_plot(data):
         'image': img_base64
     }
 
-    return response
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
+    return jsonify(response)
