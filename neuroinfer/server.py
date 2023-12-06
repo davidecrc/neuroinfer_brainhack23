@@ -4,9 +4,6 @@ import threading
 import webbrowser
 from flask import Flask, request, jsonify
 from flask_cors import CORS  # Import the CORS extension
-import matplotlib.pyplot as plt
-from io import BytesIO
-import base64
 from neuroinfer.code.plot_generator import generate_plot
 
 app = Flask(__name__)
