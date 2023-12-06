@@ -3,6 +3,9 @@ from flask_cors import CORS  # Import the CORS extension
 import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
+plt.switch_backend('Agg') 
+
+
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
