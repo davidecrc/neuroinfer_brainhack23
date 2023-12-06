@@ -1,7 +1,15 @@
 import pandas as pd
+import numpy as np
 import time
+from nilearn import image  # Import the necessary modules
+import numpy as np
+import os
+from matplotlib import pyplot as plt
+from PIL import Image
+from scipy import sparse
+import argparse
 
-from code.SummaryReport import save_summary_report
+#from code.SummaryReport import save_summary_report
 
 
 def browse_nifti_with_spherical_roi(image_path, radius):
@@ -64,6 +72,21 @@ def browse_nifti_with_spherical_roi(image_path, radius):
 
  return rois
 
+
+script_directory = os.path.dirname(os.path.abspath(__file__))
+# Navigate to the parent directory as global path 
+global_path = os.path.dirname(script_directory)
+print('Global path: ',global_path)
+data_path = os.path.join(global_path, "templates")  # Path to the saved_result folder
+print('templates path: ',data_path)
+
+#try function
+radius=10 #radius of the roi
+rois = browse_nifti_with_spherical_roi(data_path+'/mni_icbm152_t2_tal_nlin_asym_09c.nii.gz', radius)
+
+#neuroinfer/templates/mni_icbm152_t2_tal_nlin_asym_09c.nii.gz
+#/home/saram/PhD/neuroinfer_brainhack23/neuroinfer/templates/mni_icbm152_t2_tal_nlin_asym_09c.nii.gz
+print(types(rois))
 
 
 def run_bayesian_analysis(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df):
@@ -133,7 +156,7 @@ def run_bayesian_analysis(cog_list, prior_list, x_target, y_target, z_target, ra
                                    z_target - radius < int(float(paper_z_nq[i])) < z_target + radius]
             
             # Calculate ROIs based on target coordinates and radius
-            rois = browse_nifti_with_spherical_roi('sub-25_2mnipreproc.nii.gz', radius)
+            rois = browse_nifti_with_spherical_roi('../templates/mni_icbm152_t2_tal_nlin_asym_09c.nii.gz', radius)
 
             # Example: Perform some operation with the generated ROIs
             for roi in rois:
@@ -198,30 +221,5 @@ def run_bayesian_analysis(cog_list, prior_list, x_target, y_target, z_target, ra
 
 
 
-import numpy as np
-import pandas as pd
-import time
-from nilearn import image  # Import the necessary modules
 
-# Place the definition of extract_roi function here
 
-# Define the run_bayesian_analysis function with modifications
-def run_bayesian_analysis(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df):
-    # Previous code remains unchanged...
-
-    # Inside the loop for Bayesian analysis
-    for q in range(0, len(cog_list)):
-        # Previous code remains unchanged...
-
-        # Calculate ROIs based on target coordinates and radius
-        rois = browse_nifti_with_spherical_roi('sub-25_2mnipreproc.nii.gz', radius)
-
-        # Example: Perform some operation with the generated ROIs
-        for roi in rois:
-            end
-            # Perform operations using the generated ROI
-            # You can use these ROIs within your Bayesian analysis here
-
-# Previous code remains unchanged...
-
-    # Remaining code remains unchanged
