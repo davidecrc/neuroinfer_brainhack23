@@ -7,9 +7,7 @@ import base64
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
-@app.route('/', methods=['POST'])
-def generate_plot():
-    data = request.json
+def generate_plot(data):
 
     # Extracting data from the form
     x = data.get('x')
@@ -37,7 +35,8 @@ def generate_plot():
         'image': img_base64
     }
 
-    return jsonify(response)
+    return response
+
 
 if __name__ == '__main__':
     app.run(debug=True)

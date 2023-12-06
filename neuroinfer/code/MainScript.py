@@ -1,8 +1,8 @@
 # MainScript.py
 import argparse
-from BayesianAnalysis import run_bayesian_analysis
-from UserInputs import get_user_inputs
-from DataLoading import load_data_and_create_dataframe
+from neuroinfer.code.BayesianAnalysis import run_bayesian_analysis
+from neuroinfer.code.UserInputs import get_user_inputs
+from neuroinfer.code.DataLoading import load_data_and_create_dataframe
 
 if __name__ == "__main__":
     """
