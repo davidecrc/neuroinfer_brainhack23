@@ -1,0 +1,17 @@
+README.md
+setup.py
+neuroinfer/__init__.py
+neuroinfer.egg-info/PKG-INFO
+neuroinfer.egg-info/SOURCES.txt
+neuroinfer.egg-info/dependency_links.txt
+neuroinfer.egg-info/top_level.txt
+neuroinfer/code/BayesianAnalysis.py
+neuroinfer/code/DataLoading.py
+neuroinfer/code/MainScript.py
+neuroinfer/code/SummaryReport.py
+neuroinfer/code/UserInputs.py
+neuroinfer/code/__init__ copy.py
+neuroinfer/code/__init__.py
+neuroinfer/code/npy_visualization.py
+neuroinfer/code/plot_generator.py
+neuroinfer/code/searchlight.py
