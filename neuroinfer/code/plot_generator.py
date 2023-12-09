@@ -1,27 +1,34 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS  # Import the CORS extension
 import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
-plt.switch_backend('Agg') 
+from neuroinfer.code.BayesianAnalysis import run_bayesian_analysis
+import numpy as np
+import datetime
+from pathlib import Path
 
-
-
-app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+plt.switch_backend('Agg')
+import nibabel as nib
+from nilearn import image
+import os
 
 def generate_plot(data):
-
     # Extracting data from the form
+    brainRegion = data.get('brainRegion')
+    radius = data.get('radius')
     x = data.get('x')
     y = data.get('y')
     z = data.get('z')
     words = data.get('words')
-    probabilities = data.get('probabilities')
+    priors = data.get('probabilities')
 
-    # Perform your processing here...
-    # For this example, let's create a simple plot
-    plt.bar(words.split(','), [float(p) for p in probabilities.split(',')])
+    # generating a nifti mask fro the selected region
+    generate_nifit_mask(brainRegion, './templates/atlases/HarvardOxford/HarvardOxford-cort-maxprob-thr25-2mm.nii.gz')
+
+    #[coords, bf] = run_bayesian_analysis(brainRegion, words, radius, priors)
+    #results = create_hist(coords, bf)
+    #generate_nifti_bf(coords, bf)
+
+    plt.bar(words.split(','), [float(p) for p in priors.split(',')])
 
     # Save the plot to a BytesIO object
     img_buffer = BytesIO()
@@ -41,5 +48,29 @@ def generate_plot(data):
     return response
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+def generate_nifit_mask(region_id, atlas_target_path):
+    region_id = np.int32(region_id)
+    atlas_img = image.load_img(atlas_target_path)
+    atlas_data = np.asarray(atlas_img.get_fdata(), dtype=np.int32)
+    mask = np.zeros(atlas_data.shape)
+    mask[atlas_data == region_id] = 1000
+
+    modified_atlas_img = nib.Nifti1Image(mask, atlas_img.affine)
+    if not os.path.isdir('.tmp/'):
+        os.mkdir('.tmp/')
+    nib.save(modified_atlas_img, '.tmp/mask.nii.gz')
+    return
+
+
+def generate_nifti_bf(coords, bf, atlas_target_path):
+    atlas_img = image.load_img(atlas_target_path)
+    atlas_data = np.asarray(atlas_img.get_fdata(), dtype=np.int32)
+    bf_map = np.zeros(atlas_data.shape)
+    bf_map[coords]=bf
+    bf_map_img = nib.Nifti1Image(bf_map, atlas_img.affine)
+
+    if not os.path.isdir('.tmp/'):
+        os.mkdir('.tmp/')
+    filename = f"{datetime.datetime.now():%Y%m%d_%H%M%S}"
+    nib.save(bf_map_img, Path('.tmp') / filename)
+    return
