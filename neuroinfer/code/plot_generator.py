@@ -20,7 +20,7 @@ def generate_plot(data):
 
     #[coords, bf] = run_bayesian_analysis(brainRegion, words, radius, priors)
     #results = create_hist(coords, bf)
-    #generate_nifti_bf(coords, bf)
+    #generate_nifti_bf_heatmap(coords, bf)
 
     plt.bar(cog_list, [float(p) for p in prior_list])
 
