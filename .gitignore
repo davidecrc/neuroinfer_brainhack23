@@ -7,3 +7,4 @@
 ./neuroinfer/results/*
 **/*.egg*
 ./neuroinfer/templates/*
+**/*.ipynb
