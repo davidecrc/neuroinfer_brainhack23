@@ -1,5 +1,9 @@
 **/.*
 **/__pycache__/
 **/*.pyc
-./code/__pycache__/
-./code/__pycache__
+**/__pycache__
+**/*.nii*
+./neuroinfer/data/*
+./neuroinfer/results/*
+**/*.egg*
+./neuroinfer/templates/*
