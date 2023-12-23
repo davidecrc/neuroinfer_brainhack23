@@ -11,6 +11,14 @@ import matplotlib.pyplot as plt
 plt.switch_backend('Agg')
 
 
+def createMaskRegion(brainRegion):
+    generate_nifit_mask(brainRegion, './templates/atlases/HarvardOxford/HarvardOxford-cort-maxprob-thr25-2mm.nii.gz')
+    response = {
+        'status': 'success',
+        'message': 'Mask generated successfully',
+    }
+    return response
+
 def generate_plot(data):
     # Extracting data from the form:
     cog_list, prior_list, x_target, y_target, z_target, radius, brainRegion = parse_input_ars(data)

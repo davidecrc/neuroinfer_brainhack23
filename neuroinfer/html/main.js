@@ -14,15 +14,34 @@ update_papaya_viewer();
 
 window.update_papaya_viewer = function(mask = false) {
     if (mask) {
-        params["images"] = ["../templates/mni_icbm152_t2_tal_nlin_asym_09c.nii.gz", "../.tmp/mask.nii.gz"];
+        params["images"] = ["../templates/mni_icbm152_t1_tal_nlin_asym_09c.nii.gz", "../.tmp/mask.nii.gz"];
     } else {
-        params["images"] = ["../templates/mni_icbm152_t2_tal_nlin_asym_09c.nii.gz"];
+        params["images"] = ["../templates/mni_icbm152_t1_tal_nlin_asym_09c.nii.gz"];
     }
     var visualizer = document.getElementById("visualizer");
     // Create a new div element for Papaya viewer
     papaya.Container.addViewer("visualizer", params);
 }
 
+window.changeRegionMask = function() {
+      var brainRegion = document.getElementById("brainRegion").value;
+      var formData = {
+        brainRegion: brainRegion
+      };
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "http://127.0.0.1:5000/", true);
+      xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+          update_papaya_viewer(true)
+        }
+
+      };
+      var jsonData = JSON.stringify(formData);
+      xhr.send(jsonData);
+    }
 
 window.submitForm = function() {
       var brainRegion = document.getElementById("brainRegion").value;
