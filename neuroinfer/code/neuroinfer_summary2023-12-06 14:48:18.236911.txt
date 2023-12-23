@@ -1,5 +1,0 @@
-Confirmation measure: Bayes' Factor; 
-
-       cog  Likelihood   BF  Prior  Posterior
-0  emotion         0.0  0.0    0.8        0.0
-
