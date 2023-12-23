@@ -8,3 +8,6 @@
 **/*.egg*
 ./neuroinfer/templates/*
 **/*.ipynb
+**/*.txt
+**/*cpython*
+
