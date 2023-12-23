@@ -1,10 +1,10 @@
 import pandas as pd
 import time
 
-from neuroinfer.code.SummaryReport import save_summary_report
+from code.SummaryReport import save_summary_report
 
 
-def run_bayesian_analysis(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, display_result=True):
+def run_bayesian_analysis(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df):
     """
     Perform Bayesian (confirmation) analysis using specified parameters.
 
@@ -31,15 +31,11 @@ def run_bayesian_analysis(cog_list, prior_list, x_target, y_target, z_target, ra
     df_nq_all = []
     rm_nq_all = []
 
-    if display_result:
-        cm = input(
-            "Specify the Bayesian confirmation measure you want to use in the analysis (type one of the following letter):\n" +
-            "'a' for Bayes' Factor;\n" +
-            "'b' for difference measure;\n" +
-            "'c' for ratio measure.\n")
-    else:
-        cm = 'a'
-        
+    cm = input(
+        "Specify the Bayesian confirmation measure you want to use in the analysis (type one of the following letter):\n" +
+        "'a' for Bayes' Factor;\n" +
+        "'b' for difference measure;\n" +
+        "'c' for ratio measure.\n")
 
     feature_names = feature_df.columns
 
@@ -48,13 +44,12 @@ def run_bayesian_analysis(cog_list, prior_list, x_target, y_target, z_target, ra
         prior = prior_list[q]
 
         if cog not in feature_names:
-            if display_result:
-                print(
-                    f'Please check the correct spelling of: "{cog}"; it is not in the NeuroSynth list. In the meanwhile, the script goes to the next *cog*, if any.')
+            print(
+                f'Please check the correct spelling of: "{cog}"; it is not in the NeuroSynth list. In the meanwhile, the script goes to the next *cog*, if any.')
         else:
             cog_all.append(cog)
             prior_all.append(prior)
-            if display_result: print(f'Processing "{cog}" (step {q + 1} out of {len(cog_list)})')
+            print(f'Processing "{cog}" (step {q + 1} out of {len(cog_list)})')
             ids_cog_nq = []
 
             for i in range(0, len(feature_df[cog])):
@@ -76,7 +71,7 @@ def run_bayesian_analysis(cog_list, prior_list, x_target, y_target, z_target, ra
                                    z_target - radius < int(float(paper_z_nq[i])) < z_target + radius]
 
             total_activations_nq = len(list_activations_nq)
-            intersection_cog_nq = len(set(ids_cog_nq).intersection(list_activations_nq))
+            intersection_cog_nq = len(ids_cog_nq) & total_activations_nq
             intersection_not_cog_nq = total_activations_nq - intersection_cog_nq
 
             intersection_cog_nq_all.append(intersection_cog_nq)
@@ -85,18 +80,15 @@ def run_bayesian_analysis(cog_list, prior_list, x_target, y_target, z_target, ra
             total_database_nq = len(set(paper_id_nq))
             total_not_cog_nq = total_database_nq - len(ids_cog_nq)
 
-            lik_cog_nq = round(intersection_cog_nq / len(ids_cog_nq), 4)
+            lik_cog_nq = round(intersection_cog_nq / len(ids_cog_nq), 3)
             lik_cog_nq_all.append(lik_cog_nq)
 
-            lik_not_cog_nq = round((intersection_not_cog_nq / total_not_cog_nq) + 0.001, 4)
+            lik_not_cog_nq = round((intersection_not_cog_nq / total_not_cog_nq) + 0.001, 3)
             lik_not_cog_nq_all.append(lik_not_cog_nq)
 
             lik_ratio_nq = round((lik_cog_nq / lik_not_cog_nq), 3) if cm in {"a", "c"} else None
             lik_ratio_nq_all.append(lik_ratio_nq) if lik_ratio_nq is not None else None
-        if display_result:
-            print(lik_cog_nq)
-            print(lik_cog_nq * prior)
-            print(lik_not_cog_nq * (1 - prior))
+
             post_cog_nq = round(((lik_cog_nq * prior) / (lik_cog_nq * prior + lik_not_cog_nq * (1 - prior))), 3)
             post_cog_nq_all.append(post_cog_nq)
 
@@ -123,12 +115,10 @@ def run_bayesian_analysis(cog_list, prior_list, x_target, y_target, z_target, ra
     df_data_all = pd.DataFrame(data_all, columns=df_columns)
     df_data_all_like = df_data_all.sort_values('Likelihood', ascending=False)
     df_data_all_sorted = df_data_all.sort_values(sort_column, ascending=False)
-    if display_result:
-        print(df_data_all_sorted)
+    print(df_data_all_sorted)
 
     elapsed = time.time() - t
-    if display_result:
-        print(f'Time in min: {round(elapsed / 60, 2)}')
+    print(f'Time in min: {round(elapsed / 60, 2)}')
 
     local_path = input(
         "Insert a path to save a summary report (.txt) of the analysis (start and end path with '/'): ").encode(

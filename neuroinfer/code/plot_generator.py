@@ -22,7 +22,7 @@ def generate_plot(data):
     #results = create_hist(coords, bf)
     #generate_nifti_bf_heatmap(coords, bf)
 
-    plt.bar(cog_list, [float(p) for p in prior_list])
+    plt.bar(brainRegion, [float(p) for p in prior_list])
 
     # Save the plot to a BytesIO object
     img_buffer = BytesIO()
