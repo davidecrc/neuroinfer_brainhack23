@@ -6,12 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  
+
   <link rel="stylesheet" type="text/css" href="styles.css" />
-  <script type="text/javascript" src="../rii-mango-Papaya-64a8243/papaya.js?build=1456"></script>
-  <script type="text/javascript" src="viewer-config.js"></script>
-  
   <title>NEUROINFER - Papaya Viewer</title>
+    <script type="text/javascript" src="papaya.js"></script>
 
 </head>
 <body>
@@ -23,6 +21,12 @@
     <div class="container">
       <h2 style="text-align: center;">Coordinate and Probability Input</h2>
       <form id="myForm">
+        <label for="brainRegion">Brain Region:</label>
+        <select id="brainRegion" name="brainRegion"></select>
+
+        <label for="radius">Radius:</label>
+        <input type="number" id="radius" name="radius">
+
         <label for="x">X Coordinate:</label>
         <input type="number" id="x" name="x" required>
 
@@ -43,16 +47,13 @@
     </div>
 
     <div id="visualizer">
-      <div class="papaya" data-params="params"></div>
     </div>
 
     <div class="graphics-container" id="graphicsContainer">
       <h2>Graphics Container</h2>
     </div>
   </div>
-
-  <script src="main.js"></script>
-
+  <script type="text/javascript" src="main.js"></script> <!-- must be placed here as it will look for div id "visualizer" -->
 </body>
 </html>
 
