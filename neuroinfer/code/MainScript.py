@@ -5,6 +5,32 @@ from UserInputs import get_user_inputs
 from DataLoading import load_data_and_create_dataframe
 import pickle
 
+'''
+Main Script- executes Bayesian analysis given NPZ, metadata, and vocabulary files based on user-defined parameters. 
+It parses command-line arguments for paths to NPZ, metadata, and vocabulary files.
+These files are loaded to create a DataFrame. 
+Users input parameters for Bayesian analysis, defining regions of interest.
+It ensures a "results" folder exists and saves analysis results using pickle, named according to the selected area. 
+
+
+INPUTS
+1) Command-line arguments:
+Path to an NPZ file containing TF-IDF features data.
+Path to a metadata file containing information about papers in a database.
+Path to a file containing vocabulary (cognitive labels).
+
+2)User input for Bayesian analysis parameters:
+cog_list: List of cognitive labels.
+prior_list: List of prior probabilities.
+x_target, y_target, z_target: Coordinates of the target area (for non-spherical regions).
+radius: Radius of the target area (for spherical regions).
+area: Selected area for analysis.
+
+OUTPUTS
+Results DataFrame (result_df) from the loaded data and created DataFrame.
+Output of the Bayesian analysis (results_all_rois).
+
+'''
 if __name__ == "__main__":
     """
     $ python MainScript.py /path/to/your/npz_tfidf_data/file.npz /path/to/your/metadata_paper/file.tsv /path/to/your/vocabulary/file.txt
@@ -61,7 +87,14 @@ if __name__ == "__main__":
     #os.makedirs(results_folder_path, exist_ok=True)
 
     # Save the pickle file in the "results" folder
-    pickle_file_path = os.path.join(results_folder_path, f'results_BHL_area{area}.pickle')
+    if np.isnan(area):
+        # Use the coordinates to name the pickle file
+        pickle_file_name = f'results_BHL_coordinates_x{x_target}_y{y_target}_z{z_target}.pickle'
+    else:
+        pickle_file_name = f'results_BHL_area{area}.pickle'
+
+    pickle_file_path = os.path.join(results_folder_path, pickle_file_name)
+
 
     with open(pickle_file_path, 'wb') as file:
         pickle.dump(results_all_rois, file)

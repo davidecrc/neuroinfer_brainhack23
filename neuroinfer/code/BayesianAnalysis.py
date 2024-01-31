@@ -15,24 +15,38 @@ import json
 # Local Module Imports
 from neuroinfer.code.SummaryReport import save_summary_report
 
+'''
+The script orchestrates Bayesian analysis on brain data  ensuring efficiency and insightful interpretation through statistical summaries and graphical representations.
+It offers two analysis pathways:
+-`run_bayesian_analysis_area`: conducts analysis over defined brain regions, leveraging coordinates from an atlas.
+-`run_bayesian_analysis_coordinates`: performs analysis at specified coordinates.
+The pathway is choosen from the function run_bayesian_analysis_router based on the input (coordinates or area)
+
+The script calculates various statistics including likelihood, prior, posterior, and Bayesian Factor (BF).
+It plots BF distributions and computes basic statistical metrics. 
+
+'''
+
 def run_bayesian_analysis_router(cog_list, area, prior_list, x_target, y_target, z_target, radius, result_df):
     cm = input(
         "Specify the Bayesian confirmation measure you want to use in the analysis (type one of the following letter):\n"
         "'a' for Bayes' Factor;\n"
         "'b' for difference measure;\n"
         "'c' for ratio measure.\n")
-    if area != 99 and x_target == 99 and y_target == 99 and z_target == 99:
-        # Call run_bayesian_analysis_area if area is 99 and x_target, y_target, z_target are 99
-        run_bayesian_analysis_area(cog_list, prior_list, area, radius, result_df,cm)
-    elif x_target != 99 and y_target != 99 and z_target != 99 and area == 99:
-        # Call run_bayesian_analysis_coordinates if x_target, y_target, z_target are non-99 and area is 99
-        run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, result_df,cm)
-    elif area == 99:
-        # Print a message asking to check the input value if area is 99
+    
+    if not np.isnan(area) and np.isnan(x_target) and np.isnan(y_target) and np.isnan(z_target):
+        # Call run_bayesian_analysis_area if area is not nan and coordinates are nan
+        run_bayesian_analysis_area(cog_list, prior_list, area, radius, result_df, cm)
+    elif not np.isnan(x_target) and not np.isnan(y_target) and not np.isnan(z_target) and np.isnan(area):
+        # Call run_bayesian_analysis_coordinates if coordinates are not nan and area is nan
+        run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, result_df, cm)
+    elif np.isnan(area):
+        # Print a message asking to check the input value if area is nan
         print("Please check the input value for 'area'.")
     else:
         # Handle the case where none of the conditions are met
         print("Invalid combination of input values. Please check.")
+
 
 
 def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df,cm):
