@@ -44,6 +44,67 @@ window.changeRegionMask = function() {
     }
 
 window.submitForm = function() {
+  // ... (your existing code)
+
+  // Create and append overlay
+  var overlay = document.createElement("div");
+  overlay.style.position = "fixed";
+  overlay.style.top = "0";
+  overlay.style.left = "0";
+  overlay.style.width = "100%";
+  overlay.style.height = "100%";
+  overlay.style.backgroundColor = "rgba(255, 255, 255, 0.7)";
+  overlay.style.display = "flex";
+  overlay.style.alignItems = "center";
+  overlay.style.justifyContent = "center";
+
+  // Create loading bar inside the overlay
+  var loadingBar = document.createElement("div");
+  loadingBar.style.border = "4px solid #3498db";
+  loadingBar.style.borderRadius = "50%";
+  loadingBar.style.borderTop = "4px solid #ffffff";
+  loadingBar.style.width = "40px";
+  loadingBar.style.height = "40px";
+  loadingBar.style.animation = "spin 1s linear infinite";
+
+  overlay.appendChild(loadingBar);
+  document.body.appendChild(overlay);
+
+  // Simulate a 3-second delay
+  setTimeout(function() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "http://127.0.0.1:5000/", true);
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState == 4) {
+        // Remove the overlay once the response is received
+        document.body.removeChild(overlay);
+
+        if (xhr.status == 200) {
+          var response = JSON.parse(xhr.responseText);
+          displayPlot(response.image);
+        }
+      }
+    };
+
+      var jsonData = JSON.stringify(formData);
+      xhr.send(jsonData);
+        }, 3000); // 3000 milliseconds = 3 seconds
+};
+
+// CSS animation for the loading bar
+var style = document.createElement("style");
+style.type = "text/css";
+style.innerHTML = `
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+document.head.appendChild(style);
+
+window.submitForm = function() {
       var brainRegion = document.getElementById("brainRegion").value;
       var radius = document.getElementById("radius").value;
       var x = document.getElementById("x").value;
