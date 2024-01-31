@@ -1,7 +1,7 @@
 import pandas as pd
 import time
 
-from code.SummaryReport import save_summary_report
+from neuroinfer.code.SummaryReport import save_summary_report
 
 
 def run_bayesian_analysis(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df):
