@@ -51,7 +51,7 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
     Returns:
     - Tuple: A tuple containing results of the Bayesian analysis.
     """
-    frequency_threshold = 0.01
+    frequency_threshold = 0.05 #0.01 threshold to accept a term as id_cogs
     t = time.time()
     cog_all, prior_all, ids_cog_nq_all, intersection_cog_nq_all, intersection_not_cog_nq_all = [], [], [], [], []
     lik_cog_nq_all, lik_not_cog_nq_all, lik_ratio_nq_all, post_cog_nq_all, df_nq_all, rm_nq_all = [], [], [], [], [], []
@@ -87,7 +87,7 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
 
             dt_papers_nq = pd.read_csv(data_path+'/data-neurosynth_version-7_coordinates.tsv', sep='\t')
             paper_id_nq = dt_papers_nq["id"]
-            list_activations_nq = [paper_id_nq[i] for i in range(len(dt_papers_nq)) if
+            list_activations_nq = [paper_id_nq[i] for i in range(len(dt_papers_nq)) if #TODO Study this loop_
                                    x_target - radius < int(float(dt_papers_nq["x"].iloc[i])) < x_target + radius and
                                    y_target - radius < int(float(dt_papers_nq["y"].iloc[i])) < y_target + radius and
                                    z_target - radius < int(float(dt_papers_nq["z"].iloc[i])) < z_target + radius]
@@ -96,7 +96,7 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
             intersection_cog_nq = len(set(ids_cog_nq) & set(list_activations_nq))
             intersection_not_cog_nq = total_activations_nq - intersection_cog_nq
 
-            intersection_cog_nq_all.append(intersection_cog_nq)
+            intersection_cog_nq_all.append(intersection_cog_nq) #TODO substitute append?
             intersection_not_cog_nq_all.append(intersection_not_cog_nq)
 
             total_database_nq = len(set(dt_papers_nq["id"]))
@@ -146,6 +146,93 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
 
     #return local_path, df_data_all, cm, cog_all, prior_all, x_target, y_target, z_target, radius
     return df_data_all, cm, cog_all, prior_all, x_target, y_target, z_target, radius
+
+#Alternative function more efficient
+def run_bayesian_analysis_coordinates_efficient(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm): 
+    frequency_threshold = 0.05
+    t = time.time()
+    cog_all, prior_all, ids_cog_nq_all, intersection_cog_nq_all, intersection_not_cog_nq_all = [], [], [], [], []
+    lik_cog_nq_all, lik_not_cog_nq_all, lik_ratio_nq_all, post_cog_nq_all, df_nq_all, rm_nq_all = [], [], [], [], [], []
+
+    feature_names = feature_df.columns
+
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+    global_path = os.path.dirname(script_directory)
+    data_path = os.path.join(global_path, "data")
+
+    for q, cog in enumerate(cog_list):
+        prior = prior_list[q]
+
+        if cog not in feature_names:
+            print(f'Please check the correct spelling of: "{cog}"; it is not in the NeuroSynth list. '
+                  'In the meanwhile, the script goes to the next *cog*, if any.')
+        else:
+            cog_all.append(cog)
+            prior_all.append(prior)
+            print(f'Processing "{cog}" (step {q + 1} out of {len(cog_list)})')
+
+            ids_cog_nq = feature_df.index[feature_df[cog] > frequency_threshold].tolist()
+            ids_cog_nq_all.append(ids_cog_nq)
+
+            dt_papers_nq = pd.read_csv(os.path.join(data_path, 'data-neurosynth_version-7_coordinates.tsv'), sep='\t')
+            list_activations_nq = dt_papers_nq[(x_target - radius < dt_papers_nq["x"]) &
+                                                (dt_papers_nq["x"] < x_target + radius) &
+                                                (y_target - radius < dt_papers_nq["y"]) &
+                                                (dt_papers_nq["y"] < y_target + radius) &
+                                                (z_target - radius < dt_papers_nq["z"]) &
+                                                (dt_papers_nq["z"] < z_target + radius)]["id"].tolist()
+
+            total_activations_nq = len(list_activations_nq)
+            intersection_cog_nq = len(set(ids_cog_nq) & set(list_activations_nq))
+            intersection_not_cog_nq = total_activations_nq - intersection_cog_nq
+
+            intersection_cog_nq_all.append(intersection_cog_nq)
+            intersection_not_cog_nq_all.append(intersection_not_cog_nq)
+
+            total_database_nq = dt_papers_nq["id"].nunique()
+            total_not_cog_nq = total_database_nq - len(set(ids_cog_nq))
+
+            lik_cog_nq = round(intersection_cog_nq / len(ids_cog_nq), 3)
+            lik_cog_nq_all.append(lik_cog_nq)
+
+            lik_not_cog_nq = round((intersection_not_cog_nq / total_not_cog_nq) + 0.001, 3)
+            lik_not_cog_nq_all.append(lik_not_cog_nq)
+
+            lik_ratio_nq = round((lik_cog_nq / lik_not_cog_nq), 3) if cm in {"a", "c"} else None
+            lik_ratio_nq_all.append(lik_ratio_nq) if lik_ratio_nq is not None else None
+
+            post_cog_nq = round(((lik_cog_nq * prior) / (lik_cog_nq * prior + lik_not_cog_nq * (1 - prior))), 3)
+            post_cog_nq_all.append(post_cog_nq)
+
+            df_nq = post_cog_nq - prior if cm == "b" else None
+            df_nq_all.append(df_nq) if df_nq is not None else None
+
+            rm_nq = post_cog_nq / prior if cm == "c" else None
+            rm_nq_all.append(rm_nq) if rm_nq is not None else None
+
+    df_columns = ['cog', 'Likelihood']
+    if cm == "a":
+        df_columns.extend(['BF', 'Prior', 'Posterior'])
+        data_all = list(zip(cog_all, lik_cog_nq_all, lik_ratio_nq_all, prior_all, post_cog_nq_all))
+        sort_column = 'BF'
+    elif cm == "b":
+        df_columns.extend(['Difference', 'Prior', 'Posterior'])
+        data_all = list(zip(cog_all, lik_cog_nq_all, df_nq_all, prior_all, post_cog_nq_all))
+        sort_column = 'Difference'
+    elif cm == "c":
+        df_columns.extend(['Ratio', 'Prior', 'Posterior'])
+        data_all = list(zip(cog_all, lik_cog_nq_all, rm_nq_all, prior_all, post_cog_nq_all))
+        sort_column = 'Ratio'
+
+    df_data_all = pd.DataFrame(data_all, columns=df_columns)
+    df_data_all_sorted = df_data_all.sort_values(sort_column, ascending=False)
+    print(df_data_all_sorted)
+
+    elapsed = time.time() - t
+    print('time elapsed:', elapsed)
+    return df_data_all, cm, cog_all, prior_all, x_target, y_target, z_target, radius
+
+
 
 def get_distance(coord1, coord2):
     #print(np.linalg.norm(np.array(coord1) - np.array(coord2)))
