@@ -19,7 +19,24 @@ In order to open the gui on your own browser, just run the server.py script from
 
      $ cd /your/path/to/neuroinfer/root
      $ pyhon -m neuroinfer.server
+     $ pyhon MainScript.py
+     Enter cog(s) here (if more than one separate them with a comma): memory
+     Enter a prior between 0.001 and 1.000 associated with memory: 0.1
+     The analysis will be run on: memory with prior probability: 0.1.
+     Do you want to insert coordinates (c) or the area (a)? a
+     Choose an area from the list: 150
+     Enter ROI radius here (in mm): 4
+     Selected area: 150Radius: 4.0 mm.
+     Specify the Bayesian confirmation measure you want to use in the analysis (type one of the following letter):
+     'a' for Bayes' Factor;
+     'b' for difference measure;
+     'c' for ratio measure.
+     a
+     
+Then the result is saved:
 
+     $ Time in min: 0.03
+     $ Results saved to: /home/saram/PhD/neuroinfer_brainhack23/neuroinfer/results/results_BHL_area150.pickle
 
 ## To DO:
 
