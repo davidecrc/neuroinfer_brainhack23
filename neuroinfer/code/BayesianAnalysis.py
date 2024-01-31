@@ -34,7 +34,7 @@ def run_bayesian_analysis_router(cog_list, area, prior_list, x_target, y_target,
         "'b' for difference measure;\n"
         "'c' for ratio measure.\n")
     
-    if not np.isnan(area) and np.isnan(x_target) and np.isnan(y_target) and np.isnan(z_target):
+    if not pd.isnull(area) and pd.isnull(x_target) and pd.isnull(y_target) and pd.isnull(z_target):
         # Call run_bayesian_analysis_area if area is not nan and coordinates are nan
         run_bayesian_analysis_area(cog_list, prior_list, area, radius, result_df, cm)
     elif not np.isnan(x_target) and not np.isnan(y_target) and not np.isnan(z_target) and np.isnan(area):
@@ -94,9 +94,7 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
             ids_cog_nq = [feature_df[cog].index[i] for i in range(len(feature_df[cog])) if
                           feature_df[cog].iloc[i] > frequency_threshold]
 
-            ids_cog_nq_all.append(ids_cog_nq)
-
-            
+            ids_cog_nq_all.append(ids_cog_nq)        
 
 
             dt_papers_nq = pd.read_csv(data_path+'/data-neurosynth_version-7_coordinates.tsv', sep='\t')

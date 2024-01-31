@@ -87,7 +87,7 @@ if __name__ == "__main__":
     #os.makedirs(results_folder_path, exist_ok=True)
 
     # Save the pickle file in the "results" folder
-    if np.isnan(area):
+    if pd.isnull(area):
         # Use the coordinates to name the pickle file
         pickle_file_name = f'results_BHL_coordinates_x{x_target}_y{y_target}_z{z_target}.pickle'
     else:
