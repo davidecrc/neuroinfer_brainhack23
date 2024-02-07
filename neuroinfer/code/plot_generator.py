@@ -27,7 +27,7 @@ def generate_plot(data):
     generate_nifit_mask(brainRegion, './templates/atlases/HarvardOxford/HarvardOxford-cort-maxprob-thr25-2mm.nii.gz')
 
     #[coords, bf] = run_bayesian_analysis(brainRegion, words, radius, priors)
-    #results = create_hist(coords, bf)
+    #results = create_hist(coords, bf, atlas_target_path)
     #generate_nifti_bf_heatmap(coords, bf)
 
     plt.bar(brainRegion, [float(p) for p in prior_list])
@@ -64,17 +64,23 @@ def generate_nifit_mask(region_id, atlas_target_path):
     return
 
 
-def generate_nifti_bf(coords, bf, atlas_target_path):
-    atlas_img = image.load_img(atlas_target_path)
-    atlas_data = np.asarray(atlas_img.get_fdata(), dtype=np.int32)
-    bf_map = np.zeros(atlas_data.shape)
-    bf_map[coords]=bf
-    bf_map_img = nib.Nifti1Image(bf_map, atlas_img.affine)
+def create_hist(coords, bf):
+    results = 0
+    return results
 
+
+def generate_nifti_bf_heatmap(coords, bf, atlas_target_path):
+    reference_data_shape = image.load_img(atlas_target_path)
+    reference_data_shape = np.asarray(reference_data_shape.get_fdata(), dtype=np.int32)
+    overlay_results = np.zeros(reference_data_shape.shape)
+    for j, coord in enumerate(coords):
+        overlay_results[coord] = bf(j)
+
+    overlay_results_img = nib.Nifti1Image(overlay_results, reference_data_shape.affine)
     if not os.path.isdir('.tmp/'):
         os.mkdir('.tmp/')
-    filename = f"{datetime.datetime.now():%Y%m%d_%H%M%S}"
-    nib.save(bf_map_img, Path('.tmp') / filename)
+    time_results = f"{datetime.datetime.now():%Y%m%d_%H%M%S}"
+    nib.save(overlay_results_img, ".tmp/"+time_results+"overlay_results.nii.gz")
     return
 
 
