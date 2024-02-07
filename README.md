@@ -19,6 +19,9 @@ In order to open the gui on your own browser, just run the server.py script from
 
      $ cd /your/path/to/neuroinfer/root
      $ pyhon -m neuroinfer.server
+
+The python script analysis can be separatedely launched as follows:
+
      $ pyhon MainScript.py
      Enter cog(s) here (if more than one separate them with a comma): memory
      Enter a prior between 0.001 and 1.000 associated with memory: 0.1
