@@ -17,7 +17,7 @@ def get_user_inputs(feature_names):
     for cog in cog_list:
         cog = cog.strip()
         if cog in feature_names:
-            prior_one = float(input(f"Enter a prior between 0.001 and 1.000 associated with {cog}: "))
+            prior_one = float(input(f"The prior probability is the probability of a certain hypothesis (here the occurrence of a term as proxy of the engagement of a cognitive process or function) before some evidence is taken into account. Enter a prior between 0.001 and 1.000 associated with {cog}: "))
             while prior_one < 0.001 or prior_one > 1.000:
                 prior_one = float(input(f"Please enter again a prior between 0.0 and 1 associated with {cog}: "))
             prior_list.append(prior_one)

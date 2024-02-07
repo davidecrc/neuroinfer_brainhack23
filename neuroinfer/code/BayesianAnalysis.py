@@ -319,13 +319,14 @@ def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df,cm
     global_path = os.path.dirname(script_directory)
     print('Global path: ',global_path)
     data_path = os.path.join(global_path, "data")  # Path to the saved_result folder
-    print('data path: ',data_path)
+    print('Data path: ',data_path)
 
     t_area = time.time()
 
 
     # Load coordinates from the JSON file
     json_path = data_path+ "/coord_label_all_harv_ox.json"
+    print('json_path:', json_path)
     coordinates_atlas = get_atlas_coordinates_json(json_path)
 
     # Extract coordinates specific to the provided area
@@ -335,6 +336,8 @@ def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df,cm
 
     # Rescale the radius to be between 2 and 4
     rescaled_radius = max(2, min(radius, 4))
+    print(' rescaled_radius:' ,  rescaled_radius)
+
     
     # Initialize an empty list to store results and coordinates
     result_all = []
@@ -342,13 +345,14 @@ def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df,cm
     
     # Iterate through the coordinates_area
     for i in range(len(coordinates_area)-1): #-1 in order to have the last coordinates_area[i+1]) #TODO improve
-        print(f'Calculating cm for the {i+1} ROI out of {len(coordinates_area)}, {((i+1)/len(coordinates_area))*100}% ')
+        
         x_target, y_target, z_target = coordinates_area[i]
         coord.append([x_target, y_target, z_target])
         #print(coord)
         #print (i)
         if i==0:
-            result = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, rescaled_radius, feature_df,cm)
+            #result = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, rescaled_radius, feature_df,cm)
+            result = run_bayesian_analysis_coordinates_efficient(cog_list, prior_list, x_target, y_target, z_target, rescaled_radius, feature_df,cm)           
             # Append a tuple containing the BF value and the coordinates to result_with_coordinates
             result_all.append(result)
         #df_data_all, cm, cog_all, prior_all, x_target, y_target, z_target, radius
@@ -357,9 +361,10 @@ def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df,cm
         
         #if all(get_distance((x_target, y_target, z_target), coordinate) > rescaled_radius * 0.98 for coordinate in coord):
         if get_distance((x_target, y_target, z_target), coordinates_area[i+1]) > rescaled_radius: #TODO upload checking all the distance from the ROIS
+            print(f'Calculating cm for the {i+1} ROI out of {len(coordinates_area)}, {((i+1)/len(coordinates_area))*100}% ')
             print(get_distance((x_target, y_target, z_target), coordinates_area[i+1]))    
             # Call run_bayesian_analysis_coordinates with the current coordinates
-            result = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, rescaled_radius, feature_df,cm)
+            result = run_bayesian_analysis_coordinates_efficient(cog_list, prior_list, x_target, y_target, z_target, rescaled_radius, feature_df,cm)
             # Append a tuple containing the BF value and the coordinates to result_with_coordinates
             result_all.append(result)
 

@@ -9,7 +9,7 @@ print('data path: ',data_path)
 
 
 # Load the data from the pickle file
-with open(data_path+'/results_BHL_area47.pickle', 'rb') as file:
+with open(data_path+'/results_BHL_area4.pickle', 'rb') as file:
     loaded_results = pickle.load(file)
 
 # Print the loaded data
