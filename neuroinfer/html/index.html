@@ -10,6 +10,17 @@
   <link rel="stylesheet" type="text/css" href="styles.css" />
   <title>NEUROINFER - Papaya Viewer</title>
     <script type="text/javascript" src="papaya.js"></script>
+
+      <style>
+        .help-container {
+            display: none;
+            position: absolute;
+            background-color: #f1f1f1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
 
@@ -25,7 +36,7 @@
 
         <hr class="hr-text" data-content="OR">
 
-        <div id="coords">Coordinates <label for="x">x:</label>
+        <img src="help_icon.png" class="help-caller"><div id="coords">Coordinates <label for="x">x:</label>
         <input type="number" id="x" name="x" required>
 
         <label for="y">y:</label>
@@ -33,16 +44,20 @@
 
         <label for="z">z:</label>
         <input type="number" id="z" name="z" required></div>
+        <div class="help-container">Set the MNI coordinates of you ROI</div>
 
-        <div id="radiuscontainer"><label for="radius">Radius:</label>
+        <div id="radiuscontainer"><img src="help_icon.png" class="help-caller"><label for="radius">Radius:</label>
         <input type="number" id="radius" name="radius"></div>
+        <div class="help-container">Set the radius in mm for either the ROI or Searchlight sphere</div>
 
-        <label for="words">List of Words (comma-separated):</label>
+        <img src="help_icon.png" class="help-caller"><label for="words">List of Words (comma-separated):</label>
         <textarea id="words" name="words" rows="4" oninput="autocompleteWords()" required></textarea>
         <div id="autocomplete-suggestions"></div>
+        <div class="help-container">Provide a list of terms over which you would like to run your analysis (e.g. visual, auditory, music)</div>
 
-        <label for="probabilities">Priors probabilities (comma-separated):</label>
+        <img src="help_icon.png" class="help-caller"><label for="probabilities">Priors probabilities (comma-separated):</label>
         <input type="text" id="probabilities" name="probabilities" required>
+        <div class="help-container">For each term chosen, please provide a prior between 0.01 and 0.99</div>
 
         <button type="button" onclick="submitForm()">Submit</button>
       </form>

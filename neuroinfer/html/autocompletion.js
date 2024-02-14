@@ -37,3 +37,29 @@ function autocompleteWords() {
     }
   }
 }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // Get all labels and help containers
+            const labels = document.querySelectorAll('.help-caller');
+            const helpContainers = document.querySelectorAll('.help-container');
+
+            // Attach mouseover and mouseout events to each label
+            labels.forEach((label, index) => {
+                label.addEventListener('mouseover', () => {
+                    // Hide all help containers
+                    helpContainers.forEach(container => container.style.display = 'none');
+
+                    // Display the corresponding help container
+                    helpContainers[index].style.display = 'block';
+
+                      const labelsRect = labels[index].getBoundingClientRect();
+                      helpContainers[index].style.left = `${labelsRect.left}px`;
+                      helpContainers[index].style.top = `${labelsRect.bottom}px`;
+                });
+
+                label.addEventListener('mouseout', () => {
+                    // Hide the help container when the mouse moves out
+                    helpContainers[index].style.display = 'none';
+                });
+            });
+        });
