@@ -44,8 +44,6 @@ window.changeRegionMask = function() {
     }
 
 window.submitForm = function() {
-  // ... (your existing code)
-
   // Create and append overlay
   var overlay = document.createElement("div");
   overlay.style.position = "fixed";
