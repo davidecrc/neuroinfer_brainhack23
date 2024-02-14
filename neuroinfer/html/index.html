@@ -37,8 +37,36 @@
         <input type="number" id="z" name="z" required>
 
         <label for="words">List of Words (comma-separated):</label>
-        <textarea id="words" name="words" rows="4" required></textarea>
+        <textarea id="words" name="words" rows="4" oninput="autocompleteWords()" required></textarea>
+        <div id="autocomplete-suggestions"></div>
+         <script>
+            function autocompleteWords() {
+                const textarea = document.getElementById('words');
+                const input = textarea.value.trim().toLowerCase();
+                const autocompleteContainer = document.getElementById('autocomplete-suggestions');
 
+                autocompleteContainer.innerHTML = '';
+
+                if (input.length >= 3) {
+                    fetch('../data/vocabulary7.txt')
+                        .then(response => response.text())
+                        .then(data => {
+                            const words = data.split('\n');
+                            const matchingWords = words.filter(word => word.toLowerCase().startsWith(input));
+
+                            matchingWords.forEach(match => {
+                                const suggestion = document.createElement('div');
+                                suggestion.textContent = match;
+                                suggestion.addEventListener('click', () => {
+                                    textarea.value = input + match.substring(input.length);
+                                    autocompleteContainer.innerHTML = '';
+                                });
+                                autocompleteContainer.appendChild(suggestion);
+                            });
+                        });
+                }
+            }
+         </script>
         <label for="probabilities">Probabilities (comma-separated):</label>
         <input type="text" id="probabilities" name="probabilities" required>
 
