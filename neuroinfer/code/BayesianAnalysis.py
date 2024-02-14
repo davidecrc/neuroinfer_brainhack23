@@ -12,6 +12,8 @@ from nilearn import image
 from scipy import sparse
 import json
 
+import pickle
+
 # Local Module Imports
 from neuroinfer.code.SummaryReport import save_summary_report
 
@@ -242,7 +244,20 @@ def run_bayesian_analysis_coordinates_efficient(cog_list, prior_list, x_target, 
 
     elapsed = time.time() - t
     print('time elapsed:', elapsed)
-    return df_data_all, cm, cog_all, prior_all, x_target, y_target, z_target, radius
+
+    results = {
+        "df_data_all": df_data_all_sorted,
+        "cm": cm,
+        "cog_list": cog_all,
+        "prior_list": prior_all,
+        "x_target": x_target,
+        "y_target": y_target,
+        "z_target": z_target,
+        "radius": radius,
+    }
+
+    #return df_data_all, cm, cog_all, prior_all, x_target, y_target, z_target, radius
+    return results        
 
 
 
@@ -340,7 +355,8 @@ def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df,cm
 
     
     # Initialize an empty list to store results and coordinates
-    result_all = []
+    results_dict = {}
+    #result_all = []
     coord=[]
     
     # Iterate through the coordinates_area
@@ -352,9 +368,10 @@ def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df,cm
         #print (i)
         if i==0:
             #result = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, rescaled_radius, feature_df,cm)
-            result = run_bayesian_analysis_coordinates_efficient(cog_list, prior_list, x_target, y_target, z_target, rescaled_radius, feature_df,cm)           
+            results_dict[i] = run_bayesian_analysis_coordinates_efficient(cog_list, prior_list, x_target, y_target, z_target, rescaled_radius, feature_df,cm)
+            print(results_dict[i])           
             # Append a tuple containing the BF value and the coordinates to result_with_coordinates
-            result_all.append(result)
+            #result_all.append(result)
         #df_data_all, cm, cog_all, prior_all, x_target, y_target, z_target, radius
 
         # Check if next_coord is distant > rescaled_radius * 0.98 from all previous coordinates
@@ -364,9 +381,9 @@ def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df,cm
             print(f'Calculating cm for the {i+1} ROI out of {len(coordinates_area)}, {((i+1)/len(coordinates_area))*100}% ')
             print(get_distance((x_target, y_target, z_target), coordinates_area[i+1]))    
             # Call run_bayesian_analysis_coordinates with the current coordinates
-            result = run_bayesian_analysis_coordinates_efficient(cog_list, prior_list, x_target, y_target, z_target, rescaled_radius, feature_df,cm)
+            results_dict[i] = run_bayesian_analysis_coordinates_efficient(cog_list, prior_list, x_target, y_target, z_target, rescaled_radius, feature_df,cm)
             # Append a tuple containing the BF value and the coordinates to result_with_coordinates
-            result_all.append(result)
+            #result_all.append(result)
 
     elapsed_area = time.time() - t_area
     print(f'Time in min: {round(elapsed_area / 60, 2)}')
@@ -374,4 +391,18 @@ def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df,cm
     # Plot distribution and statistics of the Bayesian Factor (BF) for the area
     #plot_distribution_statistics(result_with_coordinates)
 
-    return result_all
+    print(results_dict)
+     # Construct the path to the "results" folder
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+    global_path = os.path.dirname(script_directory)
+    results_folder_path = os.path.join(global_path, "results")
+
+    # Save results_dict to a pickle file
+    file_path = os.path.join(results_folder_path, f"results_area_{area}_.pkl")
+
+    with open(file_path, "wb") as f:
+        pickle.dump(results_dict, f)
+    print(f"Results saved to: {file_path}")
+
+
+    return results_dict
