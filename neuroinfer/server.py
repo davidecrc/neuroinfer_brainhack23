@@ -4,7 +4,7 @@ import threading
 import webbrowser
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from neuroinfer.code.plot_generator import generate_plot, create_mask_region
+from neuroinfer.code.plot_generator import main_analyse_and_render, create_mask_region
 
 app = Flask(__name__)
 CORS(app)
@@ -24,13 +24,14 @@ def handle_post_request():
         except KeyError:
             print("Key does not exist in the dictionary.")
     else:
-        response = generate_plot(dict_request)
+        response = main_analyse_and_render(dict_request)
     return jsonify(response)
 
 
 # Start the Flask app in a separate thread
 def run_flask_app():
     app.run()
+
 
 # Start the HTTP server in a separate thread
 def run_http_server():

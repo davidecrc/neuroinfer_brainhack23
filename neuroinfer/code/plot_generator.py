@@ -12,25 +12,78 @@ plt.switch_backend('Agg')
 
 
 def create_mask_region(brain_region):
+    """
+    Create a NIfTI mask for a specified brain region.
+
+    Parameters:
+    - brain_region: The ID or label of the brain region for which the mask will be generated.
+
+    Output:
+    - Returns a response dictionary indicating the status and success message.
+
+    Description:
+    - The function uses the 'generate_nifit_mask' function to create a NIfTI mask for the specified brain region.
+    - 'generate_nifit_mask' generates and saves the mask to a file.
+    - The mask is generated based on the specified brain region and a pre-defined atlas image path.
+    - The function then returns a response dictionary indicating the success of the mask generation.
+    """
+
+    # Use the 'generate_nifit_mask' function to create the NIfTI mask for the specified brain region
     generate_nifit_mask(brain_region, './templates/atlases/HarvardOxford/HarvardOxford-cort-maxprob-thr25-2mm.nii.gz')
+
+    # Construct a response indicating success
     response = {
         'status': 'success',
         'message': 'Mask generated successfully',
     }
+
     return response
 
 
-def generate_plot(data):
-    # Extracting data from the form:
+def main_analyse_and_render(data):
+    """
+    Generate a bar plot based on input data and return the plot as a base64-encoded image.
+
+    Parameters:
+    - data (dict): A dictionary containing input data for generating the plot.
+
+    Output:
+    - Returns a response dictionary with a base64-encoded image of the generated plot.
+
+    Description:
+    - The function extracts necessary data from the input using 'parse_input_args' function.
+    - It generates a NIfTI mask for the selected brain region using 'generate_nifit_mask' function.
+    - It then generates a bar plot using matplotlib with brain region and corresponding priors.
+    - The plot is saved to a BytesIO object, which is an in-memory binary stream.
+    - The BytesIO object allows saving the plot image without writing it to a file on disk.
+    - The saved image in the BytesIO object is then converted to base64 encoding.
+    - Base64 encoding is a binary-to-text encoding scheme that represents binary data (the image in this case)
+      as a string of ASCII characters. This makes it suitable for embedding in HTML and other text-based formats.
+    - The base64-encoded image data is included in the response dictionary.
+
+    """
+
+    # Extracting data from the form using 'parse_input_args'
     cog_list, prior_list, x_target, y_target, z_target, radius, brain_region = parse_input_args(data)
 
-    # generating a nifti mask for the selected region
+    # Generating a NIfTI mask for the selected region
     generate_nifit_mask(brain_region, './templates/atlases/HarvardOxford/HarvardOxford-cort-maxprob-thr25-2mm.nii.gz')
 
-    # [coords, bf] = run_bayesian_analysis(brain_region, words, radius, priors)
-    # results = create_hist(coords, bf, atlas_target_path)
-    # generate_nifti_bf_heatmap(coords, bf)
+    # Perform Bayesian analysis to obtain coordinates (coords) and Bayesian factor values (bf)
+    # The run_bayesian_analysis function takes parameters such as brain_region, words, radius, and priors,
+    # and returns the computed coordinates and Bayesian factor values.
+        # [coords, bf] = run_bayesian_analysis(brain_region, words, radius, priors)
 
+    # Create a histogram of the obtained coordinates and Bayesian factors
+        # results = create_hist(coords, bf, atlas_target_path)
+
+    # Generate a NIfTI heatmap using the coordinates and Bayesian factors
+    # The generate_nifti_bf_heatmap function utilizes the coordinates and Bayesian factors
+    # to generate a heatmap and saves it as a NIfTI file. This heatmap visually represents
+    # the spatial distribution of the Bayesian factor values in the specified brain region.
+        # generate_nifti_bf_heatmap(coords, bf)
+
+    # Creating a bar plot using matplotlib
     plt.bar(brain_region, [float(p) for p in prior_list])
 
     # Save the plot to a BytesIO object
@@ -38,7 +91,7 @@ def generate_plot(data):
     plt.savefig(img_buffer, format='png')
     img_buffer.seek(0)
 
-    # Convert the image to base64 for embedding in HTML
+    # Convert the image in the BytesIO object to base64 encoding
     img_base64 = base64.b64encode(img_buffer.read()).decode('utf-8')
 
     # Send the base64 encoded image data as a response
