@@ -21,8 +21,6 @@ function autocompleteWords() {
             const suggestion = document.createElement('div');
             suggestion.textContent = match;
 
-            // Set a random background color for each suggestion
-
             suggestion.addEventListener('click', () => {
               words[words.length - 1] = currentWord + match.substring(currentWord.length);
               textarea.value = words.join(', ');
