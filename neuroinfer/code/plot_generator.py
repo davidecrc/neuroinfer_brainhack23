@@ -3,7 +3,6 @@ import base64
 from neuroinfer.code.BayesianAnalysis import run_bayesian_analysis
 import numpy as np
 import datetime
-from pathlib import Path
 import nibabel as nib
 from nilearn import image
 import os

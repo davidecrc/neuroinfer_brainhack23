@@ -23,23 +23,25 @@
         <label for="brainRegion">Brain Region:</label>
         <select id="brainRegion" name="brainRegion" onchange="changeRegionMask()"></select>
 
-        <label for="radius">Radius:</label>
-        <input type="number" id="radius" name="radius">
+        <hr class="hr-text" data-content="OR">
 
-        <label for="x">X Coordinate:</label>
+        <div id="coords">Coordinates <label for="x">x:</label>
         <input type="number" id="x" name="x" required>
 
-        <label for="y">Y Coordinate:</label>
+        <label for="y">y:</label>
         <input type="number" id="y" name="y" required>
 
-        <label for="z">Z Coordinate:</label>
-        <input type="number" id="z" name="z" required>
+        <label for="z">z:</label>
+        <input type="number" id="z" name="z" required></div>
+
+        <div id="radiuscontainer"><label for="radius">Radius:</label>
+        <input type="number" id="radius" name="radius"></div>
 
         <label for="words">List of Words (comma-separated):</label>
         <textarea id="words" name="words" rows="4" oninput="autocompleteWords()" required></textarea>
         <div id="autocomplete-suggestions"></div>
 
-        <label for="probabilities">Probabilities (comma-separated):</label>
+        <label for="probabilities">Priors probabilities (comma-separated):</label>
         <input type="text" id="probabilities" name="probabilities" required>
 
         <button type="button" onclick="submitForm()">Submit</button>

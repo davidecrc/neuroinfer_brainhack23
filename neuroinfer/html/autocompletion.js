@@ -9,7 +9,11 @@ function autocompleteWords() {
   if (words.length > 0) {
     const currentWord = words[words.length - 1];
     if (currentWord.length >= 3) {
-      fetch('../data/vocabulary7.txt') // Adjust the path as needed
+      const textareaRect = textarea.getBoundingClientRect();
+      autocompleteContainer.style.left = `${textareaRect.left}px`;
+      autocompleteContainer.style.top = `${textareaRect.bottom}px`;
+
+      fetch('../data/vocabulary7.txt')
         .then(response => response.text())
         .then(data => {
           const dictionaryWords = data.split('\n');
@@ -20,7 +24,6 @@ function autocompleteWords() {
           matchingWords.forEach(match => {
             const suggestion = document.createElement('div');
             suggestion.textContent = match;
-
             suggestion.addEventListener('click', () => {
               words[words.length - 1] = currentWord + match.substring(currentWord.length);
               textarea.value = words.join(', ');

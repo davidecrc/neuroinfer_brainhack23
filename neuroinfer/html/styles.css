@@ -1,18 +1,20 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Arial', sans-serif;
-  background-color: #f4f4f4;
+  font-family: 'Helvetica', serif; /* Use a classic font (example: Times New Roman) */
+  background-color: #fcfcfa;
   min-width: 1200px;
 }
 
 .banner {
-  background-color: #000; /* Black color */
-  color: #fff;
-  text-align: center;
-  padding: 20px;
-  font-size: 36px;
-  font-family: 'Pacifico', cursive; /* Use a fancy font (example: Pacifico) */
+  background-color: #333; /* Set background color to black */
+  color: #fff; /* Set text color to white */
+  text-align: center; /* Align text to the center */
+  padding: 20px; /* Add padding of 20 pixels */
+  font-size: 2.0rem; /* Set font size to 1.5 rem units */
+  font-family: 'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', 'Times New Roman', 'Lucida Grande', sans-serif;
+  letter-spacing: 1.5px; /* Add slight letter spacing for better readability */
+  text-transform: uppercase; /* Convert text to uppercase */
 }
 
 .main-container {
@@ -50,6 +52,27 @@ body {
   border-radius: 4px;
 }
 
+#coords {
+display: inline;
+}
+
+#coords label {
+padding-left: 10px;
+}
+
+#coords input {
+width: 80px;
+}
+
+#radiuscontainer {
+display: inline;
+}
+
+#radius {
+width: 80px;
+margin-top: 40px;
+}
+
 .container button {
   padding: 12px;
   background-color: #4CAF50;
@@ -76,7 +99,7 @@ body {
 #autocomplete-suggestions {
   position: absolute;
   background-color: #fff;
-  border: 1px solid #ccc;
+  border: 2px solid #ccc;
   max-height: 150px;
   overflow-y: auto;
   border-radius: 5px;
@@ -104,7 +127,6 @@ body {
 }
 
 #autocomplete-suggestions::after {
-  content: "..."; /* Show dots for hidden suggestions */
   flex: 1 0 auto; /* Force remaining space */
   text-align: right;
   margin-left: 5px;
@@ -123,5 +145,37 @@ body {
 
   .container, #visualizer, .graphics-container {
     width: 80%;
+  }
+}
+
+
+.hr-text {
+  line-height: 2em;
+  position: relative;
+  outline: 0;
+  border: 0;
+  color: black;
+  text-align: center;
+  height: 1.5em;
+  opacity: .5;
+  margin: 1em 0; /* Add margin for spacing between form elements */
+  &:before {
+    content: '';
+    background: linear-gradient(to right, transparent, #818078, transparent);
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+  }
+  &:after {
+    content: attr(data-content);
+    position: relative;
+    display: inline-block;
+    color: black;
+    padding: 0 .5em;
+    line-height: 1.5em;
+    color: #818078;
+    background-color: #fcfcfa;
   }
 }
