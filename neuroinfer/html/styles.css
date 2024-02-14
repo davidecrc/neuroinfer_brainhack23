@@ -74,23 +74,40 @@ body {
 }
 
 #autocomplete-suggestions {
-    display: inline-block;
-    position: absolute;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    max-height: 150px;
-    overflow-y: auto;
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  max-height: 150px;
+  overflow-y: auto;
+  border-radius: 5px;
+  /* New CSS for inline display and max suggestions */
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 300px; /* Adjust as needed */
 }
 
 #autocomplete-suggestions div {
-    padding: 8px;
-    cursor: pointer;
+  padding: 8px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin: 5px;
+  background-color: #fff;
 }
 
 #autocomplete-suggestions div:hover {
-    background-color: #f1f1f1;
+  background-color: #eee;
+}
+
+#autocomplete-suggestions div:nth-child(n+7) {
+  display: none; /* Hide additional suggestions */
+}
+
+#autocomplete-suggestions::after {
+  content: "..."; /* Show dots for hidden suggestions */
+  flex: 1 0 auto; /* Force remaining space */
+  text-align: right;
+  margin-left: 5px;
 }
 
 /* Media query for screens with width less than 1200px */
