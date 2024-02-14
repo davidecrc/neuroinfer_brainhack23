@@ -63,3 +63,29 @@ function autocompleteWords() {
                 });
             });
         });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // Get all labels and help containers
+            const labels = document.querySelectorAll('.helpdeep-caller');
+            const helpContainers = document.querySelectorAll('.deeper_help');
+
+            // Attach click events to each label
+            labels.forEach((label, index) => {
+                label.addEventListener('click', () => {
+                    // Hide all help containers
+                    helpContainers.forEach(container => container.style.display = 'none');
+
+                    // Display the corresponding help container
+                    helpContainers[index].style.display = 'block';
+                });
+            });
+
+            // Attach click events to close buttons
+            const closeButtons = document.querySelectorAll('.close-button');
+            closeButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    // Hide the corresponding help container when the close button is clicked
+                    button.parentNode.style.display = 'none';
+                });
+            });
+        });
