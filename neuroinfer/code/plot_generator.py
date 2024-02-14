@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 plt.switch_backend('Agg')
 
 
-def createMaskRegion(brainRegion):
-    generate_nifit_mask(brainRegion, './templates/atlases/HarvardOxford/HarvardOxford-cort-maxprob-thr25-2mm.nii.gz')
+def create_mask_region(brain_region):
+    generate_nifit_mask(brain_region, './templates/atlases/HarvardOxford/HarvardOxford-cort-maxprob-thr25-2mm.nii.gz')
     response = {
         'status': 'success',
         'message': 'Mask generated successfully',
@@ -22,16 +22,16 @@ def createMaskRegion(brainRegion):
 
 def generate_plot(data):
     # Extracting data from the form:
-    cog_list, prior_list, x_target, y_target, z_target, radius, brainRegion = parse_input_ars(data)
+    cog_list, prior_list, x_target, y_target, z_target, radius, brain_region = parse_input_args(data)
 
     # generating a nifti mask for the selected region
-    generate_nifit_mask(brainRegion, './templates/atlases/HarvardOxford/HarvardOxford-cort-maxprob-thr25-2mm.nii.gz')
+    generate_nifit_mask(brain_region, './templates/atlases/HarvardOxford/HarvardOxford-cort-maxprob-thr25-2mm.nii.gz')
 
-    # [coords, bf] = run_bayesian_analysis(brainRegion, words, radius, priors)
+    # [coords, bf] = run_bayesian_analysis(brain_region, words, radius, priors)
     # results = create_hist(coords, bf, atlas_target_path)
     # generate_nifti_bf_heatmap(coords, bf)
 
-    plt.bar(brainRegion, [float(p) for p in prior_list])
+    plt.bar(brain_region, [float(p) for p in prior_list])
 
     # Save the plot to a BytesIO object
     img_buffer = BytesIO()
@@ -145,8 +145,24 @@ def generate_nifti_bf_heatmap(coords, bf, atlas_target_path):
     return
 
 
-def parse_input_ars(data):
-    brainRegion = data.get('brainRegion')
+def parse_input_args(data):
+    """
+    Parse input data for an analysis tool.
+
+    Parameters:
+    - data (dict): A dictionary containing input parameters for the main script.
+
+    Output:
+    - Returns parsed values for words, priors, x, y, z, radius, and brain_region.
+
+    Description:
+    - The function takes a dictionary 'data' as input, containing various parameters for analysis.
+    - It extracts values from the dictionary, performs type conversion checks, and raises exceptions for invalid inputs.
+    - The function returns the parsed values for words, priors, x, y, z, radius, and brainRegion.
+    """
+
+    # Extract values from the dictionary
+    brain_region = data.get('brainRegion')
     radius = data.get('radius')
     x = data.get('x')
     y = data.get('y')
@@ -155,39 +171,54 @@ def parse_input_ars(data):
     words = words.split(',')
     priors = data.get('probabilities')
     priors = priors.split(',')
-    if (len(brainRegion)>0) & (str(type(brainRegion)) != "int"):
+
+    # Type conversion and validation checks
+    if (len(brain_region) > 0) and (str(type(brain_region)) != "int"):
         try:
-            brainRegion = np.int32(brainRegion)
+            brain_region = np.int32(brain_region)
         except ValueError:
-            raise Exception(f"Cannot convert {brainRegion} to a int")
-    if (len(x)>0) & (str(type(x)) != "float"):
+            raise Exception(f"Cannot convert {brain_region} to an int")
+
+    if (len(x) > 0) and (str(type(x)) != "float"):
         try:
             x = float(x)
         except ValueError:
             raise Exception(f"Cannot convert {x} to a float")
-    if (len(y)>0) & (str(type(y)) != "float"):
+
+    if (len(y) > 0) and (str(type(y)) != "float"):
         try:
             y = float(y)
         except ValueError:
             raise Exception(f"Cannot convert {y} to a float")
-    if (len(z)>0) & (str(type(z)) != "float"):
+
+    if (len(z) > 0) and (str(type(z)) != "float"):
         try:
             z = float(z)
         except ValueError:
             raise Exception(f"Cannot convert {z} to a float")
-    if (len(radius)>0) & (str(type(radius)) != "float"):
+
+    if (len(radius) > 0) and (str(type(radius)) != "float"):
         try:
             radius = float(radius)
         except ValueError:
             raise Exception(f"Cannot convert {radius} to a float")
+
+    # Convert 'words' and 'priors' to lists and validate types
     if type(words) != list:
         raise Exception(f"{words} of type {type(words)} is not a list")
+
     if type(priors) != list:
         raise Exception(f"{priors} of type {type(priors)} is not a list")
+
+    # Convert 'priors' to a list of integers
     try:
         priors = [np.int32(p) for p in priors]
     except ValueError:
         raise Exception(f"Cannot convert {priors} to a list of int")
-    if (len(priors) > 1) & (len(priors) != len(words)):
-        raise Exception(f"Illegal prior length {len(priors)} with words length {len(priors)}")
-    return words, priors, x, y, z, radius, brainRegion
+
+    # Validate lengths of 'priors' and 'words'
+    if (len(priors) > 1) and (len(priors) != len(words)):
+        raise Exception(f"Illegal prior length {len(priors)} with words length {len(words)}")
+
+    # Return the parsed values
+    return words, priors, x, y, z, radius, brain_region

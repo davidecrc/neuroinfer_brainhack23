@@ -4,7 +4,7 @@ import threading
 import webbrowser
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from neuroinfer.code.plot_generator import generate_plot, createMaskRegion
+from neuroinfer.code.plot_generator import generate_plot, create_mask_region
 
 app = Flask(__name__)
 CORS(app)
@@ -20,7 +20,7 @@ def handle_post_request():
     form_keys = dict_request.keys()
     if len(form_keys) == 1:
         try:
-            response = createMaskRegion(dict_request['brainRegion'])
+            response = create_mask_region(dict_request['brainRegion'])
         except KeyError:
             print("Key does not exist in the dictionary.")
     else:
