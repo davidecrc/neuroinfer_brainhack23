@@ -88,7 +88,7 @@ window.submitForm = function() {
 
       var jsonData = JSON.stringify(formData);
       xhr.send(jsonData);
-        }, 3000); // 3000 milliseconds = 3 seconds
+        }, 3000); // 3000 milliseconds
 };
 
 // CSS animation for the loading bar
