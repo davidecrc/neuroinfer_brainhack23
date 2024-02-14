@@ -22,7 +22,6 @@ function autocompleteWords() {
             suggestion.textContent = match;
 
             // Set a random background color for each suggestion
-            // suggestion.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 70%)`;
 
             suggestion.addEventListener('click', () => {
               words[words.length - 1] = currentWord + match.substring(currentWord.length);
