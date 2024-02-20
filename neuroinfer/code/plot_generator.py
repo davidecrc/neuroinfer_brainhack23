@@ -1,13 +1,19 @@
 from io import BytesIO
 import base64
-from neuroinfer.code.BayesianAnalysis import run_bayesian_analysis
+from neuroinfer.code.BayesianAnalysis import run_bayesian_analysis_area
 import numpy as np
 import datetime
+from pathlib import Path
 import nibabel as nib
 from nilearn import image
 import os
 import matplotlib.pyplot as plt
+from neuroinfer import PKG_FOLDER, DATA_FOLDER, TEMPLATE_FOLDER, CODE_FOLDER, HTML_FOLDER, RESULTS_FOLDER
+
+from neuroinfer.code.DataLoading import load_data_and_create_dataframe
+
 plt.switch_backend('Agg')
+atlas_path = TEMPLATE_FOLDER / 'atlases' / 'HarvardOxford' / 'HarvardOxford-cort-maxprob-thr25-2mm.nii.gz'
 
 
 def create_mask_region(brain_region):
@@ -28,7 +34,7 @@ def create_mask_region(brain_region):
     """
 
     # Use the 'generate_nifit_mask' function to create the NIfTI mask for the specified brain region
-    generate_nifit_mask(brain_region, './templates/atlases/HarvardOxford/HarvardOxford-cort-maxprob-thr25-2mm.nii.gz')
+    generate_nifit_mask(brain_region, atlas_path)
 
     # Construct a response indicating success
     response = {
@@ -66,21 +72,29 @@ def main_analyse_and_render(data):
     cog_list, prior_list, x_target, y_target, z_target, radius, brain_region = parse_input_args(data)
 
     # Generating a NIfTI mask for the selected region
-    generate_nifit_mask(brain_region, './templates/atlases/HarvardOxford/HarvardOxford-cort-maxprob-thr25-2mm.nii.gz')
+    generate_nifit_mask(brain_region, atlas_path)
 
     # Perform Bayesian analysis to obtain coordinates (coords) and Bayesian factor values (bf)
     # The run_bayesian_analysis function takes parameters such as brain_region, words, radius, and priors,
     # and returns the computed coordinates and Bayesian factor values.
-        # [coords, bf] = run_bayesian_analysis(brain_region, words, radius, priors)
+    # # Get the directory of the current Python script
+    # script_directory = os.path.dirname(os.path.abspath(__file__))
+    # # Navigate to the parent directory as global path
+    # global_path = os.path.dirname(script_directory)
+    # data_path = os.path.join(global_path, "data")  # Path to the saved_result folder
+    result_df, _ = load_data_and_create_dataframe(DATA_FOLDER / "features7.npz",
+                                                  DATA_FOLDER / "metadata7.tsv",
+                                                  DATA_FOLDER / "vocabulary7.txt")
+    result_dict = run_bayesian_analysis_area(cog_list, prior_list, brain_region, radius, result_df, 'a')
 
     # Create a histogram of the obtained coordinates and Bayesian factors
-        # results = create_hist(coords, bf, atlas_target_path)
+    # results = create_hist(coords, bf, atlas_target_path)
 
     # Generate a NIfTI heatmap using the coordinates and Bayesian factors
     # The generate_nifti_bf_heatmap function utilizes the coordinates and Bayesian factors
     # to generate a heatmap and saves it as a NIfTI file. This heatmap visually represents
     # the spatial distribution of the Bayesian factor values in the specified brain region.
-        # generate_nifti_bf_heatmap(coords, bf)
+    generate_nifti_bf_heatmap(result_dict, atlas_path)
 
     # Creating a bar plot using matplotlib
     plt.bar(brain_region, [float(p) for p in prior_list])
@@ -152,7 +166,7 @@ def create_hist(coords, bf):
     return results
 
 
-def generate_nifti_bf_heatmap(coords, bf, atlas_target_path):
+def generate_nifti_bf_heatmap(result_dict, atlas_target_path):
     """
     Generate a NIfTI heatmap based on sorted coordinates and bayesian factors/measurements.
 
@@ -171,6 +185,15 @@ def generate_nifti_bf_heatmap(coords, bf, atlas_target_path):
       sets the corresponding values in the overlay_results array.
     - The resulting heatmap is saved as a NIfTI file in the '.tmp/' directory with a timestamp.
     """
+    keys = result_dict.keys()
+    bf = []
+    coords = []
+    for k in keys:
+        bf.append(result_dict[k]['df_data_all']['BF'])
+        coords.append([result_dict[k]['df_data_all']['x_target'],
+                       result_dict[k]['df_data_all']['x_target'],
+                       result_dict[k]['df_data_all']['x_target'],
+                       ])
 
     # Load atlas image to get the reference data shape
     reference_data_shape = image.load_img(atlas_target_path)
@@ -274,3 +297,15 @@ def parse_input_args(data):
 
     # Return the parsed values
     return words, priors, x, y, z, radius, brain_region
+
+
+if __name__ == '__main__':
+    data = dict()
+    data['brainRegion'] = "37"
+    data['radius'] = "2"
+    data['x'] = "0"
+    data['y'] = "0"
+    data['z'] = "0"
+    data['words'] = "face"
+    data['probabilities'] = "0"
+    main_analyse_and_render(data)
