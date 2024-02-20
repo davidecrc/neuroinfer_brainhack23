@@ -3,11 +3,9 @@
 **/*.pyc
 **/__pycache__
 **/*.nii*
-./neuroinfer/data/*
 ./neuroinfer/results/*
 **/*.egg*
 ./neuroinfer/templates/*
 **/*.ipynb
 **/*.txt
 **/*cpython*
-

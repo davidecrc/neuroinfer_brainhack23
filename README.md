@@ -8,25 +8,38 @@ The NI framework includes a database of published fMRI studies and related metad
 
 ![neuroinfer_gui](./neuroinfer/images/neuroinfer_gui.png "Title")
 
+
+## Example of Uses:
+First, be sure all the needed dependencies are correctly installed:
+
+     $ pip install -r neuroinfer/requirements.txt
+
+
+In order to open the gui on your own browser, just run the server.py script from your terminal:
+
+     $ cd /your/path/to/neuroinfer/root
+     $ pyhon -m neuroinfer.server
+
+
 ## To DO:
 
 **Analysis:**
   - [ ] general optimization of the analysis code
-  - [ ] implementation searchlight analysis
-  - [ ] implementation whole-brain analysis
-  - [ ] implementation of atlas-guided analysis
+  - [x] implementation searchlight analysis
+  - [x] implementation whole-brain analysis
+  - [x] implementation of atlas-guided analysis
 
 **Results:**
    - _**back-end:**_
        - [ ] MainScript.py should be turned into __init__.py
        - [ ] UserInputs.py should be turned into a listener of the script form
-       - [ ] index.html should be automatically open when the python script is run
+       - [x] index.html should be automatically open when the python script is run
        - [ ] create a python script to listen to the scripts output and lunch the anlaysis.
 
    - _**front-end:**_
         - [ ] add a loading image in the web page while the analysis is run (and possibly estimate the time)
         - [ ] add an info box in the web page if the python script is detached
-        - [ ] fix mni template showing when loading the page
+        - [x] fix mni template showing when loading the page
         - [ ] implementing labeling overimposed to brain template (HTML5 & canvas)
         - [ ] implementing multi plots/results viewing/selection
 

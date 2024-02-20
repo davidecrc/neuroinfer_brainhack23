@@ -22,7 +22,7 @@
       <h2 style="text-align: center;">Coordinate and Probability Input</h2>
       <form id="myForm">
         <label for="brainRegion">Brain Region:</label>
-        <select id="brainRegion" name="brainRegion"></select>
+        <select id="brainRegion" name="brainRegion" onchange="changeRegionMask()"></select>
 
         <label for="radius">Radius:</label>
         <input type="number" id="radius" name="radius">
@@ -53,7 +53,12 @@
       <h2>Graphics Container</h2>
     </div>
   </div>
-  <script type="text/javascript" src="main.js"></script> <!-- must be placed here as it will look for div id "visualizer" -->
+  <!--  <script type="text/javascript" src="main.js"></script> <!-- must be placed here as it will look for div id "visualizer" -->
+  <script src="papaya-setup.js"></script>
+  <script src="papaya-update.js"></script>
+  <script src="papaya-request.js"></script>
+  <script src="papaya-display.js"></script>
+  <script src="fetch-brain-regions.js"></script>
 </body>
 </html>
 
