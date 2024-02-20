@@ -15,9 +15,10 @@ print('data path: ',data_path)
 script_directory = os.path.dirname(os.path.abspath(__file__))
 global_path = os.path.dirname(script_directory)
 results_folder_path = os.path.join(global_path, "results")
-#with open(data_path+'/results_area_47.pkl', 'rb') as file:
-with open( '/home/saram/PhD/neuroinfer_brainhack23/neuroinfer/results/results_area_47_.pkl') as f:
-    loaded_results = pickle.load(f, encoding="utf-8") 
+
+with open(data_path+'/results_area_47_.pkl', 'rb') as file:
+#with open( '/home/saram/PhD/neuroinfer_brainhack23/neuroinfer/results/results_area_47_.pkl') as f:
+    loaded_results = pickle.load(file, encoding="utf-8") 
 
 # Print the loaded data
 print("Loaded Results:")
@@ -26,10 +27,3 @@ print(loaded_results)
 # Print the size of the loaded data
 print(f"Size of results_BHL_area47.pickle: {len(loaded_results)}")
 
-
-# Extract all the cm values
-cm_values = [result[1] for result in loaded_results]
-
-# Print all the cm values
-print("All cm values:")
-print(cm_values)

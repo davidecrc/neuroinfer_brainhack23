@@ -86,17 +86,11 @@ if __name__ == "__main__":
     # Ensure the "results" folder exists; create it if not
     #os.makedirs(results_folder_path, exist_ok=True)
 
-    # Save the pickle file in the "results" folder
+    # Save the pickle file in the "results" folder if coordinates (the area one is saved in run_bayesian_analysis_area)
     if pd.isnull(area):
         # Use the coordinates to name the pickle file
         pickle_file_name = f'results_BHL_coordinates_x{x_target}_y{y_target}_z{z_target}.pickle'
-    else:
-        pickle_file_name = f'results_BHL_area{area}.pickle'
-
-    pickle_file_path = os.path.join(results_folder_path, pickle_file_name)
-
-
-    with open(pickle_file_path, 'wb') as file:
-        pickle.dump(results_all_rois, file)
-
-    print(f"Results saved to: {pickle_file_path}")
+        pickle_file_path = os.path.join(results_folder_path, pickle_file_name)
+        with open(pickle_file_path, 'wb') as file:
+            pickle.dump(results_all_rois, file)
+        print(f"Results saved to: {pickle_file_path}")
