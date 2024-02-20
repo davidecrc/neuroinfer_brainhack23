@@ -10,5 +10,7 @@
 **/*.ipynb
 **/*.txt
 **/*cpython*
-neuroinfer/.vscode
-neuroinfer/.neuro
+neuroinfer/.vscode/
+neuroinfer/.neuro/
+/.vscode/
+/.neuro/
