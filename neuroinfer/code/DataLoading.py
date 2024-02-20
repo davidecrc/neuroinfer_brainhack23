@@ -13,10 +13,11 @@ def load_data_and_create_dataframe(npz_file, metadata_file, vocab_file):
     - vocab_file (str): The file path to the vocabulary file containing cognitive labels.
 
     Returns:
-    - feature_df (pd.DataFrame): The DataFrame created by combining sparse feature data, metadata, and vocabulary.
-
+    - feature_df (pd.DataFrame): The DataFrame created by combining sparse feature data, metadata, and vocabulary. rows are the papers and columns the TFIDF for each entry
+    - feature_names (list): list with the vocabulary words loaded from the cognitive labels
     """
     # Load sparse data
+
     feature_data_sparse = sparse.load_npz(npz_file)
     feature_data = feature_data_sparse.todense()
 
