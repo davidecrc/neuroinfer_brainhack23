@@ -21,7 +21,7 @@
             border-radius: 5px;
         }
 
-            .deeper_help {
+         .deeper_help {
             display: none;
             position: absolute;
             background-color: #f1f1f1;
@@ -29,6 +29,13 @@
             border: 3px solid #ccc;
             border-radius: 5px;
             z-index: 1;
+            padding-top: 30px;
+            padding-bottom: 40px;
+            margin: 30px;
+            top:40px;
+            left:40px;;
+            right:40px;
+            bottom:20%;
         }
 
         .close-button {
@@ -76,7 +83,7 @@
         <img src="help_icon.png" class="help-caller helpdeep-caller"><label for="probabilities">Priors probabilities (comma-separated):</label>
         <input type="text" id="probabilities" name="probabilities" required>
         <div class="help-container">For each term chosen, please provide a prior between 0.01 and 0.99 (click for more help)</div>
-        <div class="deeper_help"><span class="close-button">&times;</span><p><b>The prior probability is the probability of a certain hypothesis (here the occurrence of a term as proxy of the engagement of a cognitive process or function) before some evidence is taken into account.</b></p>
+        <div class="deeper_help"><span class="close-button">&times;</span><h1>Prior Probability</h1><p><b>The prior probability is the probability of a certain hypothesis (here the occurrence of a term as proxy of the engagement of a cognitive process or function) before some evidence is taken into account.</b></p>
 <p>It can be considered as an estimate of your subjective expectation about the hypothesis and it is based on your background knowledge. Within a Bayesian framework, the prior allows you to compute the posterior probability when gathered with the likelihoods.</p>
 <p>To illustrate the concept of prior probability, consider a clinical scenario. The prior probability of a certain disease corresponds to the prevalence of the diseases in the general population, that is, the probability of having the disease in general (for instance, before that the result of a test is considered).</p>
 <p>The prior ranges between 0 and 1. If you don’t know that specific value to assign to the prior, but you have some rough intuition about it, consider picking a “categorical” prior: low (0-0.3), medium (0.3-0.6), or high (0.6-0.9) prior. Instead, if you don't have any idea about how to set the prior of the hypothesis, consider to set the prior to a uniform value, i.e., 0.5.</p>
