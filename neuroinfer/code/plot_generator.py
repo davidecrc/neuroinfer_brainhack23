@@ -94,7 +94,7 @@ def main_analyse_and_render(data):
     # The generate_nifti_bf_heatmap function utilizes the coordinates and Bayesian factors
     # to generate a heatmap and saves it as a NIfTI file. This heatmap visually represents
     # the spatial distribution of the Bayesian factor values in the specified brain region.
-    generate_nifti_bf_heatmap(result_dict, atlas_path)
+    filename = generate_nifti_bf_heatmap(result_dict, atlas_path)
 
     # Creating a bar plot using matplotlib
     plt.bar(brain_region, [float(p) for p in prior_list])
@@ -110,7 +110,7 @@ def main_analyse_and_render(data):
     # Send the base64 encoded image data as a response
     response = {
         'status': 'success',
-        'message': 'Plot generated successfully',
+        'message': filename,
         'image': img_base64
     }
 
@@ -185,29 +185,33 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path):
       sets the corresponding values in the overlay_results array.
     - The resulting heatmap is saved as a NIfTI file in the '.tmp/' directory with a timestamp.
     """
-    keys = result_dict.keys()
     bf = []
     coords = []
-    for k in keys:
-        bf.append(result_dict[k]['df_data_all']['BF'])
-        coords.append([result_dict[k]['df_data_all']['x_target'],
-                       result_dict[k]['df_data_all']['x_target'],
-                       result_dict[k]['df_data_all']['x_target'],
+    for sphere in result_dict:
+        bf.append(sphere['df_data_all'].BF)
+        coords.append([sphere['x_target'],
+                       sphere['y_target'],
+                       sphere['z_target'],
                        ])
 
     # Load atlas image to get the reference data shape
-    reference_data_shape = image.load_img(atlas_target_path)
-    reference_data_shape = np.asarray(reference_data_shape.get_fdata(), dtype=np.int32)
+    reference_data_shape_nifti = image.load_img(atlas_target_path)
+    reference_data_shape = np.asarray(reference_data_shape_nifti.get_fdata(), dtype=np.int32)
 
     # Initialize an array for overlay results with zeros of the same shape as reference data
     overlay_results = np.zeros(reference_data_shape.shape)
 
     # Iterate through the given coordinates and apply the measurements to populate overlay_results
+    mni2vx_mat = np.linalg.inv(reference_data_shape_nifti.affine)
     for j, coord in enumerate(coords):
-        overlay_results[coord] = bf[j]
+        vx_coord = nilearn.image.coord_transform(
+            int(vx_coord[0]), int(vx_coord[1]), int(vx_coord[2]), mni2vx_mat
+        )
+        int_vx_coord = [int(vx_coord[0]), int(vx_coord[1]), int(vx_coord[2])]
+        overlay_results[int_vx_coord[0], int_vx_coord[1], int_vx_coord[2]] = bf[j]
 
     # Create a Nifti1Image using the overlay_results and the affine transformation from reference data
-    overlay_results_img = nib.Nifti1Image(overlay_results, reference_data_shape.affine)
+    overlay_results_img = nib.Nifti1Image(overlay_results, reference_data_shape_nifti.affine)
 
     # Check if the '.tmp/' directory exists, if not, create it
     if not os.path.isdir('.tmp/'):
@@ -215,9 +219,11 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path):
 
     # Generate a timestamp for file naming and save the heatmap in the '.tmp/' folder
     time_results = f"{datetime.datetime.now():%Y%m%d_%H%M%S}"
-    nib.save(overlay_results_img, ".tmp/" + time_results + "overlay_results.nii.gz")
+    filename = ".tmp/" + time_results + "overlay_results.nii.gz"
+    nib.save(overlay_results_img, filename)
+    nib.save(overlay_results_img, '.tmp/mask.nii.gz')
 
-    return
+    return filename
 
 
 def parse_input_args(data):
@@ -287,9 +293,9 @@ def parse_input_args(data):
 
     # Convert 'priors' to a list of integers
     try:
-        priors = [np.int32(p) for p in priors]
+        priors = [np.float32(p) for p in priors]
     except ValueError:
-        raise Exception(f"Cannot convert {priors} to a list of int")
+        raise Exception(f"Cannot convert {priors} to a list of float")
 
     # Validate lengths of 'priors' and 'words'
     if (len(priors) > 1) and (len(priors) != len(words)):
@@ -302,10 +308,10 @@ def parse_input_args(data):
 if __name__ == '__main__':
     data = dict()
     data['brainRegion'] = "37"
-    data['radius'] = "2"
+    data['radius'] = "4"
     data['x'] = "0"
     data['y'] = "0"
     data['z'] = "0"
     data['words'] = "face"
-    data['probabilities'] = "0"
+    data['probabilities'] = "0.5"
     main_analyse_and_render(data)

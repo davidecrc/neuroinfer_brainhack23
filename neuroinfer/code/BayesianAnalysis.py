@@ -395,6 +395,9 @@ def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df, c
     global_path = os.path.dirname(script_directory)
     results_folder_path = os.path.join(global_path, "results")
 
+    if not os.path.isdir(results_folder_path):
+        os.mkdir(results_folder_path)
+
     # Save results_dict to a pickle file
     file_path = os.path.join(results_folder_path, f"results_area_{area}_.pkl")
 
