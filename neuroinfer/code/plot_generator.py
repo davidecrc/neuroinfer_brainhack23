@@ -1,5 +1,8 @@
 from io import BytesIO
 import base64
+
+import nilearn
+
 from neuroinfer.code.BayesianAnalysis import run_bayesian_analysis_area
 import numpy as np
 import datetime
@@ -146,7 +149,7 @@ def generate_nifit_mask(region_id, atlas_target_path):
 
     # Create a mask and set values to 1000 where atlas_data is equal to region_id
     mask = np.zeros(atlas_data.shape)
-    mask[atlas_data == region_id] = 1000
+    mask[atlas_data == region_id] = 1
 
     # convert to Nifti1Image by using the original affine transformation as reference
     modified_atlas_img = nib.Nifti1Image(mask, atlas_img.affine)
@@ -203,12 +206,16 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path):
 
     # Iterate through the given coordinates and apply the measurements to populate overlay_results
     mni2vx_mat = np.linalg.inv(reference_data_shape_nifti.affine)
+    vx_size = np.abs(reference_data_shape_nifti.affine[0])
+    vx_radius = np.ceil(radius/vx_size)
+
     for j, coord in enumerate(coords):
         vx_coord = nilearn.image.coord_transform(
-            int(vx_coord[0]), int(vx_coord[1]), int(vx_coord[2]), mni2vx_mat
+            int(coord[0]), int(coord[1]), int(coord[2]), mni2vx_mat
         )
-        int_vx_coord = [int(vx_coord[0]), int(vx_coord[1]), int(vx_coord[2])]
-        overlay_results[int_vx_coord[0], int_vx_coord[1], int_vx_coord[2]] = bf[j]
+        sphere_coords = get_sphere_coords([int(vx_coord[0]), int(vx_coord[1]), int(vx_coord[2])])
+        for sc in sphere_coords:
+            overlay_results[sc[0], sc[1], sc[2]] += bf[j]
 
     # Create a Nifti1Image using the overlay_results and the affine transformation from reference data
     overlay_results_img = nib.Nifti1Image(overlay_results, reference_data_shape_nifti.affine)
