@@ -97,7 +97,7 @@ def main_analyse_and_render(data):
     # The generate_nifti_bf_heatmap function utilizes the coordinates and Bayesian factors
     # to generate a heatmap and saves it as a NIfTI file. This heatmap visually represents
     # the spatial distribution of the Bayesian factor values in the specified brain region.
-    filename = generate_nifti_bf_heatmap(result_dict, atlas_path)
+    filename = generate_nifti_bf_heatmap(result_dict, atlas_path, radius)
 
     # Creating a bar plot using matplotlib
     plt.bar(brain_region, [float(p) for p in prior_list])
@@ -169,7 +169,7 @@ def create_hist(coords, bf):
     return results
 
 
-def generate_nifti_bf_heatmap(result_dict, atlas_target_path):
+def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius):
     """
     Generate a NIfTI heatmap based on sorted coordinates and bayesian factors/measurements.
 
@@ -206,16 +206,16 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path):
 
     # Iterate through the given coordinates and apply the measurements to populate overlay_results
     mni2vx_mat = np.linalg.inv(reference_data_shape_nifti.affine)
-    vx_size = np.abs(reference_data_shape_nifti.affine[0])
+    vx_size = np.abs(reference_data_shape_nifti.affine[0, 0])
     vx_radius = np.ceil(radius/vx_size)
 
     for j, coord in enumerate(coords):
         vx_coord = nilearn.image.coord_transform(
             int(coord[0]), int(coord[1]), int(coord[2]), mni2vx_mat
         )
-        sphere_coords = get_sphere_coords([int(vx_coord[0]), int(vx_coord[1]), int(vx_coord[2])])
-        for sc in sphere_coords:
-            overlay_results[sc[0], sc[1], sc[2]] += bf[j]
+        sphere_coords = get_sphere_coords([int(vx_coord[0]), int(vx_coord[1]), int(vx_coord[2])], vx_radius, overlay_results)
+        for sc_i in range(sphere_coords[0].shape[0]):
+            overlay_results[sphere_coords[0][sc_i], sphere_coords[1][sc_i], sphere_coords[2][sc_i]] += bf[j]
 
     # Create a Nifti1Image using the overlay_results and the affine transformation from reference data
     overlay_results_img = nib.Nifti1Image(overlay_results, reference_data_shape_nifti.affine)
@@ -231,6 +231,21 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path):
     nib.save(overlay_results_img, '.tmp/mask.nii.gz')
 
     return filename
+
+
+def get_sphere_coords(coords, vx_radius, overlay_results):
+    volume_shape = overlay_results.shape
+    X, Y, Z = np.meshgrid(np.arange(volume_shape[0]),
+                          np.arange(volume_shape[1]),
+                          np.arange(volume_shape[2]), indexing='ij')
+
+    distances = np.sqrt((X - coords[0])**2 + (Y - coords[1])**2 + (Z - coords[2])**2)
+
+    template_3D = distances <= vx_radius
+
+    template_indices = np.nonzero(template_3D)
+
+    return template_indices
 
 
 def parse_input_args(data):
@@ -319,6 +334,6 @@ if __name__ == '__main__':
     data['x'] = "0"
     data['y'] = "0"
     data['z'] = "0"
-    data['words'] = "face"
-    data['probabilities'] = "0.5"
+    data['words'] = "face,children"
+    data['probabilities'] = "0.5,0.5"
     main_analyse_and_render(data)
