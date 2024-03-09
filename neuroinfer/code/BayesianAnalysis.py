@@ -250,6 +250,12 @@ def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df, c
     # results_dict = {}
     result_all = []
     coord = []
+    visited_coord = np.zeros(np.max(coordinates_area[0])-np.min(coordinates_area[0]),
+                             np.max(coordinates_area[1])-np.min(coordinates_area[1]),
+                             np.max(coordinates_area[2])-np.min(coordinates_area[2]))
+    coord_ranges={'xmax':np.max(coordinates_area[0]),'xmin' np.min(coordinates_area[0]),
+                             'ymax':np.max(coordinates_area[1]), 'ymin': np.min(coordinates_area[1]),
+                             'zmax':np.max(coordinates_area[2]),'zmin':np.min(coordinates_area[2])}
 
     # Iterate through the coordinates_area
     for i in range(len(coordinates_area) - 1):  # -1 in order to have the last coordinates_area[i+1]) #TODO improve
@@ -270,6 +276,23 @@ def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df, c
         # Check if next_coord is distant > rescaled_radius * 0.98 from all previous coordinates
 
         # if all(get_distance((x_target, y_target, z_target), coordinate) > rescaled_radius * 0.98 for coordinate in coord):
+        if ~is_visited((x_target, y_target, z_target), visited_coord):
+            # code here
+            visited_coord = update_visited_coord(visited_coord, normalize_coord(x_target, y_target, z_target, coord_ranges), padding)
+            def normalize_coord(x_target, y_target, z_target, coord_ranges):
+                xnorm = x_target-coord_ranges['xmin']
+                ynorm = y_target-coord_ranges['xmin']
+                znorm = z_target-coord_ranges['xmin']
+                return xnorm, ynorm, znorm
+            def visited_coord(coord, visited_coord):
+                if any(visited_coord[coord])==1:
+                    return True
+                return False
+            def update_visited_coord(visited_coord, x_norm, y_norm, z_norm, padding):
+                coords_visited = x_norm, y_norm, z_norm + padding
+                visited_coord[coords_visited] = 1
+                return coords_visited
+            pass
         if get_distance((x_target, y_target, z_target), coordinates_area[
             i + 1]) > rescaled_radius:  # TODO upload checking all the distance from the ROIS
             print(
