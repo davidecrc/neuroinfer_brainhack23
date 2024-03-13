@@ -1,6 +1,6 @@
 # MainScript.py
 import argparse
-from neuroinfer.code.BayesianAnalysis import *
+from neuroinfer.code.BayesianAnalysis import run_bayesian_analysis_router
 from neuroinfer.code.UserInputs import get_user_inputs
 from neuroinfer.code.DataLoading import load_data_and_create_dataframe
 
