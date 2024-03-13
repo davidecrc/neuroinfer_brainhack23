@@ -10,5 +10,7 @@
 **/*.txt
 **/*cpython*
 
-**/*.pkl
+#venv
 .neuro/
+.neuro
+**/*.pkl
