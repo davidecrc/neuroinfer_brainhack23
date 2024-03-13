@@ -9,3 +9,6 @@
 **/*.ipynb
 **/*.txt
 **/*cpython*
+
+**/*.pkl
+.neuro/
