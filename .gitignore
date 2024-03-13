@@ -9,3 +9,7 @@
 **/*.ipynb
 **/*.txt
 **/*cpython*
+
+#venv
+.neuro/
+.neuro
