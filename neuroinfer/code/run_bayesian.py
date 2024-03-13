@@ -115,42 +115,6 @@ def get_distance(coord1, coord2):
 
 
 
-
-def plot_distribution_statistics(result_all):
-    """
-    Plot distribution of the Bayesian Factor (BF) values for the area.
-
-    Parameters:
-    - result (list or array): List or array containing Bayesian Factor (BF) values.
-
-    Returns:
-    - None
-    """
-    # Convert the result to a NumPy array if it's not already
-    #all_results = [result for result, _ in result_with_coordinates]
-    df_data_all, cm, cog_all, prior_all, x_target, y_target, z_target, radius=result_all
-    result_array = np.array(cm)
-    print(len(result_array))
-    print(result_array)
-
-    # Create a histogram
-    plt.hist(result_array, bins=20, edgecolor='black', alpha=0.7)
-    plt.title('BF Distribution for the Area')
-    plt.xlabel('BF Values')
-    plt.ylabel('Frequency')
-    plt.grid(True)
-    plt.savefig('BF Distribution')
-    plt.show()
-
-    # Print basic statistics
-    print(f"\nStatistics:")
-    print(f"  - Mean: {np.mean(result_array)}")
-    print(f"  - Median: {np.median(result_array)}")
-    print(f"  - Standard Deviation: {np.std(result_array)}")
-    print(f"  - Minimum: {np.min(result_array)}")
-    print(f"  - Maximum: {np.max(result_array)}")
-
-
 def get_atlas_coordinates_json(json_path):
     with open(json_path, 'r') as infile:
         coordinates_atlas = json.load(infile)
@@ -240,18 +204,7 @@ def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df,cm
     #plot_distribution_statistics(result_with_coordinates)
 
     print(result_all)
-     # Construct the path to the "results" folder
-    script_directory = os.path.dirname(os.path.abspath(__file__))
-    global_path = os.path.dirname(script_directory)
-    results_folder_path = os.path.join(global_path, "results")
-
-    # Save results_dict to a pickle file
-    file_path = os.path.join(results_folder_path, f"results_area_{area}_{cog_list}.pkl")
-
-    with open(file_path, "wb") as f:
-        pickle.dump(result_all, f)
-    print(f"Results saved to: {file_path}")
-
+    
 
     return result_all
 
