@@ -1,21 +1,8 @@
-# Standard Library Imports
 import os
-import time
-from argparse import ArgumentParser
-
-# Third-party Library Imports
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from PIL import Image
-from nilearn import image
-from scipy import sparse
-import json
-
 import pickle
 
-# Local Module Imports
-from neuroinfer.code.SummaryReport import save_summary_report
 from neuroinfer.code.run_bayesian import run_bayesian_analysis_coordinates, run_bayesian_analysis_area
 
 '''
@@ -29,6 +16,7 @@ The script calculates various statistics including likelihood, prior, posterior,
 It plots BF distributions and computes basic statistical metrics. 
 
 '''
+
 
 def run_bayesian_analysis_router(cog_list, area, prior_list, x_target, y_target, z_target, radius, result_df):
     cm = input(
