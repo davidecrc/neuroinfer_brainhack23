@@ -203,7 +203,7 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius):
 
     # Initialize an array for overlay results with zeros of the same shape as reference data
     overlay_results = np.zeros(reference_data_shape.shape)
-    counter = np.zeros(reference_data_shape.shape)
+    counter = np.ones(reference_data_shape.shape)
 
     # Iterate through the given coordinates and apply the measurements to populate overlay_results
     mni2vx_mat = np.linalg.inv(reference_data_shape_nifti.affine)
