@@ -52,12 +52,11 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
             ids_cog_nq_all.append(ids_cog_nq)
 
             dt_papers_nq = pd.read_csv(os.path.join(data_path, 'data-neurosynth_version-7_coordinates.tsv'), sep='\t')
-            list_activations_nq = dt_papers_nq[(x_target - radius < dt_papers_nq["x"]) &
-                                                (dt_papers_nq["x"] < x_target + radius) &
-                                                (y_target - radius < dt_papers_nq["y"]) &
-                                                (dt_papers_nq["y"] < y_target + radius) &
-                                                (z_target - radius < dt_papers_nq["z"]) &
-                                                (dt_papers_nq["z"] < z_target + radius)]["id"].tolist()
+            center = np.array([x_target, y_target, z_target])
+            # Calculate the Euclidean distance from each point to the center of the sphere
+            distances = np.linalg.norm(dt_papers_nq[["x", "y", "z"]].values - center, axis=1)
+            # Use the distances to filter the DataFrame
+            list_activations_nq = dt_papers_nq[distances <= radius]["id"].tolist()
 
             total_activations_nq = len(list_activations_nq)
             intersection_cog_nq = len(set(ids_cog_nq) & set(list_activations_nq))

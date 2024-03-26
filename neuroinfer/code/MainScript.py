@@ -4,11 +4,6 @@ from neuroinfer.code.BayesianAnalysis import run_bayesian_analysis_router
 from neuroinfer.code.UserInputs import get_user_inputs
 from neuroinfer.code.DataLoading import load_data_and_create_dataframe
 
-#from BayesianAnalysis import *
-#from UserInputs import get_user_inputs
-#from DataLoading import load_data_and_create_dataframe
-import pickle
-
 '''
 Main Script- executes Bayesian analysis given NPZ, metadata, and vocabulary files based on user-defined parameters. 
 It parses command-line arguments for paths to NPZ, metadata, and vocabulary files.
@@ -43,7 +38,7 @@ if __name__ == "__main__":
 
     # Get the directory of the current Python script
     script_directory = os.path.dirname(os.path.abspath(__file__))
-    # Navigate to the parent directory as global path 
+    # Navigate to the parent directory as global path
     global_path = os.path.dirname(script_directory)
     data_path = os.path.join(global_path, "data")  # Path to the saved_result folder
 
@@ -70,17 +65,17 @@ if __name__ == "__main__":
 
     # Call the function with command line arguments
     result_df, feature_names = load_data_and_create_dataframe(args.npz_file, args.metadata_file, args.vocab_file)
-    
+
     cog_list, prior_list, x_target, y_target, z_target, radius,area = get_user_inputs(feature_names)
     #cog_list, prior_list, area, radius = get_user_inputs(feature_names)
 
     try:
-        print("Selected area: " + str(area) +  "Radius: " + str(radius) + " mm.")
+        print("Selected area: " + str(area) + "Radius: " + str(radius) + " mm.")
     except:
         print("Selected coordinates: " + str(x_target) + "; " + str(y_target) + "; " + str(z_target) + ". Radius: " + str(
-        radius) + " mm.")
+            radius) + " mm.")
 
-    results_all_rois=run_bayesian_analysis_router(cog_list, area, prior_list, x_target, y_target, z_target, radius, result_df)
+    results_all_rois = run_bayesian_analysis_router(cog_list, area, prior_list, x_target, y_target, z_target, radius, result_df)
     '''
     # Save the results using pickle
     # Construct the path to the "results" folder
