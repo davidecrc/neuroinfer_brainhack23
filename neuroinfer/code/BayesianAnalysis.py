@@ -2,6 +2,30 @@ import pandas as pd
 import time
 from neuroinfer.code.SummaryReport import save_summary_report
 
+def calculate_z(posterior, prior):
+    """
+    Calculate the Z-score based on posterior and prior probabilities.
+
+    Args:
+        posterior (float): Posterior probability.
+        prior (float): Prior probability.
+
+    Returns:
+        float: Z-score indicating the significance of the difference between posterior and prior probabilities.
+    """
+    # Ensure that the denominator is not zero
+    if prior == 0:
+        return float('inf') if posterior > 0 else 0
+
+    # Calculate Z-score based on whether posterior is greater than or equal to prior
+    if posterior >= prior:
+        z = (posterior - prior) / (1 - prior)
+    else:
+        z = (posterior - prior) / prior
+
+    return z
+
+
 
 def run_bayesian_analysis(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df):
     """
@@ -34,7 +58,9 @@ def run_bayesian_analysis(cog_list, prior_list, x_target, y_target, z_target, ra
         "Specify the Bayesian confirmation measure you want to use in the analysis (type one of the following letter):\n" +
         "'a' for Bayes' Factor;\n" +
         "'b' for difference measure;\n" +
-        "'c' for ratio measure.\n")
+        "'c' for ratio measure.\n" +
+        "'d' for z measure.\n")
+
 
     feature_names = feature_df.columns
 
@@ -97,6 +123,9 @@ def run_bayesian_analysis(cog_list, prior_list, x_target, y_target, z_target, ra
             rm_nq = post_cog_nq / prior if cm == "c" else None
             rm_nq_all.append(rm_nq) if rm_nq is not None else None
 
+            # Calculate Z-score (option d)
+            z_score = calculate_z(post_cog_nq, prior)
+
     df_columns = ['cog', 'Likelihood']
     if cm == "a":
         df_columns.extend(['BF', 'Prior', 'Posterior'])
@@ -110,6 +139,10 @@ def run_bayesian_analysis(cog_list, prior_list, x_target, y_target, z_target, ra
         df_columns.extend(['Ratio', 'Prior', 'Posterior'])
         data_all = list(zip(cog_all, lik_cog_nq_all, rm_nq_all, prior_all, post_cog_nq_all))
         sort_column = 'Ratio'
+    elif cm == "d":
+        df_columns.extend(['Z-score', 'Prior', 'Posterior'])
+        data_all = list(zip(cog_all, lik_cog_nq_all, z_score, prior_all, post_cog_nq_all))
+        sort_column = 'Z-score'
 
     df_data_all = pd.DataFrame(data_all, columns=df_columns)
     df_data_all_like = df_data_all.sort_values('Likelihood', ascending=False)
