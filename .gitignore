@@ -14,3 +14,7 @@ neuroinfer/.vscode/
 neuroinfer/.neuro/
 /.vscode/
 /.neuro/
+/venv/
+.neuro/
+.neuro
+**/*.pkl
