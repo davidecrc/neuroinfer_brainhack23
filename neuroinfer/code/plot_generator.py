@@ -203,7 +203,7 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius):
 
     # Initialize an array for overlay results with zeros of the same shape as reference data
     overlay_results = np.zeros(reference_data_shape.shape)
-    counter = np.ones(reference_data_shape.shape)
+    counter = np.zeros(reference_data_shape.shape)
 
     # Iterate through the given coordinates and apply the measurements to populate overlay_results
     mni2vx_mat = np.linalg.inv(reference_data_shape_nifti.affine)
@@ -219,7 +219,7 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius):
             overlay_results[sphere_coords[0][sc_i], sphere_coords[1][sc_i], sphere_coords[2][sc_i]] += bf[j]
             counter[sphere_coords[0][sc_i], sphere_coords[1][sc_i], sphere_coords[2][sc_i]] += 1
 
-    overlay_results = overlay_results/counter
+    overlay_results = overlay_results/np.where(counter == 0, 1, counter)
 
     # Create a Nifti1Image using the overlay_results and the affine transformation from reference data
     overlay_results_img = nib.Nifti1Image(overlay_results, reference_data_shape_nifti.affine)
