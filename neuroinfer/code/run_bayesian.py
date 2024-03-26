@@ -171,9 +171,15 @@ def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df,cm
     visited_coord = np.zeros(np.max(coordinates_area[0])-np.min(coordinates_area[0]),
                              np.max(coordinates_area[1])-np.min(coordinates_area[1]),
                              np.max(coordinates_area[2])-np.min(coordinates_area[2]))
-    coord_ranges={'xmax':np.max(coordinates_area[0]),'xmin' np.min(coordinates_area[0]),
-                             'ymax':np.max(coordinates_area[1]), 'ymin': np.min(coordinates_area[1]),
-                             'zmax':np.max(coordinates_area[2]),'zmin':np.min(coordinates_area[2])}
+    coord_ranges = {
+    'xmax': np.max(coordinates_area[0]),
+    'xmin': np.min(coordinates_area[0]),
+    'ymax': np.max(coordinates_area[1]),
+    'ymin': np.min(coordinates_area[1]),
+    'zmax': np.max(coordinates_area[2]),
+    'zmin': np.min(coordinates_area[2])
+    }
+
 
     padding = int(radius/3)
     # Iterate through the coordinates_area
@@ -211,20 +217,68 @@ def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df,cm
 #cosi' da non ripetere il calcolo del BF per coordinate vicine
 
 def normalize_coord(x_target, y_target, z_target, coord_ranges):
+    """
+    Normalize target coordinates based on specified coordinate ranges.
+
+    Args:
+        x_target (float): Target x-coordinate.
+        y_target (float): Target y-coordinate.
+        z_target (float): Target z-coordinate.
+        coord_ranges (dict): Dictionary containing coordinate range information.
+
+    Returns:
+        tuple: Normalized x, y, and z coordinates.
+    """
+
     xnorm = x_target - coord_ranges['xmin']
     ynorm = y_target - coord_ranges['xmin']
     znorm = z_target - coord_ranges['xmin']
     return xnorm, ynorm, znorm
 
 def visited_coord(coord, visited_coords):
+    """
+    Check if a coordinate has been visited.
+
+    Args:
+        coord (tuple): Tuple containing x, y, and z coordinates.
+        visited_coords (dict): Dictionary of visited coordinates.
+
+    Returns:
+        bool: True if the coordinate has been visited, False otherwise.
+    """
+
+    #TODO: if on the edge of the volume, return True --> if sum visited_coords[coord] >0.5 (tresholds), return True
     if any(visited_coords[coord]) == 1:
         return True
     return False
 
 def update_visited_coord(visited_coords, x_norm, y_norm, z_norm, padding):
+    """
+    Update the dictionary of visited coordinates with the given normalized coordinates.
+
+    Args:
+        visited_coords (dict): Dictionary of visited coordinates.
+        x_norm (float): Normalized x-coordinate.
+        y_norm (float): Normalized y-coordinate.
+        z_norm (float): Normalized z-coordinate.
+        padding (int): Padding value to be added to the z-coordinate.
+
+    Returns:
+        tuple: Tuple containing updated x, y, and z coordinates with padding.
+    """
     coords_visited = x_norm, y_norm, z_norm + padding
     visited_coords[coords_visited] = 1
     return coords_visited
 
 def is_visited(current_coord, visited_coords):
+    """
+    Check if a coordinate has been visited.
+
+    Args:
+        current_coord (tuple): Tuple containing x, y, and z coordinates.
+        visited_coords (dict): Dictionary of visited coordinates.
+
+    Returns:
+        bool: True if the coordinate has been visited, False otherwise.
+    """
     return visited_coords[current_coord[0], current_coord[1], current_coord[2]]
