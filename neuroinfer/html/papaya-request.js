@@ -87,6 +87,7 @@ window.submitForm = function() {
                 // Parsing the JSON response and displaying the plot
                 var response = JSON.parse(xhr.responseText);
                 displayPlot(response.image);
+                update_papaya_viewer(true);
             }
         }
     };
