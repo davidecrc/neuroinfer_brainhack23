@@ -25,11 +25,35 @@ It offers two analysis pathways:
 The script calculates various statistics including likelihood, prior, posterior, and Bayesian Factor (BF).
 It uses the functions get_atlas_coordinates_json e get_distance to obtain the coordinates in an atlas and the distance between pair of coordinates.
 '''
+
+def calculate_z(posterior, prior):
+    """
+    Calculate the Z-score based on posterior and prior probabilities.
+
+    Args:
+        posterior (float): Posterior probability.
+        prior (float): Prior probability.
+
+    Returns:
+        float: Z-score indicating the significance of the difference between posterior and prior probabilities.
+    """
+    # Ensure that the denominator is not zero
+    if prior == 0:
+        return float('inf') if posterior > 0 else 0
+
+    # Calculate Z-score based on whether posterior is greater than or equal to prior
+    if posterior >= prior:
+        z = (posterior - prior) / (1 - prior)
+    else:
+        z = (posterior - prior) / prior
+
+    return z
+
 def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm): 
     frequency_threshold = 0.05
     t = time.time()
     cog_all, prior_all, ids_cog_nq_all, intersection_cog_nq_all, intersection_not_cog_nq_all = [], [], [], [], []
-    lik_cog_nq_all, lik_not_cog_nq_all, lik_ratio_nq_all, post_cog_nq_all, df_nq_all, rm_nq_all = [], [], [], [], [], []
+    lik_cog_nq_all, lik_not_cog_nq_all, lik_ratio_nq_all, post_cog_nq_all, df_nq_all, rm_nq_all, z_score_all = [], [], [], [], [], [], []
 
     feature_names = feature_df.columns
 
@@ -86,6 +110,9 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
             rm_nq = post_cog_nq / prior if cm == "c" else None
             rm_nq_all.append(rm_nq) if rm_nq is not None else None
 
+            z_score_nq = calculate_z(post_cog_nq, prior) if cm == "d" else None
+            z_score_all.append(z_score_nq) if z_score_nq is not None else None
+
     df_columns = ['cog', 'Likelihood']
     if cm == "a":
         df_columns.extend(['BF', 'Prior', 'Posterior'])
@@ -99,6 +126,10 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
         df_columns.extend(['Ratio', 'Prior', 'Posterior'])
         data_all = list(zip(cog_all, lik_cog_nq_all, rm_nq_all, prior_all, post_cog_nq_all))
         sort_column = 'Ratio'
+    elif cm == "d":
+        df_columns.extend(['Z-score', 'Prior', 'Posterior'])
+        data_all = list(zip(cog_all, lik_cog_nq_all, z_score_all, prior_all, post_cog_nq_all))
+        sort_column = 'Z-score'
 
     df_data_all = pd.DataFrame(data_all, columns=df_columns)
     df_data_all_sorted = df_data_all.sort_values(sort_column, ascending=False)
