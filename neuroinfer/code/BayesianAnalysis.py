@@ -17,24 +17,29 @@ It plots BF distributions and computes basic statistical metrics.
 
 '''
 
-
 def run_bayesian_analysis_router(cog_list, area, prior_list, x_target, y_target, z_target, radius, result_df):
     cm = input(
-        "Specify the Bayesian confirmation measure you want to use in the analysis (type one of the following letter):\n"
-        "'a' for Bayes' Factor;\n"
-        "'b' for difference measure;\n"
-        "'c' for ratio measure.\n")
+        "Specify the Bayesian confirmation measure you want to use in the analysis (type one of the following letter):\n" +
+        "'a' for Bayes' Factor;\n" +
+        "'b' for difference measure;\n" +
+        "'c' for ratio measure.\n" +
+        "'d' for z measure.\n")
 
     script_directory = os.path.dirname(os.path.abspath(__file__))
     global_path = os.path.dirname(script_directory)
     results_folder_path = os.path.join(global_path, "results")
+
+    # Check if results_folder_path exists, if not, create it
+    if not os.path.exists(results_folder_path):
+        os.makedirs(results_folder_path)
+
 
     if not pd.isnull(area) and pd.isnull(x_target) and pd.isnull(y_target) and pd.isnull(z_target):
         # Call run_bayesian_analysis_area if area is not nan and coordinates are nan
         results=run_bayesian_analysis_area(cog_list, prior_list, area, radius, result_df, cm)
 
         # Save results_dict to a pickle file
-        file_path = os.path.join(results_folder_path, f"results_area_{area}_{cog_list}.pkl")
+        file_path = os.path.join(results_folder_path, f"results_area_cm_{cm}_{area}_{cog_list}.pkl")
 
         with open(file_path, "wb") as f:
             pickle.dump(results, f)
@@ -44,7 +49,7 @@ def run_bayesian_analysis_router(cog_list, area, prior_list, x_target, y_target,
         # Call run_bayesian_analysis_coordinates if coordinates are not nan and area is nan
         results=run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, result_df, cm)
 
-        pickle_file_name = f'results_BHL_coordinates_x{x_target}_y{y_target}_z{z_target}.pickle'
+        pickle_file_name = f'results_BHL_coordinates_cm_{cm}_x{x_target}_y{y_target}_z{z_target}.pickle'
         pickle_file_path = os.path.join(results_folder_path, pickle_file_name)
         with open(pickle_file_path, 'wb') as file:
             pickle.dump(results, file)
