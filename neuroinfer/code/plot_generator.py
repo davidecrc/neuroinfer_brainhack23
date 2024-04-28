@@ -202,7 +202,8 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius):
     reference_data_shape = np.asarray(reference_data_shape_nifti.get_fdata(), dtype=np.int32)
 
     # Initialize an array for overlay results with zeros of the same shape as reference data
-    overlay_results = np.zeros(reference_data_shape.shape)
+    overlay_results = np.zeros([*reference_data_shape.shape, len(result_dict[0]['cog_list'])])
+    counter = np.zeros([*reference_data_shape.shape, len(result_dict[0]['cog_list'])])
 
     # Iterate through the given coordinates and apply the measurements to populate overlay_results
     mni2vx_mat = np.linalg.inv(reference_data_shape_nifti.affine)
@@ -215,7 +216,13 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius):
         )
         sphere_coords = get_sphere_coords([int(vx_coord[0]), int(vx_coord[1]), int(vx_coord[2])], vx_radius, overlay_results)
         for sc_i in range(sphere_coords[0].shape[0]):
-            overlay_results[sphere_coords[0][sc_i], sphere_coords[1][sc_i], sphere_coords[2][sc_i]] += bf[j]
+            overlay_results[sphere_coords[0][sc_i], sphere_coords[1][sc_i], sphere_coords[2][sc_i], :] += bf[j] #TODO: this depends on the type of analysis done!
+            for cog_counter in range(len(result_dict[0]['cog_list'])):
+                if bf[j][cog_counter] == 0:
+                    continue
+                counter[sphere_coords[0][sc_i], sphere_coords[1][sc_i], sphere_coords[2][sc_i], cog_counter] += 1
+
+    overlay_results = overlay_results/np.where(counter == 0, 1, counter)
 
     # Create a Nifti1Image using the overlay_results and the affine transformation from reference data
     overlay_results_img = nib.Nifti1Image(overlay_results, reference_data_shape_nifti.affine)
@@ -329,7 +336,7 @@ def parse_input_args(data):
 
 if __name__ == '__main__':
     data = dict()
-    data['brainRegion'] = "37"
+    data['brainRegion'] = "47"
     data['radius'] = "4"
     data['x'] = "0"
     data['y'] = "0"

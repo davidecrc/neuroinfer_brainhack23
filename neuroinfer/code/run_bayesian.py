@@ -11,7 +11,7 @@ from PIL import Image
 from nilearn import image
 from scipy import sparse
 import json
-
+from neuroinfer import PKG_FOLDER
 import pickle
 
 '''
@@ -49,7 +49,10 @@ def calculate_z(posterior, prior):
 
     return z
 
-def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm): 
+def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm):
+
+
+def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm):
     frequency_threshold = 0.05
     t = time.time()
     cog_all, prior_all, ids_cog_nq_all, intersection_cog_nq_all, intersection_not_cog_nq_all = [], [], [], [], []
@@ -232,11 +235,16 @@ def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df,cm
         #df_data_all, cm, cog_all, prior_all, x_target, y_target, z_target, radius
 
         # Check if next_coord is distant > rescaled_radius * 0.98 from all previous coordinates
-        
-        #if all(get_distance((x_target, y_target, z_target), coordinate) > rescaled_radius * 0.98 for coordinate in coord):
-        if get_distance((x_target, y_target, z_target), coordinates_area[i+1]) > rescaled_radius: #TODO upload checking all the distance from the ROIS
-            print(f'Calculating cm for the {i+1} ROI out of {len(coordinates_area)}, {((i+1)/len(coordinates_area))*100}% ')
-            print(get_distance((x_target, y_target, z_target), coordinates_area[i+1]))    
+
+        # if all(get_distance((x_target, y_target, z_target), coordinate) > rescaled_radius * 0.98 for coordinate in coord):
+        if get_distance((x_target, y_target, z_target), coordinates_area[
+            i + 1]) > rescaled_radius:  # TODO upload checking all the distance from the ROIS
+            print(
+                f'Calculating cm for the {i + 1} ROI out of {len(coordinates_area)}, {((i + 1) / len(coordinates_area)) * 100}% ')
+            if i % 10 == 0:
+                with open(PKG_FOLDER / 'neuroinfer' / '.tmp' / 'processing_progress', 'w') as f_tmp:
+                    f_tmp.write(str((i + 1) / len(coordinates_area)))
+            print(get_distance((x_target, y_target, z_target), coordinates_area[i + 1]))
             # Call run_bayesian_analysis_coordinates with the current coordinates
             results = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, rescaled_radius, feature_df,cm)
             # Append a tuple containing the BF value and the coordinates to result_with_coordinates
