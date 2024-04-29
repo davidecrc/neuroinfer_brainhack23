@@ -56,6 +56,9 @@
     <div class="container">
       <h2 style="text-align: center;">Coordinate and Probability Input</h2>
       <form id="myForm">
+        <label for="atlasList">Atlas List:</label>
+        <select id="atlasList" name="atlasList"><option>-- SElECT ONE DATASET --</option></select>
+
         <label for="brainRegion">Brain Region:</label>
         <select id="brainRegion" name="brainRegion" onchange="changeRegionMask()"></select>
 
@@ -92,11 +95,18 @@
       </form>
     </div>
 
+    <div id="ctrvisualizer">
+        <input type="radio" id="radio1" name="fileSelector" value="0" checked>
+<label for="radio1">File 1</label>
+<input type="radio" id="radio2" name="fileSelector" value="1">
+<label for="radio2">File 2</label>
+    </div>
+
     <div id="visualizer">
     </div>
 
     <div class="graphics-container" id="graphicsContainer">
-      <h2>Graphics Container</h2>
+      <h2>Graphics placeholder</h2>
     </div>
   </div>
   <!--  <script type="text/javascript" src="main.js"></script> <!-- must be placed here as it will look for div id "visualizer" -->
@@ -106,6 +116,21 @@
   <script src="papaya-request.js"></script>
   <script src="papaya-display.js"></script>
   <script src="fetch-brain-regions.js"></script>
+<!-- JavaScript to handle radio button changes -->
+<script>
+    // Function to handle radio button changes
+    function handleRadioButtonChange() {
+        var selectedValue = document.querySelector('input[name="fileSelector"]:checked').value;
+        // Call update_papaya_viewer with the selected filenames element
+        update_papaya_viewer(filenames[selectedValue]);
+    }
+
+    // Add event listeners to radio buttons
+    var radioButtons = document.querySelectorAll('input[name="fileSelector"]');
+    radioButtons.forEach(function(radioButton) {
+        radioButton.addEventListener('change', handleRadioButtonChange);
+    });
+</script>
 </body>
 </html>
 

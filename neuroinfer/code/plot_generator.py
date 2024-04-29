@@ -6,12 +6,11 @@ import nilearn
 from neuroinfer.code.run_bayesian import run_bayesian_analysis_area
 import numpy as np
 import datetime
-from pathlib import Path
 import nibabel as nib
 from nilearn import image
 import os
 import matplotlib.pyplot as plt
-from neuroinfer import PKG_FOLDER, DATA_FOLDER, TEMPLATE_FOLDER, CODE_FOLDER, HTML_FOLDER, RESULTS_FOLDER
+from neuroinfer import DATA_FOLDER, TEMPLATE_FOLDER
 
 from neuroinfer.code.DataLoading import load_data_and_create_dataframe
 
@@ -97,7 +96,7 @@ def main_analyse_and_render(data):
     # The generate_nifti_bf_heatmap function utilizes the coordinates and Bayesian factors
     # to generate a heatmap and saves it as a NIfTI file. This heatmap visually represents
     # the spatial distribution of the Bayesian factor values in the specified brain region.
-    filename = generate_nifti_bf_heatmap(result_dict, atlas_path, radius)
+    filenames = generate_nifti_bf_heatmap(result_dict, atlas_path, radius, cog_list)
 
     # Creating a bar plot using matplotlib
     plt.bar(brain_region, [float(p) for p in prior_list])
@@ -112,8 +111,9 @@ def main_analyse_and_render(data):
 
     # Send the base64 encoded image data as a response
     response = {
+        'num_slices': len(filenames),
         'status': 'success',
-        'message': filename,
+        'message': filenames,
         'image': img_base64
     }
 
@@ -169,7 +169,7 @@ def create_hist(coords, bf):
     return results
 
 
-def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius):
+def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius, cog_list):
     """
     Generate a NIfTI heatmap based on sorted coordinates and bayesian factors/measurements.
 
@@ -202,8 +202,8 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius):
     reference_data_shape = np.asarray(reference_data_shape_nifti.get_fdata(), dtype=np.int32)
 
     # Initialize an array for overlay results with zeros of the same shape as reference data
-    overlay_results = np.zeros([*reference_data_shape.shape, len(result_dict[0]['cog_list'])])
-    counter = np.zeros([*reference_data_shape.shape, len(result_dict[0]['cog_list'])])
+    overlay_results = np.zeros([*reference_data_shape.shape, len(bf[0])])
+    counter = np.zeros([*reference_data_shape.shape, len(bf[0])])
 
     # Iterate through the given coordinates and apply the measurements to populate overlay_results
     mni2vx_mat = np.linalg.inv(reference_data_shape_nifti.affine)
@@ -224,18 +224,20 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius):
 
     overlay_results = overlay_results/np.where(counter == 0, 1, counter)
 
-    # Create a Nifti1Image using the overlay_results and the affine transformation from reference data
-    overlay_results_img = nib.Nifti1Image(overlay_results, reference_data_shape_nifti.affine)
-
     # Check if the '.tmp/' directory exists, if not, create it
     if not os.path.isdir('.tmp/'):
         os.mkdir('.tmp/')
 
-    # Generate a timestamp for file naming and save the heatmap in the '.tmp/' folder
-    time_results = f"{datetime.datetime.now():%Y%m%d_%H%M%S}"
-    filename = ".tmp/" + time_results + "overlay_results.nii.gz"
-    nib.save(overlay_results_img, filename)
-    nib.save(overlay_results_img, '.tmp/mask.nii.gz')
+    overlay_results_img = []
+    filename = []
+    # Create a Nifti1Image using the overlay_results and the affine transformation from reference data
+    for i in range(overlay_results.shape[-1]):
+        overlay_results_img.append(nib.Nifti1Image(overlay_results[:, :, :, i], reference_data_shape_nifti.affine))
+
+        # Generate a timestamp for file naming and save the heatmap in the '.tmp/' folder
+        time_results = f"{datetime.datetime.now():%Y%m%d_%H%M%S}"
+        filename.append(".tmp/" + time_results + "overlay_results_" + str(i) + ".nii.gz")
+        nib.save(overlay_results_img[i], filename[i])
 
     return filename
 
@@ -337,10 +339,10 @@ def parse_input_args(data):
 if __name__ == '__main__':
     data = dict()
     data['brainRegion'] = "47"
-    data['radius'] = "4"
+    data['radius'] = "3"
     data['x'] = "0"
     data['y'] = "0"
     data['z'] = "0"
-    data['words'] = "face,children"
-    data['probabilities'] = "0.5,0.5"
+    data['words'] = "face,children,true"
+    data['probabilities'] = "0.5,0.5,0.5"
     main_analyse_and_render(data)

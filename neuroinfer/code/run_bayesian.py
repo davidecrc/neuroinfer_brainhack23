@@ -49,8 +49,6 @@ def calculate_z(posterior, prior):
 
     return z
 
-def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm):
-
 
 def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm):
     frequency_threshold = 0.05
@@ -142,7 +140,7 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
     print('time elapsed:', elapsed)
 
     results = {
-        "df_data_all": df_data_all_sorted,
+        "df_data_all": df_data_all,
         "cm": cm,
         "cog_list": cog_all,
         "prior_list": prior_all,
