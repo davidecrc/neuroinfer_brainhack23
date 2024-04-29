@@ -33,7 +33,7 @@ window.submitForm = function() {
     var x = document.getElementById("x").value;
     var y = document.getElementById("y").value;
     var z = document.getElementById("z").value;
-    var words = document.getElementById("words").value;
+    words = document.getElementById("words").value;
     var probabilities = document.getElementById("probabilities").value;
 
     // Creating form data with the analysis parameters
@@ -89,6 +89,8 @@ window.submitForm = function() {
                 displayPlot(response.image);
                 filenames = response.message; // Store filenames globally
                 update_papaya_viewer(response.message);
+                createRadioButtons();
+                document.getElementById("image-navigator").style.display = 'grid';
             }
         }
     };
@@ -97,3 +99,98 @@ window.submitForm = function() {
     var jsonData = JSON.stringify(formData);
     xhr.send(jsonData);
 };
+
+function createRadioButtons() {
+    var words_split = words.split(",");
+    var container = document.getElementById('radio-container');
+    container.innerHTML = ''; // Clear previous content
+
+var emptyCell = document.createElement('div');
+emptyCell.textContent = '';
+emptyCell.setAttribute('class', 'grid-item')
+container.appendChild(emptyCell);
+    
+for (var h = 0; h < words_split.length; h++) { // Adjusted to match the number of columns in the table
+    var headerCell = document.createElement('div');
+    headerCell.textContent = words_split[h]; // Adjusted index to match words array
+    headerCell.setAttribute('class', 'grid-item')
+    container.appendChild(headerCell);
+}
+
+var numRows = 3;
+for (var i = 0; i < numRows; i++) {
+    var cell = document.createElement('div');
+    cell.textContent = 'overaly_' + (i + 1); // Adjusted index to match words array
+    cell.setAttribute('class', 'grid-item')
+    container.appendChild(cell);
+    for (var j = 0; j < words_split.length; j++) { // Adjusted to match the number of columns in the table
+        var cell = document.createElement('div');
+            var checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.name = 'file';
+            checkbox.value = 'row_' + i + '_file_' + (j - 1); // Adjusted index to match filenames array
+            checkbox.id = 'row_' + i + '_file_' + (j - 1); // Adjusted index to match filenames array
+            cell.appendChild(checkbox);
+            cell.setAttribute('class', 'grid-item')
+        container.appendChild(cell);
+    }
+}
+var autoRepeat = "";
+for (var i = 0; i < words_split.length + 1; i++) {
+    autoRepeat += "auto ";
+}
+
+// Apply styles for centering
+container.style.display = 'grid';
+container.style.gridTemplateColumns = autoRepeat.trim();
+var supercontainer = document.getElementById('radio-grid-container');
+supercontainer.style.display = 'block';
+
+}
+
+
+function update_overlays() {
+    var words_split = words.split(",");
+    var container = document.getElementById('radio-container');
+    var numRows = 3; // Assuming you have 3 rows of checkboxes
+
+    var checkboxValues = [];
+
+    for (var i = 0; i < numRows; i++) {
+        var rowValues = [];
+        for (var j = 0; j < words_split.length; j++) { // Assuming `words` is defined globally or within scope
+            var checkboxId = 'row_' + i + '_file_' + (j - 1); // Adjusted index to match checkbox IDs
+            var checkbox = document.getElementById(checkboxId);
+            rowValues.push(checkbox.checked); // Pushing boolean value of checkbox
+        }
+        checkboxValues.push(rowValues);
+    }
+    console.log(rowValues)
+    console.log(checkboxValues[1])
+    console.log(checkboxValues)
+
+    // Creating form data with the brain region information
+    var formData = {
+        combination_bool: checkboxValues,
+        file_list: filenames
+    };
+
+    // Creating an XMLHttpRequest for the POST request to the server
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "http://127.0.0.1:5000/", true);
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+    // Handling the response to update the Papaya viewer
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            var response = JSON.parse(xhr.responseText);
+            console.log("response:")
+            console.log(response.message)
+            update_papaya_viewer(response.message);
+        }
+    };
+
+    // Converting form data to JSON and sending the POST request
+    var jsonData = JSON.stringify(formData);
+    xhr.send(jsonData);
+}

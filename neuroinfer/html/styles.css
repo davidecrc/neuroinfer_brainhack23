@@ -25,15 +25,19 @@ body {
   padding: 20px;
 }
 
-.container, #visualizer, .graphics-container {
-  width: 32%;
+#visualizer, #graphics-container, #radio-grid-container, #graphics-container, #image-navigator, #form-container {
   background-color: #f3f3f3;
-  padding: 20px;
-  margin: 10px;
   border: 1px solid #ddd;
   box-sizing: border-box;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.container {
+  width: 32%;
+  padding: 20px;
+  margin: 10px;
 }
 
 .container form {
@@ -74,7 +78,7 @@ width: 80px;
 margin-top: 40px;
 }
 
-.container button {
+button {
   padding: 12px;
   background-color: #4CAF50;
   color: white;
@@ -83,7 +87,7 @@ margin-top: 40px;
   cursor: pointer;
 }
 
-.container button:hover {
+button:hover {
   background-color: #45a049;
 }
 
@@ -144,7 +148,7 @@ margin-top: 40px;
     align-items: center;
   }
 
-  .container, #visualizer, .graphics-container {
+  .container {
     width: 80%;
   }
 }
@@ -208,4 +212,22 @@ margin-top: 40px;
 .help-caller {
 display: inline;
 width:20px;
+}
+
+#radio-grid-container{
+  display: none;
+  padding: 10px;
+  margin-top: 20px;
+}
+
+#image-navigator{
+  display: none;
+  grid-template-columns: auto auto auto;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.grid-item{
+  padding: 5px;
+  text-align: center;
 }

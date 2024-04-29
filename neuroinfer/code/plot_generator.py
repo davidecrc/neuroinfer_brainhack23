@@ -47,6 +47,19 @@ def create_mask_region(brain_region):
     return response
 
 
+def update_overlay(combination_bool, file_list):
+    output_names = [os.path.join('.tmp/', f"overlay_{index}.nii.gz") for index in range(3)]
+    for index, bool_list in enumerate(combination_bool):
+        get_combined_overlays(bool_list, file_list, output_names[index])
+
+    response = {
+        'status': 'success',
+        'message': output_names,
+    }
+
+    return response
+
+
 def main_analyse_and_render(data):
     """
     Generate a bar plot based on input data and return the plot as a base64-encoded image.
@@ -236,7 +249,7 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius, cog_list):
 
         # Generate a timestamp for file naming and save the heatmap in the '.tmp/' folder
         time_results = f"{datetime.datetime.now():%Y%m%d_%H%M%S}"
-        filename.append(".tmp/" + time_results + "overlay_results_" + str(i) + ".nii.gz")
+        filename.append(".tmp/" + time_results + "init_results_" + str(i) + ".nii.gz")
         nib.save(overlay_results_img[i], filename[i])
 
     return filename
@@ -255,6 +268,26 @@ def get_sphere_coords(coords, vx_radius, overlay_results):
     template_indices = np.nonzero(template_3D)
 
     return template_indices
+
+
+def get_combined_overlays(bool_list, file_list, out_file):
+    print(bool_list)
+    print(file_list)
+    print(out_file)
+    file_nifti = None
+
+    for index, to_load in enumerate(bool_list):
+        if to_load:
+            image_nifti_current = nib.load(file_list[index])
+            if file_nifti is None:
+                file_nifti = np.asarray(image_nifti_current.get_fdata(), dtype=np.int32)
+            else:
+                current_img = np.asarray(image_nifti_current.get_fdata(), dtype=np.int32)
+                file_nifti = np.maximum(file_nifti, current_img)
+
+    overlay_results_img = nib.Nifti1Image(file_nifti, image_nifti_current.affine)
+    nib.save(overlay_results_img, out_file)
+
 
 
 def parse_input_args(data):
