@@ -48,8 +48,9 @@ def create_mask_region(brain_region):
 
 
 def update_overlay(combination_bool, file_list):
-    output_names = [os.path.join('.tmp/', f"overlay_{index}.nii.gz") for index in range(3)]
+    output_names = []
     for index, bool_list in enumerate(combination_bool):
+        output_names.append(os.path.join('.tmp/', f"overlay_{index}.nii.gz"))
         get_combined_overlays(bool_list, file_list, output_names[index])
 
     response = {
@@ -280,9 +281,9 @@ def get_combined_overlays(bool_list, file_list, out_file):
         if to_load:
             image_nifti_current = nib.load(file_list[index])
             if file_nifti is None:
-                file_nifti = np.asarray(image_nifti_current.get_fdata(), dtype=np.int32)
+                file_nifti = np.asarray(image_nifti_current.get_fdata())
             else:
-                current_img = np.asarray(image_nifti_current.get_fdata(), dtype=np.int32)
+                current_img = np.asarray(image_nifti_current.get_fdata())
                 file_nifti = np.maximum(file_nifti, current_img)
 
     overlay_results_img = nib.Nifti1Image(file_nifti, image_nifti_current.affine)
