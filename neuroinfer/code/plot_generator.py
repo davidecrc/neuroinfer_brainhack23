@@ -1,26 +1,25 @@
 from io import BytesIO
 import base64
-
 import nilearn
-
-from neuroinfer.code.run_bayesian import run_bayesian_analysis_area
 import numpy as np
 import datetime
 import nibabel as nib
 from nilearn import image
 import os
 import matplotlib.pyplot as plt
-from neuroinfer import DATA_FOLDER, TEMPLATE_FOLDER
+from scipy.ndimage import convolve
 
+from neuroinfer import DATA_FOLDER, TEMPLATE_FOLDER
 from neuroinfer.code.DataLoading import load_data_and_create_dataframe
+from neuroinfer.code.run_bayesian import run_bayesian_analysis_area
 
 plt.switch_backend('Agg')
 atlas_path = TEMPLATE_FOLDER / 'atlases' / 'HarvardOxford' / 'HarvardOxford-cort-maxprob-thr25-2mm.nii.gz'
 
 
-def create_mask_region(brain_region):
+def create_mask_region(brain_region, smooth_factor):
     """
-    Create a NIfTI mask for a specified brain region.
+    Create a NIfTI mask for a specified list of brain regions.
 
     Parameters:
     - brain_region: The ID or label of the brain region for which the mask will be generated.
@@ -34,9 +33,24 @@ def create_mask_region(brain_region):
     - The mask is generated based on the specified brain region and a pre-defined atlas image path.
     - The function then returns a response dictionary indicating the success of the mask generation.
     """
+    print(brain_region)
+    smooth_factor = np.int32(smooth_factor)
 
     # Use the 'generate_nifit_mask' function to create the NIfTI mask for the specified brain region
-    generate_nifit_mask(brain_region, atlas_path)
+    mask_3d, affine = generate_nifit_mask(brain_region, atlas_path)
+    if smooth_factor > 0:
+        mask_3d = smooth_mask(mask_3d, smooth_factor)
+    print(type(mask_3d))
+    print(type(mask_3d[1,1,1]))
+    print(mask_3d.shape)
+
+    # Check if the '.tmp/' directory exists, if not, create it
+    if not os.path.isdir('.tmp/'):
+        os.mkdir('.tmp/')
+
+    # Save the modified atlas image as 'mask.nii.gz' in the '.tmp/' directory
+    nifti_image = nib.Nifti1Image(mask_3d, affine)
+    nib.save(nifti_image, '.tmp/mask.nii.gz')
 
     # Construct a response indicating success
     response = {
@@ -88,7 +102,7 @@ def main_analyse_and_render(data):
     cog_list, prior_list, x_target, y_target, z_target, radius, brain_region = parse_input_args(data)
 
     # Generating a NIfTI mask for the selected region
-    generate_nifit_mask(brain_region, atlas_path)
+    create_mask_region(data['brainRegion'], data['smooth'])
 
     # Perform Bayesian analysis to obtain coordinates (coords) and Bayesian factor values (bf)
     # The run_bayesian_analysis function takes parameters such as brain_region, words, radius, and priors,
@@ -153,7 +167,7 @@ def generate_nifit_mask(region_id, atlas_target_path):
     """
 
     # Convert region_id to integer
-    region_id = np.int32(region_id)
+    region_id = [np.int32(a) for a in region_id]
 
     # Load atlas image
     atlas_img = image.load_img(atlas_target_path)
@@ -163,19 +177,11 @@ def generate_nifit_mask(region_id, atlas_target_path):
 
     # Create a mask and set values to 1000 where atlas_data is equal to region_id
     mask = np.zeros(atlas_data.shape)
-    mask[atlas_data == region_id] = 1
+    for current_id in region_id:
+        mask[atlas_data == current_id] = 1
 
     # convert to Nifti1Image by using the original affine transformation as reference
-    modified_atlas_img = nib.Nifti1Image(mask, atlas_img.affine)
-
-    # Check if the '.tmp/' directory exists, if not, create it
-    if not os.path.isdir('.tmp/'):
-        os.mkdir('.tmp/')
-
-    # Save the modified atlas image as 'mask.nii.gz' in the '.tmp/' directory
-    nib.save(modified_atlas_img, '.tmp/mask.nii.gz')
-
-    return
+    return mask, atlas_img.affine
 
 
 def create_hist(coords, bf):
@@ -290,6 +296,21 @@ def get_combined_overlays(bool_list, file_list, out_file):
     nib.save(overlay_results_img, out_file)
 
 
+def smooth_mask(mask_3d, n):
+    # Define the size of the kernel based on the smoothing factor
+    kernel_size = 2 * n + 1
+
+    # Define the smoothing kernel for averaging
+    kernel = np.ones((kernel_size, kernel_size, kernel_size)) / (kernel_size ** 3)
+
+    # Apply convolution to perform smoothing
+    smoothed_mask = convolve(mask_3d.astype(float), kernel)
+
+    # Convert back to binary mask
+    smoothed_mask = (smoothed_mask > 0.5).astype(float)
+
+    return smoothed_mask
+
 
 def parse_input_args(data):
     """
@@ -321,7 +342,7 @@ def parse_input_args(data):
     # Type conversion and validation checks
     if (len(brain_region) > 0) and (str(type(brain_region)) != "int"):
         try:
-            brain_region = np.int32(brain_region)
+            brain_region = [np.int32(a) for a in brain_region]
         except ValueError:
             raise Exception(f"Cannot convert {brain_region} to an int")
 

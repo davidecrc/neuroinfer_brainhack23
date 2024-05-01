@@ -39,32 +39,17 @@ def handle_post_request():
     print(form_keys)
 
     # Check if only one key is present in the request
-    if len(form_keys) == 1:
-        if 'brainRegion' in form_keys:
-            # If the only key is 'brainRegion', attempt to create a mask for the specified brain region
-            try:
-                response = create_mask_region(dict_request['brainRegion'])
-            except KeyError:
-                # Handle the case where the specified key does not exist in the dictionary
-                response = {
-                    'status': 'error',
-                    'message': 'Key does not exist in the dictionary.'
-                }
-        else:
-            # Handle the case where the only key is not 'brainRegion'
-            response = {
-                'status': 'error',
-                'message': 'Invalid key in the request. Only "brainRegion" is allowed.'
-            }
-    else:
-        # If 'combination_bool' and 'file_list' keys are present, send them to update_overlay
-        if 'combination_bool' in form_keys and 'file_list' in form_keys:
-            print(dict_request['combination_bool'])
-            print(dict_request['file_list'])
-            response = update_overlay(dict_request['combination_bool'], dict_request['file_list'])
-        else:
-            # If multiple keys are present, perform the main analysis and rendering
-            response = main_analyse_and_render(dict_request)
+    if 'func' in form_keys and dict_request['func'] == "update_mask":
+        # If the only key is 'brainRegion', attempt to create a mask for the specified brain region
+        response = create_mask_region(dict_request['brainRegion'], dict_request['smooth'])
+    # If 'combination_bool' and 'file_list' keys are present, send them to update_overlay
+    elif 'func' in form_keys and dict_request['func'] == "update_overlays":
+        print(dict_request['combination_bool'])
+        print(dict_request['file_list'])
+        response = update_overlay(dict_request['combination_bool'], dict_request['file_list'])
+    elif 'func' in form_keys and dict_request['func'] == "do_analysis":
+        # If multiple keys are present, perform the main analysis and rendering
+        response = main_analyse_and_render(dict_request)
 
     # Return the response as JSON
     return jsonify(response)

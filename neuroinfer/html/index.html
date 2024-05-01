@@ -61,8 +61,14 @@
                 <option>-- SElECT ONE DATASET --</option>
             </select>
 
-            <label for="brainRegion">Brain Region:</label>
-            <select id="brainRegion" name="brainRegion" onchange="changeRegionMask()"></select>
+            <label for="brainRegion" style="margin-top:10px">Brain Region:</label>
+            <div id="brainregionselector">
+            <div class="regionselector"><select id="brainRegion" name="brainRegion" onchange="changeRegionMask()"></select></div>
+            </div>
+            <button type="button" class="add-icon" style="background-color:#aaa; margin-top:10px;" onclick="addBrainRegion()">Add Region</button>
+
+            <div id="smoothcontainer" style="margin-top:10px"><label for="smooth">Smooth Factor:</label>
+                <input type="number" id="smooth" name="smooth" value="0" onchange="changeRegionMask()"></div>
 
             <hr class="hr-text" data-content="OR">
 
@@ -79,6 +85,10 @@
             <div id="radiuscontainer"><img src="help_icon.png" class="help-caller"><label for="radius">Radius:</label>
                 <input type="number" id="radius" name="radius"></div>
             <div class="help-container">Set the radius in mm for either the ROI or Searchlight sphere</div>
+
+            <div id="nvx_incontainer"><img src="help_icon.png" class="help-caller"><label for="nvx">minimum portion of sphere in mask:</label>
+                <input type="number" id="nvx" name="nvx" value="1" min="0.1" max="1"></div>
+            <div class="help-container">Set a minimum percentage of sphere to be considered when fit in the mask</div>
 
             <img src="help_icon.png" class="help-caller"><label for="words">List of Words (comma-separated):</label>
             <textarea id="words" name="words" rows="4" oninput="autocompleteWords()" required></textarea>
@@ -110,7 +120,16 @@
                     (0.3-0.6), or high (0.6-0.9) prior. Instead, if you don't have any idea about how to set the prior
                     of the hypothesis, consider to set the prior to a uniform value, i.e., 0.5.</p>
             </div>
-            <button type="button" onclick="submitForm()">Submit</button>
+
+            <label for="metric" style="margin-top:10px">Desired metric:</label>
+            <select id="metric" name="metric">
+                <option value="all">All</option>
+                <option value="bf">Bayesian Factor</option>
+                <option value="z">Z-measure</option>
+                <option value="diff">Difference</option>
+                <option value="ratio">Ratio</option></select>
+
+            <button type="button" onclick="submitForm()" style="margin-top:10px">Submit</button>
         </form>
     </div>
 
@@ -122,6 +141,7 @@
             <div class="grid-item"><input type="radio" id="radio1" name="fileSelector" value="0" checked></div>
             <div class="grid-item"><input type="radio" id="radio2" name="fileSelector" value="1"></div>
             <div class="grid-item"><input type="radio" id="radio3" name="fileSelector" value="2"></div>
+            <button type="button" onclick="reset()">reset</button>
         </div>
 
         <div id="visualizer"></div>
@@ -157,6 +177,7 @@
         radioButton.addEventListener('change', handleRadioButtonChange);
     });
 </script>
+
 </body>
 </html>
 

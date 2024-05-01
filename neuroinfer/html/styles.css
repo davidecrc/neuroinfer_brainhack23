@@ -91,6 +91,12 @@ button:hover {
   background-color: #45a049;
 }
 
+.removemask{
+    padding: 0px;
+    border-radius: 0px;
+    background-color: #aaa;
+}
+
 .graphics-container {
   background-color: #3498db;
   color: #fff;
