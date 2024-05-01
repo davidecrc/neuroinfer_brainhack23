@@ -95,6 +95,8 @@ button:hover {
     padding: 0px;
     border-radius: 0px;
     background-color: #aaa;
+    width: 20px;
+    margin-left: 10px;
 }
 
 .graphics-container {

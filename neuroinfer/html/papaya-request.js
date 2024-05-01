@@ -43,6 +43,7 @@ window.addBrainRegion = function() {
     var rmselect = document.createElement('button');
     selectcontainer.setAttribute('class', 'regionselector');
     selectcontainer.setAttribute('id', 'regionselector' + (regselectors.length + 1));
+    selectcontainer.setAttribute('style', 'margin-top:5px');
     select.setAttribute('id', "brainRegion" + (regselectors.length + 1));
     select.setAttribute('name', "brainRegion");
     select.setAttribute('onchange', "changeRegionMask()");

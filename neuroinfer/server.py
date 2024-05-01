@@ -37,6 +37,7 @@ def handle_post_request():
     # Get the keys from the request's JSON data
     form_keys = dict_request.keys()
     print(form_keys)
+    print(dict_request)
 
     # Check if only one key is present in the request
     if 'func' in form_keys and dict_request['func'] == "update_mask":
