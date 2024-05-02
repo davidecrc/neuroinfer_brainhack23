@@ -1,4 +1,3 @@
-// Event listener for when the DOM content is loaded
 document.addEventListener('DOMContentLoaded', function() {
     // Fetching the list of files from the '../data/' directory
     fetch('../data/')
@@ -12,14 +11,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Get the select element to populate with the atlas files
             const select = document.getElementById('atlasList');
-            const regex = /<a.*?>(.*?)<\/a>/;
+
             // Populate the select element with the atlas files as options
             atlasFiles.forEach(file => {
-                let filename = regex.exec(file)
-                filename = filename && filename[1];
                 const option = document.createElement('option');
-                option.value = filename;
-                option.textContent = filename;
+                option.value = file;
+                option.textContent = file;
                 select.appendChild(option);
             });
 
@@ -32,22 +29,3 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => console.error('Error fetching atlas files:', error));
 });
-
-function fetch_brain_regions(selectedFile = 'atlas_list_labels.json') {    // Fetching brain region data from a JSON file
-    fetch('../data/' + selectedFile)
-    .then(response => response.json())
-    .then(data => {
-        console.log(data)
-        // Extracting brain regions and populating the select element
-        var brainRegions = data["har_ox_cort_maxprob-thr25-2mm"];
-        var select = document.getElementById('brainRegion');
-
-        brainRegions.forEach(function(region) {
-            var option = document.createElement('option');
-            option.value = region.id_lab;
-            option.textContent = region.lab;
-            select.appendChild(option);
-        });
-    })
-    .catch(error => console.error('Error:', error));
-}

@@ -4,7 +4,7 @@ import threading
 import webbrowser
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from neuroinfer.code.plot_generator import main_analyse_and_render, create_mask_region
+from neuroinfer.code.plot_generator import main_analyse_and_render, create_mask_region, update_overlay
 
 # CORS (Cross-Origin Resource Sharing):
 # - CORS is a browser security feature controlling access to resources from different domains.
@@ -36,21 +36,25 @@ def handle_post_request():
 
     # Get the keys from the request's JSON data
     form_keys = dict_request.keys()
+    print(form_keys)
+    print(dict_request)
 
     # Check if only one key is present in the request
-    if len(form_keys) == 1:
-        try:
-            # If only one key is present, attempt to create a mask for the specified brain region
-            response = create_mask_region(dict_request['brainRegion'])
-        except KeyError:
-            # Handle the case where the specified key does not exist in the dictionary
-            print("Key does not exist in the dictionary.")
-    else:
+    if 'func' in form_keys and dict_request['func'] == "update_mask":
+        # If the only key is 'brainRegion', attempt to create a mask for the specified brain region
+        response = create_mask_region(dict_request['brainRegion'], dict_request['smooth'])
+    # If 'combination_bool' and 'file_list' keys are present, send them to update_overlay
+    elif 'func' in form_keys and dict_request['func'] == "update_overlays":
+        print(dict_request['combination_bool'])
+        print(dict_request['file_list'])
+        response = update_overlay(dict_request['combination_bool'], dict_request['file_list'])
+    elif 'func' in form_keys and dict_request['func'] == "do_analysis":
         # If multiple keys are present, perform the main analysis and rendering
         response = main_analyse_and_render(dict_request)
 
     # Return the response as JSON
     return jsonify(response)
+
 
 
 # Function to start the Flask app in a separate thread

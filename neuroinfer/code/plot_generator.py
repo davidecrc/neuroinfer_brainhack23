@@ -1,27 +1,25 @@
 from io import BytesIO
 import base64
-
 import nilearn
-
-from neuroinfer.code.run_bayesian import run_bayesian_analysis_area
 import numpy as np
 import datetime
-from pathlib import Path
 import nibabel as nib
 from nilearn import image
 import os
 import matplotlib.pyplot as plt
-from neuroinfer import PKG_FOLDER, DATA_FOLDER, TEMPLATE_FOLDER, CODE_FOLDER, HTML_FOLDER, RESULTS_FOLDER
+from scipy.ndimage import convolve
 
+from neuroinfer import DATA_FOLDER, TEMPLATE_FOLDER
 from neuroinfer.code.DataLoading import load_data_and_create_dataframe
+from neuroinfer.code.run_bayesian import run_bayesian_analysis_area
 
 plt.switch_backend('Agg')
 atlas_path = TEMPLATE_FOLDER / 'atlases' / 'HarvardOxford' / 'HarvardOxford-cort-maxprob-thr25-2mm.nii.gz'
 
 
-def create_mask_region(brain_region):
+def create_mask_region(brain_region, smooth_factor):
     """
-    Create a NIfTI mask for a specified brain region.
+    Create a NIfTI mask for a specified list of brain regions.
 
     Parameters:
     - brain_region: The ID or label of the brain region for which the mask will be generated.
@@ -35,14 +33,43 @@ def create_mask_region(brain_region):
     - The mask is generated based on the specified brain region and a pre-defined atlas image path.
     - The function then returns a response dictionary indicating the success of the mask generation.
     """
+    print(brain_region)
+    smooth_factor = np.int32(smooth_factor)
 
     # Use the 'generate_nifit_mask' function to create the NIfTI mask for the specified brain region
-    generate_nifit_mask(brain_region, atlas_path)
+    mask_3d, affine = generate_nifit_mask(brain_region, atlas_path)
+    if smooth_factor > 0:
+        mask_3d = smooth_mask(mask_3d, smooth_factor)
+    print(type(mask_3d))
+    print(type(mask_3d[1,1,1]))
+    print(mask_3d.shape)
+
+    # Check if the '.tmp/' directory exists, if not, create it
+    if not os.path.isdir('.tmp/'):
+        os.mkdir('.tmp/')
+
+    # Save the modified atlas image as 'mask.nii.gz' in the '.tmp/' directory
+    nifti_image = nib.Nifti1Image(mask_3d, affine)
+    nib.save(nifti_image, '.tmp/mask.nii.gz')
 
     # Construct a response indicating success
     response = {
         'status': 'success',
         'message': 'Mask generated successfully',
+    }
+
+    return response
+
+
+def update_overlay(combination_bool, file_list):
+    output_names = []
+    for index, bool_list in enumerate(combination_bool):
+        output_names.append(os.path.join('.tmp/', f"overlay_{index}.nii.gz"))
+        get_combined_overlays(bool_list, file_list, output_names[index])
+
+    response = {
+        'status': 'success',
+        'message': output_names,
     }
 
     return response
@@ -75,7 +102,7 @@ def main_analyse_and_render(data):
     cog_list, prior_list, x_target, y_target, z_target, radius, brain_region = parse_input_args(data)
 
     # Generating a NIfTI mask for the selected region
-    generate_nifit_mask(brain_region, atlas_path)
+    create_mask_region(data['brainRegion'], data['smooth'])
 
     # Perform Bayesian analysis to obtain coordinates (coords) and Bayesian factor values (bf)
     # The run_bayesian_analysis function takes parameters such as brain_region, words, radius, and priors,
@@ -97,10 +124,20 @@ def main_analyse_and_render(data):
     # The generate_nifti_bf_heatmap function utilizes the coordinates and Bayesian factors
     # to generate a heatmap and saves it as a NIfTI file. This heatmap visually represents
     # the spatial distribution of the Bayesian factor values in the specified brain region.
-    filename = generate_nifti_bf_heatmap(result_dict, atlas_path, radius)
+    overlay_results, filenames = generate_nifti_bf_heatmap(result_dict, atlas_path, radius, cog_list)
 
     # Creating a bar plot using matplotlib
-    plt.bar(brain_region, [float(p) for p in prior_list])
+    # Flatten all the data
+    hist_bins = np.histogram_bin_edges(overlay_results.flatten(), bins=30)
+    num_items = overlay_results.shape[-1]
+    for i in range(num_items):
+        flattened_data = overlay_results[..., i].flatten()
+        plt.hist(flattened_data, bins=hist_bins, label=cog_list[i])
+
+    # Add labels and legend
+    plt.xlabel('BF')
+    plt.ylabel('Frequency')
+    plt.legend(loc='upper right')
 
     # Save the plot to a BytesIO object
     img_buffer = BytesIO()
@@ -112,8 +149,9 @@ def main_analyse_and_render(data):
 
     # Send the base64 encoded image data as a response
     response = {
+        'num_slices': len(filenames),
         'status': 'success',
-        'message': filename,
+        'message': filenames,
         'image': img_base64
     }
 
@@ -139,29 +177,21 @@ def generate_nifit_mask(region_id, atlas_target_path):
     """
 
     # Convert region_id to integer
-    region_id = np.int32(region_id)
+    region_id = [np.int32(a) for a in region_id]
 
     # Load atlas image
     atlas_img = image.load_img(atlas_target_path)
 
     # Convert atlas image data to 32-bit integer
-    atlas_data = np.asarray(atlas_img.get_fdata(), dtype=np.int32)
+    atlas_data = np.asarray(atlas_img.get_fdata())
 
     # Create a mask and set values to 1000 where atlas_data is equal to region_id
     mask = np.zeros(atlas_data.shape)
-    mask[atlas_data == region_id] = 1
+    for current_id in region_id:
+        mask[atlas_data == current_id] = 1
 
     # convert to Nifti1Image by using the original affine transformation as reference
-    modified_atlas_img = nib.Nifti1Image(mask, atlas_img.affine)
-
-    # Check if the '.tmp/' directory exists, if not, create it
-    if not os.path.isdir('.tmp/'):
-        os.mkdir('.tmp/')
-
-    # Save the modified atlas image as 'mask.nii.gz' in the '.tmp/' directory
-    nib.save(modified_atlas_img, '.tmp/mask.nii.gz')
-
-    return
+    return mask, atlas_img.affine
 
 
 def create_hist(coords, bf):
@@ -169,7 +199,7 @@ def create_hist(coords, bf):
     return results
 
 
-def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius):
+def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius, cog_list):
     """
     Generate a NIfTI heatmap based on sorted coordinates and bayesian factors/measurements.
 
@@ -192,7 +222,7 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius):
     coords = []
     for sphere in result_dict:
         bf.append(sphere['df_data_all'].BF)
-        coords.append([sphere['x_target'],
+        coords.append([sphere['x_target'], #TODO: the coords are mni coords
                        sphere['y_target'],
                        sphere['z_target'],
                        ])
@@ -202,7 +232,8 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius):
     reference_data_shape = np.asarray(reference_data_shape_nifti.get_fdata(), dtype=np.int32)
 
     # Initialize an array for overlay results with zeros of the same shape as reference data
-    overlay_results = np.zeros(reference_data_shape.shape)
+    overlay_results = np.zeros([*reference_data_shape.shape, len(bf[0])])
+    counter = np.zeros([*reference_data_shape.shape, len(bf[0])])
 
     # Iterate through the given coordinates and apply the measurements to populate overlay_results
     mni2vx_mat = np.linalg.inv(reference_data_shape_nifti.affine)
@@ -215,22 +246,30 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius):
         )
         sphere_coords = get_sphere_coords([int(vx_coord[0]), int(vx_coord[1]), int(vx_coord[2])], vx_radius, overlay_results)
         for sc_i in range(sphere_coords[0].shape[0]):
-            overlay_results[sphere_coords[0][sc_i], sphere_coords[1][sc_i], sphere_coords[2][sc_i]] += bf[j]
+            overlay_results[sphere_coords[0][sc_i], sphere_coords[1][sc_i], sphere_coords[2][sc_i], :] += bf[j] #TODO: this depends on the type of analysis done!
+            for cog_counter in range(len(result_dict[0]['cog_list'])):
+                if bf[j][cog_counter] == 0:
+                    continue
+                counter[sphere_coords[0][sc_i], sphere_coords[1][sc_i], sphere_coords[2][sc_i], cog_counter] += 1
 
-    # Create a Nifti1Image using the overlay_results and the affine transformation from reference data
-    overlay_results_img = nib.Nifti1Image(overlay_results, reference_data_shape_nifti.affine)
+    overlay_results = overlay_results/np.where(counter == 0, 1, counter)
 
     # Check if the '.tmp/' directory exists, if not, create it
     if not os.path.isdir('.tmp/'):
         os.mkdir('.tmp/')
 
-    # Generate a timestamp for file naming and save the heatmap in the '.tmp/' folder
-    time_results = f"{datetime.datetime.now():%Y%m%d_%H%M%S}"
-    filename = ".tmp/" + time_results + "overlay_results.nii.gz"
-    nib.save(overlay_results_img, filename)
-    nib.save(overlay_results_img, '.tmp/mask.nii.gz')
+    overlay_results_img = []
+    filename = []
+    # Create a Nifti1Image using the overlay_results and the affine transformation from reference data
+    for i in range(overlay_results.shape[-1]):
+        overlay_results_img.append(nib.Nifti1Image(overlay_results[:, :, :, i], reference_data_shape_nifti.affine))
 
-    return filename
+        # Generate a timestamp for file naming and save the heatmap in the '.tmp/' folder
+        time_results = f"{datetime.datetime.now():%Y%m%d_%H%M%S}"
+        filename.append(".tmp/" + time_results + "init_results_" + str(i) + ".nii.gz")
+        nib.save(overlay_results_img[i], filename[i])
+
+    return overlay_results, filename
 
 
 def get_sphere_coords(coords, vx_radius, overlay_results):
@@ -246,6 +285,41 @@ def get_sphere_coords(coords, vx_radius, overlay_results):
     template_indices = np.nonzero(template_3D)
 
     return template_indices
+
+
+def get_combined_overlays(bool_list, file_list, out_file):
+    print(bool_list)
+    print(file_list)
+    print(out_file)
+    file_nifti = None
+
+    for index, to_load in enumerate(bool_list):
+        if to_load:
+            image_nifti_current = nib.load(file_list[index])
+            if file_nifti is None:
+                file_nifti = np.asarray(image_nifti_current.get_fdata())
+            else:
+                current_img = np.asarray(image_nifti_current.get_fdata())
+                file_nifti = np.maximum(file_nifti, current_img)
+
+    overlay_results_img = nib.Nifti1Image(file_nifti, image_nifti_current.affine)
+    nib.save(overlay_results_img, out_file)
+
+
+def smooth_mask(mask_3d, n):
+    # Define the size of the kernel based on the smoothing factor
+    kernel_size = 2 * n + 1
+
+    # Define the smoothing kernel for averaging
+    kernel = np.ones((kernel_size, kernel_size, kernel_size)) / (kernel_size ** 3)
+
+    # Apply convolution to perform smoothing
+    smoothed_mask = convolve(mask_3d.astype(float), kernel)
+
+    # Convert back to binary mask
+    smoothed_mask = (smoothed_mask > 0.5).astype(float)
+
+    return smoothed_mask
 
 
 def parse_input_args(data):
@@ -278,7 +352,7 @@ def parse_input_args(data):
     # Type conversion and validation checks
     if (len(brain_region) > 0) and (str(type(brain_region)) != "int"):
         try:
-            brain_region = np.int32(brain_region)
+            brain_region = [np.int32(a) for a in brain_region]
         except ValueError:
             raise Exception(f"Cannot convert {brain_region} to an int")
 
@@ -329,11 +403,12 @@ def parse_input_args(data):
 
 if __name__ == '__main__':
     data = dict()
-    data['brainRegion'] = "37"
-    data['radius'] = "4"
+    data['brainRegion'] = ["47"]
+    data['smooth'] = 1
+    data['radius'] = "3"
     data['x'] = "0"
     data['y'] = "0"
     data['z'] = "0"
-    data['words'] = "face,children"
-    data['probabilities'] = "0.5,0.5"
+    data['words'] = "face,children,true"
+    data['probabilities'] = "0.5,0.5,0.5"
     main_analyse_and_render(data)
