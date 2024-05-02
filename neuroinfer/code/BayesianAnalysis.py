@@ -65,9 +65,19 @@ def run_bayesian_analysis_router(cog_list, area, prior_list, x_target, y_target,
         mask,affine=generate_nifit_mask(1,atlas_path) #area is set to 1 to get the mask at the coordinates
         affine_inv = np.linalg.inv(affine) #inverse of the affine matrix to convert from MNI coordinates tp voxel coordinates
 
+        data_path = os.path.join(global_path, "data")  # Path to the saved_result folder
+        print('Data path: ',data_path)
 
-        x_target, y_target, z_target = image.coord_transform(x_target, y_target, z_target,affine_inv)
-        results=run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, result_df, cm,affine_inv)
+        dt_papers_nq = pd.read_csv(os.path.join(data_path, 'data-neurosynth_version-7_coordinates.tsv'), sep='\t')
+        # Calculate the Euclidean distance from each point to the center of the sphere
+        mni_coords = dt_papers_nq[["x", "y", "z"]].values #assuming this is a list of triplets
+        # Convert MNI coordinates to voxel coordinates for each coordinate
+        print('lenght mni coordinates',len(mni_coords))
+        xyz_coords = [coord_transform(a[0], a[1], a[2], affine_inv) for a in mni_coords] 
+
+
+        x_target, y_target, z_target = coord_transform(x_target, y_target, z_target,affine_inv)
+        results=run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, result_df, cm,xyz_coords,dt_papers_nq)
 
         pickle_file_name = f'results_BHL_coordinates_cm_{cm}_x{x_target}_y{y_target}_z{z_target}.pickle'
         pickle_file_path = os.path.join(results_folder_path, pickle_file_name)

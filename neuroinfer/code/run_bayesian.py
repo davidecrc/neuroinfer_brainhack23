@@ -50,7 +50,7 @@ def calculate_z(posterior, prior):
     return z
 
 
-def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm, affine_inv):
+def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm,xyz_coords,dt_papers_nq):
     frequency_threshold = 0.05
     t = time.time()
     cog_all, prior_all, ids_cog_nq_all, intersection_cog_nq_all, intersection_not_cog_nq_all = [], [], [], [], []
@@ -61,6 +61,7 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
     script_directory = os.path.dirname(os.path.abspath(__file__))
     global_path = os.path.dirname(script_directory)
     data_path = os.path.join(global_path, "data")
+
 
     for q, cog in enumerate(cog_list):
         prior = prior_list[q]
@@ -74,14 +75,10 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
             print(f'Processing "{cog}" (step {q + 1} out of {len(cog_list)})')
 
             ids_cog_nq = feature_df.index[feature_df[cog] > frequency_threshold].tolist()
-            ids_cog_nq_all.append(ids_cog_nq)
-
-            dt_papers_nq = pd.read_csv(os.path.join(data_path, 'data-neurosynth_version-7_coordinates.tsv'), sep='\t')
+            ids_cog_nq_all.append(ids_cog_nq)            
             center = np.array([x_target, y_target, z_target])
-            # Calculate the Euclidean distance from each point to the center of the sphere
-            mni_coords = dt_papers_nq[["x", "y", "z"]].values #assuming this is a list of triplets
-            # Convert MNI coordinates to voxel coordinates for each coordinate
-            xyz_coords = [image.coord_transform(a[0], a[1], a[2], affine_inv) for a in mni_coords] 
+            
+            
             distances = np.linalg.norm(xyz_coords - center, axis=1) #check operation applicability
             # Use the distances to filter the DataFrame
             list_activations_nq = dt_papers_nq[distances <= radius]["id"].tolist()
@@ -212,6 +209,13 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, fe
     #results_dict = {}
     result_all = []
     coord=[]
+
+    dt_papers_nq = pd.read_csv(os.path.join(data_path, 'data-neurosynth_version-7_coordinates.tsv'), sep='\t')
+    # Calculate the Euclidean distance from each point to the center of the sphere
+    mni_coords = dt_papers_nq[["x", "y", "z"]].values #assuming this is a list of triplets
+    # Convert MNI coordinates to voxel coordinates for each coordinate
+    print('lenght mni coordinates',len(mni_coords))
+    xyz_coords = [image.coord_transform(a[0], a[1], a[2], affine_inv) for a in mni_coords] 
     
     # Iterate through the coordinates_area
     for i in range(len(coordinates_area)-1): #-1 in order to have the last coordinates_area[i+1]) #TODO improve
@@ -223,7 +227,7 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, fe
         if i==0:
             #result = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, rescaled_radius, feature_df,cm)
             results = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target,
-                                                        radius, feature_df, cm, affine_inv)
+                                                        radius, feature_df, cm,xyz_coords,dt_papers_nq)
             #print(results_dict[i])           
             # Append a tuple containing the BF value and the coordinates to result_with_coordinates
             result_all.append(results)
@@ -237,11 +241,13 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, fe
             print(
                 f'Calculating cm for the {i + 1} ROI out of {len(coordinates_area)}, {((i + 1) / len(coordinates_area)) * 100}% ')
             if i % 10 == 0:
+                #create the folder if not existing
+                os.makedirs(PKG_FOLDER / 'neuroinfer' / '.tmp', exist_ok=True)                
                 with open(PKG_FOLDER / 'neuroinfer' / '.tmp' / 'processing_progress', 'w') as f_tmp:
                     f_tmp.write(str((i + 1) / len(coordinates_area)))
             print(get_distance((x_target, y_target, z_target), coordinates_area[i + 1]))
             # Call run_bayesian_analysis_coordinates with the current coordinates
-            results = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm, affine_inv)
+            results = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm,xyz_coords,dt_papers_nq)
             # Append a tuple containing the BF value and the coordinates to result_with_coordinates
             result_all.append(results)
 
