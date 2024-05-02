@@ -207,10 +207,6 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, fe
     coordinates_area = np.where(mask == 1)
     coordinates_area = [[coordinates_area[0][a], coordinates_area[1][a], coordinates_area[2][a]] for a in range(len(coordinates_area[0]))] #list of coordinated in the mask with value 1
 
-    # Rescale the radius to be between 2 and 4
-    rescaled_radius = max(2, min(radius, 4))
-    print(' rescaled_radius:' ,  rescaled_radius)
-
     
     # Initialize an empty list to store results and coordinates
     #results_dict = {}
@@ -227,7 +223,7 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, fe
         if i==0:
             #result = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, rescaled_radius, feature_df,cm)
             results = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target,
-                                                        rescaled_radius, feature_df, cm, affine_inv)
+                                                        radius, feature_df, cm, affine_inv)
             #print(results_dict[i])           
             # Append a tuple containing the BF value and the coordinates to result_with_coordinates
             result_all.append(results)
@@ -237,7 +233,7 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, fe
 
         # if all(get_distance((x_target, y_target, z_target), coordinate) > rescaled_radius * 0.98 for coordinate in coord):
         if get_distance((x_target, y_target, z_target), coordinates_area[
-            i + 1]) > rescaled_radius:  # TODO upload checking all the distance from the ROIS
+            i + 1]) > radius:  # TODO upload checking all the distance from the ROIS
             print(
                 f'Calculating cm for the {i + 1} ROI out of {len(coordinates_area)}, {((i + 1) / len(coordinates_area)) * 100}% ')
             if i % 10 == 0:
@@ -245,7 +241,7 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, fe
                     f_tmp.write(str((i + 1) / len(coordinates_area)))
             print(get_distance((x_target, y_target, z_target), coordinates_area[i + 1]))
             # Call run_bayesian_analysis_coordinates with the current coordinates
-            results = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, rescaled_radius, feature_df, cm, affine_inv)
+            results = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm, affine_inv)
             # Append a tuple containing the BF value and the coordinates to result_with_coordinates
             result_all.append(results)
 
