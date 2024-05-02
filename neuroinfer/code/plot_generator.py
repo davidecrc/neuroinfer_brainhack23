@@ -158,7 +158,7 @@ def main_analyse_and_render(data):
     return response
 
 
-def generate_nifit_mask(region_id, atlas_target_path, smooth_factor):
+def generate_nifit_mask(region_id, atlas_target_path, smooth_factor=0):
     """
     Generate a NIfTI mask based on a specified region ID in an atlas image.
 
