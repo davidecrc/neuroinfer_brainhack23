@@ -50,7 +50,7 @@ def calculate_z(posterior, prior):
     return z
 
 
-def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm):
+def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm, affine_inv):
     frequency_threshold = 0.05
     t = time.time()
     cog_all, prior_all, ids_cog_nq_all, intersection_cog_nq_all, intersection_not_cog_nq_all = [], [], [], [], []
@@ -79,7 +79,9 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
             dt_papers_nq = pd.read_csv(os.path.join(data_path, 'data-neurosynth_version-7_coordinates.tsv'), sep='\t')
             center = np.array([x_target, y_target, z_target])
             # Calculate the Euclidean distance from each point to the center of the sphere
-            distances = np.linalg.norm(dt_papers_nq[["x", "y", "z"]].values - center, axis=1)
+            mni_coords = dt_papers_nq[["x", "y", "z"]].values
+            xyz_coords = image.coord_transform(mni_coords[0], mni_coords[1], mni_coords[2], affine_inv)
+            distances = np.linalg.norm(xyz_coords - center, axis=1)
             # Use the distances to filter the DataFrame
             list_activations_nq = dt_papers_nq[distances <= radius]["id"].tolist()
 
@@ -196,23 +198,12 @@ def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df,cm
 
     t_area = time.time()
 
-
-    # Extract coordinates specific to the provided area
-    if len(area) == 1:
-        area = area[0]
-        # Load coordinates from the JSON file
-        json_path = data_path + "/coord_label_all_harv_ox.json"
-        print('json_path:', json_path)
-        coordinates_atlas = get_atlas_coordinates_json(json_path)
-        coordinates_area = coordinates_atlas.get(str(area), [])
-        print('len(coordinates_area) for this area: ', len(coordinates_area))
-    else:
-        # Load mask image
-        mask_nifti = image.load_img('.tmp/mask.nii.gz')
-        affine = mask_nifti.affine
-        mask = np.asarray(mask_nifti.get_fdata())
-        coordinates_area = np.where(mask == 1)
-        coordinates_area = [[coordinates_area[0][a], coordinates_area[1][a], coordinates_area[2][a]] for a in range(len(coordinates_area[0]))]
+    # Load mask image
+    mask_nifti = image.load_img('.tmp/mask.nii.gz')
+    affine_inv = np.linalg.inv(mask_nifti.affine)
+    mask = np.asarray(mask_nifti.get_fdata())
+    coordinates_area = np.where(mask == 1)
+    coordinates_area = [[coordinates_area[0][a], coordinates_area[1][a], coordinates_area[2][a]] for a in range(len(coordinates_area[0]))]
 
     # Rescale the radius to be between 2 and 4
     rescaled_radius = max(2, min(radius, 4))
@@ -233,7 +224,8 @@ def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df,cm
         #print (i)
         if i==0:
             #result = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, rescaled_radius, feature_df,cm)
-            results = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, rescaled_radius, feature_df,cm)
+            results = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target,
+                                                        rescaled_radius, feature_df, cm, affine_inv)
             #print(results_dict[i])           
             # Append a tuple containing the BF value and the coordinates to result_with_coordinates
             result_all.append(results)
@@ -251,7 +243,7 @@ def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df,cm
                     f_tmp.write(str((i + 1) / len(coordinates_area)))
             print(get_distance((x_target, y_target, z_target), coordinates_area[i + 1]))
             # Call run_bayesian_analysis_coordinates with the current coordinates
-            results = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, rescaled_radius, feature_df,cm)
+            results = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, rescaled_radius, feature_df, cm, affine_inv)
             # Append a tuple containing the BF value and the coordinates to result_with_coordinates
             result_all.append(results)
 

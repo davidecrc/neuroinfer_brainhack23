@@ -222,7 +222,7 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius, cog_list):
     coords = []
     for sphere in result_dict:
         bf.append(sphere['df_data_all'].BF)
-        coords.append([sphere['x_target'], #TODO: the coords are mni coords
+        coords.append([sphere['x_target'],
                        sphere['y_target'],
                        sphere['z_target'],
                        ])
@@ -236,15 +236,11 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius, cog_list):
     counter = np.zeros([*reference_data_shape.shape, len(bf[0])])
 
     # Iterate through the given coordinates and apply the measurements to populate overlay_results
-    mni2vx_mat = np.linalg.inv(reference_data_shape_nifti.affine)
     vx_size = np.abs(reference_data_shape_nifti.affine[0, 0])
     vx_radius = np.ceil(radius/vx_size)
 
     for j, coord in enumerate(coords):
-        vx_coord = nilearn.image.coord_transform(
-            int(coord[0]), int(coord[1]), int(coord[2]), mni2vx_mat
-        )
-        sphere_coords = get_sphere_coords([int(vx_coord[0]), int(vx_coord[1]), int(vx_coord[2])], vx_radius, overlay_results)
+        sphere_coords = get_sphere_coords([int(coord[0]), int(coord[1]), int(coord[2])], vx_radius, overlay_results)
         for sc_i in range(sphere_coords[0].shape[0]):
             overlay_results[sphere_coords[0][sc_i], sphere_coords[1][sc_i], sphere_coords[2][sc_i], :] += bf[j] #TODO: this depends on the type of analysis done!
             for cog_counter in range(len(result_dict[0]['cog_list'])):
