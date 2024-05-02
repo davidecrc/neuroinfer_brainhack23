@@ -36,20 +36,12 @@ def run_bayesian_analysis_router(cog_list, area, prior_list, x_target, y_target,
     global_path = os.path.dirname(script_directory)
     results_folder_path = os.path.join(global_path, "results")
     data_path = os.path.join(global_path, "data")  # Path to the saved_result folder
-    #print('Data path: ',data_path)
 
     # Check if results_folder_path exists, if not, create it
     if not os.path.exists(results_folder_path):
-        os.makedirs(results_folder_path)
-
-    # Load mask image   
-    #mask_nifti = image.load_img('.tmp/mask.nii.gz')
-    #affine_inv = np.linalg.inv(mask_nifti.affine) #inverse of the affine matrix to convert from MNI coordinates tp voxel coordinates
-    
+        os.makedirs(results_folder_path) 
 
     if not pd.isnull(area) and pd.isnull(x_target) and pd.isnull(y_target) and pd.isnull(z_target):
-        # Call run_bayesian_analysis_area if area is not nan and coordinates are nan
-        #results=run_bayesian_analysis_area(cog_list, prior_list, area, radius, result_df, cm)
         mask,affine=generate_nifit_mask(area,atlas_path)
         affine_inv = np.linalg.inv(affine) #inverse of the affine matrix to convert from MNI coordinates tp voxel coordinates
 
@@ -69,16 +61,7 @@ def run_bayesian_analysis_router(cog_list, area, prior_list, x_target, y_target,
         mask,affine=generate_nifit_mask(1,atlas_path) #area is set to 1 to get the mask at the coordinates
         affine_inv = np.linalg.inv(affine) #inverse of the affine matrix to convert from MNI coordinates tp voxel coordinates
 
-        
-
-        #dt_papers_nq = pd.read_csv(os.path.join(data_path, 'data-neurosynth_version-7_coordinates.tsv'), sep='\t')
-        # Calculate the Euclidean distance from each point to the center of the sphere
-        #mni_coords = dt_papers_nq[["x", "y", "z"]].values #assuming this is a list of triplets
-        # Convert MNI coordinates to voxel coordinates for each coordinate
-        #print('lenght mni coordinates',len(mni_coords))
-        #xyz_coords = [coord_transform(a[0], a[1], a[2], affine_inv) for a in mni_coords] 
         dt_papers_nq, xyz_coords = load_or_calculate_variables(data_path, affine_inv)
-
 
         x_target, y_target, z_target = coord_transform(x_target, y_target, z_target,affine_inv)
         results=run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, result_df, cm,xyz_coords,dt_papers_nq)
