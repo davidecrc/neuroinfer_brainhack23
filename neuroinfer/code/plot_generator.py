@@ -107,18 +107,10 @@ def main_analyse_and_render(data):
     # Perform Bayesian analysis to obtain coordinates (coords) and Bayesian factor values (bf)
     # The run_bayesian_analysis function takes parameters such as brain_region, words, radius, and priors,
     # and returns the computed coordinates and Bayesian factor values.
-    # # Get the directory of the current Python script
-    # script_directory = os.path.dirname(os.path.abspath(__file__))
-    # # Navigate to the parent directory as global path
-    # global_path = os.path.dirname(script_directory)
-    # data_path = os.path.join(global_path, "data")  # Path to the saved_result folder
     result_df, _ = load_data_and_create_dataframe(DATA_FOLDER / "features7.npz",
                                                   DATA_FOLDER / "metadata7.tsv",
                                                   DATA_FOLDER / "vocabulary7.txt")
     result_dict = run_bayesian_analysis_area(cog_list, prior_list, mask, affine_inv, radius, result_df, 'a')
-
-    # Create a histogram of the obtained coordinates and Bayesian factors
-    # results = create_hist(coords, bf, atlas_target_path)
 
     # Generate a NIfTI heatmap using the coordinates and Bayesian factors
     # The generate_nifti_bf_heatmap function utilizes the coordinates and Bayesian factors
@@ -126,8 +118,6 @@ def main_analyse_and_render(data):
     # the spatial distribution of the Bayesian factor values in the specified brain region.
     overlay_results, filenames = generate_nifti_bf_heatmap(result_dict, atlas_path, radius, cog_list)
 
-    # Creating a bar plot using matplotlib
-    # Flatten all the data
     hist_bins = np.histogram_bin_edges(overlay_results.flatten(), bins=30)
     num_items = overlay_results.shape[-1]
     for i in range(num_items):
