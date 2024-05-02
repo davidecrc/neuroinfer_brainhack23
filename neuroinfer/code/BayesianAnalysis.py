@@ -4,6 +4,11 @@ import pandas as pd
 import pickle
 
 from neuroinfer.code.run_bayesian import run_bayesian_analysis_coordinates, run_bayesian_analysis_area
+from neuroinfer import TEMPLATE_FOLDER
+from neuroinfer.code.plot_generator import generate_nifit_mask
+from nilearn.image import coord_transform
+
+atlas_path=TEMPLATE_FOLDER/'atlases'/'HarvardOxford'/'HarvardOxford-cort-maxprob-thr25-2mm.nii.gz'
 
 '''
 The script orchestrates Bayesian analysis on brain data  ensuring efficiency and insightful interpretation through statistical summaries and graphical representations.
@@ -24,6 +29,8 @@ def run_bayesian_analysis_router(cog_list, area, prior_list, x_target, y_target,
         "'b' for difference measure;\n" +
         "'c' for ratio measure.\n" +
         "'d' for z measure.\n")
+    
+    
 
     script_directory = os.path.dirname(os.path.abspath(__file__))
     global_path = os.path.dirname(script_directory)
@@ -33,10 +40,18 @@ def run_bayesian_analysis_router(cog_list, area, prior_list, x_target, y_target,
     if not os.path.exists(results_folder_path):
         os.makedirs(results_folder_path)
 
+    # Load mask image   
+    #mask_nifti = image.load_img('.tmp/mask.nii.gz')
+    #affine_inv = np.linalg.inv(mask_nifti.affine) #inverse of the affine matrix to convert from MNI coordinates tp voxel coordinates
+
 
     if not pd.isnull(area) and pd.isnull(x_target) and pd.isnull(y_target) and pd.isnull(z_target):
         # Call run_bayesian_analysis_area if area is not nan and coordinates are nan
-        results=run_bayesian_analysis_area(cog_list, prior_list, area, radius, result_df, cm)
+        #results=run_bayesian_analysis_area(cog_list, prior_list, area, radius, result_df, cm)
+        mask,affine=generate_nifit_mask(area,atlas_path)
+        affine_inv = np.linalg.inv(affine) #inverse of the affine matrix to convert from MNI coordinates tp voxel coordinates
+
+        results=run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, result_df,cm)
 
         # Save results_dict to a pickle file
         file_path = os.path.join(results_folder_path, f"results_area_cm_{cm}_{area}_{cog_list}.pkl")
@@ -47,7 +62,12 @@ def run_bayesian_analysis_router(cog_list, area, prior_list, x_target, y_target,
 
     elif not np.isnan(x_target) and not np.isnan(y_target) and not np.isnan(z_target) and np.isnan(area):
         # Call run_bayesian_analysis_coordinates if coordinates are not nan and area is nan
-        results=run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, result_df, cm)
+        mask,affine=generate_nifit_mask(1,atlas_path) #area is set to 1 to get the mask at the coordinates
+        affine_inv = np.linalg.inv(affine) #inverse of the affine matrix to convert from MNI coordinates tp voxel coordinates
+
+
+        x_target, y_target, z_target = image.coord_transform(x_target, y_target, z_target,affine_inv)
+        results=run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, result_df, cm,affine_inv)
 
         pickle_file_name = f'results_BHL_coordinates_cm_{cm}_x{x_target}_y{y_target}_z{z_target}.pickle'
         pickle_file_path = os.path.join(results_folder_path, pickle_file_name)

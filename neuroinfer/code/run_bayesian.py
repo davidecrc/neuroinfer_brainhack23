@@ -79,9 +79,10 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
             dt_papers_nq = pd.read_csv(os.path.join(data_path, 'data-neurosynth_version-7_coordinates.tsv'), sep='\t')
             center = np.array([x_target, y_target, z_target])
             # Calculate the Euclidean distance from each point to the center of the sphere
-            mni_coords = dt_papers_nq[["x", "y", "z"]].values
-            xyz_coords = image.coord_transform(mni_coords[0], mni_coords[1], mni_coords[2], affine_inv)
-            distances = np.linalg.norm(xyz_coords - center, axis=1)
+            mni_coords = dt_papers_nq[["x", "y", "z"]].values #assuming this is a list of triplets
+            # Convert MNI coordinates to voxel coordinates for each coordinate
+            xyz_coords = [image.coord_transform(a[0], a[1], a[2], affine_inv) for a in mni_coords] 
+            distances = np.linalg.norm(xyz_coords - center, axis=1) #check operation applicability
             # Use the distances to filter the DataFrame
             list_activations_nq = dt_papers_nq[distances <= radius]["id"].tolist()
 
@@ -171,14 +172,15 @@ def get_atlas_coordinates_json(json_path):
 
     return coordinates_atlas
 
-def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df,cm):
+#
+def run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, feature_df,cm):
     """
     Perform Bayesian analysis in a specified area using coordinates from the atlas.
 
     Parameters:
     - cog_list (list): List of cognitive labels.
     - prior_list (list): List of priors corresponding to cognitive labels.
-    - area (str): Name of the brain area.
+    - mask (boolean): volume to consider
     - radius (float): Original radius for spatial analysis.
     - feature_df (pd.DataFrame): DataFrame containing feature data for analysis.
 
@@ -199,11 +201,11 @@ def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df,cm
     t_area = time.time()
 
     # Load mask image
-    mask_nifti = image.load_img('.tmp/mask.nii.gz')
-    affine_inv = np.linalg.inv(mask_nifti.affine)
-    mask = np.asarray(mask_nifti.get_fdata())
+    #mask_nifti = image.load_img('.tmp/mask.nii.gz')
+    #affine_inv = np.linalg.inv(mask_nifti.affine) #inverse of the affine matrix to convert from MNI coordinates tp voxel coordinates
+    #mask = np.asarray(mask_nifti.get_fdata())
     coordinates_area = np.where(mask == 1)
-    coordinates_area = [[coordinates_area[0][a], coordinates_area[1][a], coordinates_area[2][a]] for a in range(len(coordinates_area[0]))]
+    coordinates_area = [[coordinates_area[0][a], coordinates_area[1][a], coordinates_area[2][a]] for a in range(len(coordinates_area[0]))] #list of coordinated in the mask with value 1
 
     # Rescale the radius to be between 2 and 4
     rescaled_radius = max(2, min(radius, 4))
