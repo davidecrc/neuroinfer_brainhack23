@@ -164,8 +164,6 @@ def get_distance(coord1, coord2):
 def get_atlas_coordinates_json(json_path):
     with open(json_path, 'r') as infile:
         coordinates_atlas = json.load(infile)
-    #for key, coordinates in coordinates_atlas.items():
-        #print(f"Key: {key}, Number of Coordinates: {len(coordinates)}")
 
     return coordinates_atlas
 
@@ -184,8 +182,6 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, fe
     Returns:
     - results: list of BF and coordinates.
     """
-    # Extract coordinates of the specified area from the atlas
-     # Get the script's directory using Path
 
     # Set the global path
     # Get the directory of the current Python script
@@ -197,41 +193,24 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, fe
 
     t_area = time.time()
 
-    # Load mask image
-    #mask_nifti = image.load_img('.tmp/mask.nii.gz')
-    #affine_inv = np.linalg.inv(mask_nifti.affine) #inverse of the affine matrix to convert from MNI coordinates tp voxel coordinates
-    #mask = np.asarray(mask_nifti.get_fdata())
     coordinates_area = np.where(mask == 1)
     coordinates_area = [[coordinates_area[0][a], coordinates_area[1][a], coordinates_area[2][a]] for a in range(len(coordinates_area[0]))] #list of coordinated in the mask with value 1
-
     
     # Initialize an empty list to store results and coordinates
-    #results_dict = {}
     result_all = []
     coord=[]
-
-    #dt_papers_nq = pd.read_csv(os.path.join(data_path, 'data-neurosynth_version-7_coordinates.tsv'), sep='\t')
-    # Calculate the Euclidean distance from each point to the center of the sphere
-    #mni_coords = dt_papers_nq[["x", "y", "z"]].values #assuming this is a list of triplets
-    # Convert MNI coordinates to voxel coordinates for each coordinate
-    #print('lenght mni coordinates',len(mni_coords))
-    #xyz_coords = [image.coord_transform(a[0], a[1], a[2], affine_inv) for a in mni_coords] 
     
     # Iterate through the coordinates_area
     for i in range(len(coordinates_area)-1): #-1 in order to have the last coordinates_area[i+1]) #TODO improve
         
         x_target, y_target, z_target = coordinates_area[i]
         coord.append([x_target, y_target, z_target])
-        #print(coord)
-        #print (i)
         if i==0:
-            #result = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, rescaled_radius, feature_df,cm)
             results = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target,
                                                         radius, feature_df, cm,xyz_coords,dt_papers_nq)
             #print(results_dict[i])           
             # Append a tuple containing the BF value and the coordinates to result_with_coordinates
             result_all.append(results)
-        #df_data_all, cm, cog_all, prior_all, x_target, y_target, z_target, radius
 
         # Check if next_coord is distant > rescaled_radius * 0.98 from all previous coordinates
 
@@ -252,9 +231,6 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, fe
 
     elapsed_area = time.time() - t_area
     print(f'Time in min: {round(elapsed_area / 60, 2)}')
-
-    # Plot distribution and statistics of the Bayesian Factor (BF) for the area
-    #plot_distribution_statistics(result_with_coordinates)
 
     print(result_all)
     
