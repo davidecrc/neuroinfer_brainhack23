@@ -180,8 +180,8 @@ def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df,cm
     'zmin': np.min(coordinates_area[2])
     }
 
-
-    padding = int(radius/3)
+#iterare coord, fare il check se e' stata visitata, se non e' stata visitata, fare il calcolo del cm per quelle coordinate e aggiornare la visited_coord
+    padding = int(radius/3) #padding is 1/3 of the radius
     # Iterate through the coordinates_area
     for i in range(len(coordinates_area)-1): #-1 in order to have the last coordinates_area[i+1]) #TODO improve
         x_target, y_target, z_target = coordinates_area[i]
@@ -200,7 +200,7 @@ def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df,cm
                                                         rescaled_radius, feature_df, cm)
             # Append a tuple containing the BF value and the coordinates to result_with_coordinates
             result_all.append(results)
-            visited_coord = update_visited_coord(visited_coord, normalize_coord(x_target, y_target, z_target, coord_ranges), padding)
+            visited_coord = update_visited_coord(visited_coord, normalize_coord(x_target, y_target, z_target, coord_ranges), padding) #update coordinate visitate+padding
 
 
     elapsed_area = time.time() - t_area
@@ -231,8 +231,8 @@ def normalize_coord(x_target, y_target, z_target, coord_ranges):
     """
 
     xnorm = x_target - coord_ranges['xmin']
-    ynorm = y_target - coord_ranges['xmin']
-    znorm = z_target - coord_ranges['xmin']
+    ynorm = y_target - coord_ranges['ymin']
+    znorm = z_target - coord_ranges['zmin']
     return xnorm, ynorm, znorm
 
 def visited_coord(coord, visited_coords):
