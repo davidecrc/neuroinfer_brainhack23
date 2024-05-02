@@ -197,15 +197,22 @@ def run_bayesian_analysis_area(cog_list, prior_list, area, radius, feature_df,cm
     t_area = time.time()
 
 
-    # Load coordinates from the JSON file
-    json_path = data_path+ "/coord_label_all_harv_ox.json"
-    print('json_path:', json_path)
-    coordinates_atlas = get_atlas_coordinates_json(json_path)
-
     # Extract coordinates specific to the provided area
-    coordinates_area = coordinates_atlas.get(str(area), [])
-    print('len(coordinates_area) for this area: ' , len(coordinates_area))
-
+    if len(area) == 1:
+        area = area[0]
+        # Load coordinates from the JSON file
+        json_path = data_path + "/coord_label_all_harv_ox.json"
+        print('json_path:', json_path)
+        coordinates_atlas = get_atlas_coordinates_json(json_path)
+        coordinates_area = coordinates_atlas.get(str(area), [])
+        print('len(coordinates_area) for this area: ', len(coordinates_area))
+    else:
+        # Load mask image
+        mask_nifti = image.load_img('.tmp/mask.nii.gz')
+        affine = mask_nifti.affine
+        mask = np.asarray(mask_nifti.get_fdata())
+        coordinates_area = np.where(mask == 1)
+        coordinates_area = [[coordinates_area[0][a], coordinates_area[1][a], coordinates_area[2][a]] for a in range(len(coordinates_area[0]))]
 
     # Rescale the radius to be between 2 and 4
     rescaled_radius = max(2, min(radius, 4))

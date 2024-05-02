@@ -124,10 +124,20 @@ def main_analyse_and_render(data):
     # The generate_nifti_bf_heatmap function utilizes the coordinates and Bayesian factors
     # to generate a heatmap and saves it as a NIfTI file. This heatmap visually represents
     # the spatial distribution of the Bayesian factor values in the specified brain region.
-    filenames = generate_nifti_bf_heatmap(result_dict, atlas_path, radius, cog_list)
+    overlay_results, filenames = generate_nifti_bf_heatmap(result_dict, atlas_path, radius, cog_list)
 
     # Creating a bar plot using matplotlib
-    plt.bar(brain_region, [float(p) for p in prior_list])
+    # Flatten all the data
+    hist_bins = np.histogram_bin_edges(overlay_results.flatten(), bins=30)
+    num_items = overlay_results.shape[-1]
+    for i in range(num_items):
+        flattened_data = overlay_results[..., i].flatten()
+        plt.hist(flattened_data, bins=hist_bins, label=cog_list[i])
+
+    # Add labels and legend
+    plt.xlabel('BF')
+    plt.ylabel('Frequency')
+    plt.legend(loc='upper right')
 
     # Save the plot to a BytesIO object
     img_buffer = BytesIO()
@@ -173,7 +183,7 @@ def generate_nifit_mask(region_id, atlas_target_path):
     atlas_img = image.load_img(atlas_target_path)
 
     # Convert atlas image data to 32-bit integer
-    atlas_data = np.asarray(atlas_img.get_fdata(), dtype=np.int32)
+    atlas_data = np.asarray(atlas_img.get_fdata())
 
     # Create a mask and set values to 1000 where atlas_data is equal to region_id
     mask = np.zeros(atlas_data.shape)
@@ -212,7 +222,7 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius, cog_list):
     coords = []
     for sphere in result_dict:
         bf.append(sphere['df_data_all'].BF)
-        coords.append([sphere['x_target'],
+        coords.append([sphere['x_target'], #TODO: the coords are mni coords
                        sphere['y_target'],
                        sphere['z_target'],
                        ])
@@ -259,7 +269,7 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius, cog_list):
         filename.append(".tmp/" + time_results + "init_results_" + str(i) + ".nii.gz")
         nib.save(overlay_results_img[i], filename[i])
 
-    return filename
+    return overlay_results, filename
 
 
 def get_sphere_coords(coords, vx_radius, overlay_results):
@@ -393,7 +403,8 @@ def parse_input_args(data):
 
 if __name__ == '__main__':
     data = dict()
-    data['brainRegion'] = "47"
+    data['brainRegion'] = ["47"]
+    data['smooth'] = 1
     data['radius'] = "3"
     data['x'] = "0"
     data['y'] = "0"

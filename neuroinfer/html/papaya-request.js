@@ -64,7 +64,11 @@ window.rmmaskselector = function(id2rm) {
 // Function to submit a form with a loading overlay
 window.submitForm = function () {
     // Extracting form values from HTML elements
-    var brainRegion = document.getElementById("brainRegion").value;
+        brainRegion = [];
+    var brainRegionArray = document.querySelectorAll('select[name="brainRegion"]');
+    for (i = 0; i < brainRegionArray.length; i++) {
+        brainRegion.push(brainRegionArray[i].value);
+    }
     var radius = document.getElementById("radius").value;
     var x = document.getElementById("x").value;
     var y = document.getElementById("y").value;
