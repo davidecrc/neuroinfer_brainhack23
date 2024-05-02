@@ -176,8 +176,13 @@ def generate_nifit_mask(region_id, atlas_target_path, smooth_factor=0):
       modified atlas image as a NIfTI file in the '.tmp/' directory.
     """
 
+    # Check if region_id is a list, if not, convert it to a list
+
+    if type(region_id) != list:
+        region_id = [region_id]    
     # Convert region_id to integer
-    region_id = [np.int32(a) for a in region_id]
+    region_id = [int(i) for i in region_id]
+   
 
     # Load atlas image
     atlas_img = image.load_img(atlas_target_path)

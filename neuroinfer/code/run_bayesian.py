@@ -170,7 +170,7 @@ def get_atlas_coordinates_json(json_path):
     return coordinates_atlas
 
 #
-def run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, feature_df,cm):
+def run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, feature_df,cm,dt_papers_nq,xyz_coords):
     """
     Perform Bayesian analysis in a specified area using coordinates from the atlas.
 
@@ -210,12 +210,12 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, fe
     result_all = []
     coord=[]
 
-    dt_papers_nq = pd.read_csv(os.path.join(data_path, 'data-neurosynth_version-7_coordinates.tsv'), sep='\t')
+    #dt_papers_nq = pd.read_csv(os.path.join(data_path, 'data-neurosynth_version-7_coordinates.tsv'), sep='\t')
     # Calculate the Euclidean distance from each point to the center of the sphere
-    mni_coords = dt_papers_nq[["x", "y", "z"]].values #assuming this is a list of triplets
+    #mni_coords = dt_papers_nq[["x", "y", "z"]].values #assuming this is a list of triplets
     # Convert MNI coordinates to voxel coordinates for each coordinate
-    print('lenght mni coordinates',len(mni_coords))
-    xyz_coords = [image.coord_transform(a[0], a[1], a[2], affine_inv) for a in mni_coords] 
+    #print('lenght mni coordinates',len(mni_coords))
+    #xyz_coords = [image.coord_transform(a[0], a[1], a[2], affine_inv) for a in mni_coords] 
     
     # Iterate through the coordinates_area
     for i in range(len(coordinates_area)-1): #-1 in order to have the last coordinates_area[i+1]) #TODO improve
@@ -236,10 +236,9 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, fe
         # Check if next_coord is distant > rescaled_radius * 0.98 from all previous coordinates
 
         # if all(get_distance((x_target, y_target, z_target), coordinate) > rescaled_radius * 0.98 for coordinate in coord):
-        if get_distance((x_target, y_target, z_target), coordinates_area[
-            i + 1]) > radius:  # TODO upload checking all the distance from the ROIS
-            print(
-                f'Calculating cm for the {i + 1} ROI out of {len(coordinates_area)}, {((i + 1) / len(coordinates_area)) * 100}% ')
+        if get_distance((x_target, y_target, z_target), coordinates_area[i + 1]) > radius:  # TODO upload checking all the distance from the ROIS
+            print(f'Calculating cm for the {i + 1} ROI out of {len(coordinates_area)}, {((i + 1) / len(coordinates_area)) * 100:.2f}%')
+
             if i % 10 == 0:
                 #create the folder if not existing
                 os.makedirs(PKG_FOLDER / 'neuroinfer' / '.tmp', exist_ok=True)                
