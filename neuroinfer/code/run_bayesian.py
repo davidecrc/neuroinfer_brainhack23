@@ -168,7 +168,7 @@ def get_atlas_coordinates_json(json_path):
     return coordinates_atlas
 
 #
-def run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, feature_df,cm,dt_papers_nq,xyz_coords):
+def run_bayesian_analysis_area(cog_list, prior_list, mask, affine_inv, radius, feature_df,cm,dt_papers_nq, xyz_coords):
     """
     Perform Bayesian analysis in a specified area using coordinates from the atlas.
 

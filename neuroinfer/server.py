@@ -4,7 +4,7 @@ import threading
 import webbrowser
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from neuroinfer.code.plot_generator import main_analyse_and_render, create_mask_region, update_overlay
+from neuroinfer.code.rendering_manager import main_analyse_and_render, create_mask_region, update_overlay
 
 # CORS (Cross-Origin Resource Sharing):
 # - CORS is a browser security feature controlling access to resources from different domains.
