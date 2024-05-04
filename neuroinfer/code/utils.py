@@ -20,7 +20,7 @@ def smooth_mask(mask_3d, n):
     smoothed_mask = convolve(mask_3d.astype(float), kernel)
 
     # Convert back to binary mask
-    smoothed_mask = (smoothed_mask > 0.5).astype(float)
+    smoothed_mask = (mask_3d + smoothed_mask > 0.4).astype(float)
 
     return smoothed_mask
 
