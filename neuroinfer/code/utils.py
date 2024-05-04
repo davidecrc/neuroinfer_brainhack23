@@ -63,7 +63,7 @@ def create_hist(overlay_results, cog_list):
     num_items = overlay_results.shape[-1]
     for i in range(num_items):
         flattened_data = overlay_results[..., i].flatten()
-        plt.hist(flattened_data, bins=hist_bins, label=cog_list[i])
+        plt.hist(flattened_data, bins=hist_bins[1:], label=cog_list[i])
 
     # Add labels and legend
     plt.xlabel('BF')
