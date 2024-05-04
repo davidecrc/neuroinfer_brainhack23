@@ -32,15 +32,16 @@ def run_bayesian_analysis_router(cog_list, area, prior_list, x_target, y_target,
 
     # Check if results_folder_path exists, if not, create it
     if not os.path.exists(results_folder_path):
-        os.makedirs(results_folder_path) 
+        os.makedirs(results_folder_path)
+
+    mask, affine = generate_nifti_mask(area, atlas_path)
+    affine_inv = np.linalg.inv(
+        affine)  # inverse of the affine matrix to convert from MNI coordinates tp voxel coordinates
+
+    dt_papers_nq_id_list, nb_unique_paper, xyz_coords = load_or_calculate_variables(DATA_FOLDER, affine_inv)
 
     if not pd.isnull(area) and pd.isnull(x_target) and pd.isnull(y_target) and pd.isnull(z_target):
-        mask,affine=generate_nifti_mask(area, atlas_path)
-        affine_inv = np.linalg.inv(affine) #inverse of the affine matrix to convert from MNI coordinates tp voxel coordinates
-
-        dt_papers_nq, xyz_coords = load_or_calculate_variables(DATA_FOLDER, affine_inv)
-
-        results=run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, result_df,cm,dt_papers_nq,xyz_coords)
+        results=run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, result_df,cm,dt_papers_nq_id_list, nb_unique_paper,xyz_coords)
 
         # Save results_dict to a pickle file
         file_path = os.path.join(results_folder_path, f"results_area_cm_{cm}_{area}_{cog_list}.pkl")
@@ -51,13 +52,8 @@ def run_bayesian_analysis_router(cog_list, area, prior_list, x_target, y_target,
 
     elif not np.isnan(x_target) and not np.isnan(y_target) and not np.isnan(z_target) and np.isnan(area):
         # Call run_bayesian_analysis_coordinates if coordinates are not nan and area is nan
-        mask,affine=generate_nifti_mask(1, atlas_path) #area is set to 1 to get the mask at the coordinates
-        affine_inv = np.linalg.inv(affine) #inverse of the affine matrix to convert from MNI coordinates tp voxel coordinates
-
-        dt_papers_nq, xyz_coords = load_or_calculate_variables(DATA_FOLDER, affine_inv)
-
         x_target, y_target, z_target = coord_transform(x_target, y_target, z_target,affine_inv)
-        results=run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, result_df, cm,xyz_coords,dt_papers_nq)
+        results=run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, result_df, cm,xyz_coords,dt_papers_nq_id_list, nb_unique_paper)
 
         pickle_file_name = f'results_BHL_coordinates_cm_{cm}_x{x_target}_y{y_target}_z{z_target}.pickle'
         pickle_file_path = os.path.join(results_folder_path, pickle_file_name)
@@ -104,6 +100,6 @@ def load_or_calculate_variables(data_path, affine_inv):
         with open(xyz_coords_path, 'wb') as f:
             pickle.dump(xyz_coords, f)
     
-    return dt_papers_nq, xyz_coords
+    return dt_papers_nq["id"].to_numpy(), dt_papers_nq["id"].nunique(), xyz_coords
 
 

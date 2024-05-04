@@ -107,8 +107,8 @@ def main_analyse_and_render(data):
     result_df, _ = load_data_and_create_dataframe(DATA_FOLDER / "features7.npz",
                                                   DATA_FOLDER / "metadata7.tsv",
                                                   DATA_FOLDER / "vocabulary7.txt")
-    dt_papers_nq, xyz_coords = load_or_calculate_variables(DATA_FOLDER, affine_inv)
-    result_dict = run_bayesian_analysis_area(cog_list, prior_list, mask, affine_inv, radius, result_df, 'a', dt_papers_nq, xyz_coords)
+    dt_papers_nq_id_list, nb_unique_paper, xyz_coords = load_or_calculate_variables(DATA_FOLDER, affine_inv)
+    result_dict = run_bayesian_analysis_area(cog_list, prior_list, mask, radius, result_df, 'a', dt_papers_nq_id_list, nb_unique_paper, xyz_coords)
 
     # Generate a NIfTI heatmap using the coordinates and Bayesian factors
     # The generate_nifti_bf_heatmap function utilizes the coordinates and Bayesian factors

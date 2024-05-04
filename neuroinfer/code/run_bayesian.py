@@ -50,7 +50,7 @@ def calculate_z(posterior, prior):
     return z
 
 
-def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm,xyz_coords,dt_papers_nq):
+def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm, xyz_coords, dt_papers_nq_id_np, nb_unique_paper):
     frequency_threshold = 0.05
     t = time.time()
     cog_all, prior_all, ids_cog_nq_all, intersection_cog_nq_all, intersection_not_cog_nq_all = [], [], [], [], []
@@ -78,10 +78,9 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
             ids_cog_nq_all.append(ids_cog_nq)            
             center = np.array([x_target, y_target, z_target])
             
-            
             distances = np.linalg.norm(xyz_coords - center, axis=1) #check operation applicability
             # Use the distances to filter the DataFrame
-            list_activations_nq = dt_papers_nq[distances <= radius]["id"].tolist()
+            list_activations_nq = dt_papers_nq_id_np[distances <= radius]
 
             total_activations_nq = len(list_activations_nq)
             intersection_cog_nq = len(set(ids_cog_nq) & set(list_activations_nq))
@@ -90,8 +89,7 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
             intersection_cog_nq_all.append(intersection_cog_nq)
             intersection_not_cog_nq_all.append(intersection_not_cog_nq)
 
-            total_database_nq = dt_papers_nq["id"].nunique()
-            total_not_cog_nq = total_database_nq - len(set(ids_cog_nq))
+            total_not_cog_nq = nb_unique_paper - len(ids_cog_nq)
 
             lik_cog_nq = round(intersection_cog_nq / len(ids_cog_nq), 3)
             lik_cog_nq_all.append(lik_cog_nq)
@@ -168,7 +166,7 @@ def get_atlas_coordinates_json(json_path):
     return coordinates_atlas
 
 #
-def run_bayesian_analysis_area(cog_list, prior_list, mask, affine_inv, radius, feature_df,cm,dt_papers_nq, xyz_coords):
+def run_bayesian_analysis_area(cog_list, prior_list, mask, radius, feature_df,cm,dt_papers_nq_id_list, nb_unique_paper, xyz_coords):
     """
     Perform Bayesian analysis in a specified area using coordinates from the atlas.
 
@@ -207,7 +205,7 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask, affine_inv, radius, f
         coord.append([x_target, y_target, z_target])
         if i==0:
             results = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target,
-                                                        radius, feature_df, cm,xyz_coords,dt_papers_nq)
+                                                        radius, feature_df, cm,xyz_coords,dt_papers_nq_id_list, nb_unique_paper)
             #print(results_dict[i])           
             # Append a tuple containing the BF value and the coordinates to result_with_coordinates
             result_all.append(results)
@@ -225,7 +223,7 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask, affine_inv, radius, f
                     f_tmp.write(str((i + 1) / len(coordinates_area)))
             print(get_distance((x_target, y_target, z_target), coordinates_area[i + 1]))
             # Call run_bayesian_analysis_coordinates with the current coordinates
-            results = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm,xyz_coords,dt_papers_nq)
+            results = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm, xyz_coords, dt_papers_nq_id_list, nb_unique_paper)
             # Append a tuple containing the BF value and the coordinates to result_with_coordinates
             result_all.append(results)
 
