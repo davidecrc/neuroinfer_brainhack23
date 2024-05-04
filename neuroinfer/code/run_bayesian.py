@@ -196,10 +196,10 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask, radius, feature_df,cm
         if get_distance((x_target, y_target, z_target), coordinates_area[i + 1]) > radius:  # TODO upload checking all the distance from the ROIS
             print(f'Calculating cm for the {i + 1} ROI out of {len(coordinates_area)}, {((i + 1) / len(coordinates_area)) * 100:.2f}%')
 
-            if i % 10 == 0:
+            if i % 5 == 0:
                 #create the folder if not existing
                 os.makedirs(PKG_FOLDER / 'neuroinfer' / '.tmp', exist_ok=True)                
-                with open(PKG_FOLDER / 'neuroinfer' / '.tmp' / 'processing_progress', 'w') as f_tmp:
+                with open(PKG_FOLDER / 'neuroinfer' / '.tmp' / 'processing_progress.txt', 'w') as f_tmp:
                     f_tmp.write(str((i + 1) / len(coordinates_area)))
             print(get_distance((x_target, y_target, z_target), coordinates_area[i + 1]))
             # Call run_bayesian_analysis_coordinates with the current coordinates
@@ -207,6 +207,7 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask, radius, feature_df,cm
             # Append a tuple containing the BF value and the coordinates to result_with_coordinates
             result_all.append(results)
 
+    os.remove(PKG_FOLDER / 'neuroinfer' / '.tmp' / 'processing_progress.txt')
     elapsed_area = time.time() - t_area
     print(f'Time in min: {round(elapsed_area / 60, 2)}')
 

@@ -63,12 +63,6 @@ window.addBrainRegion = function() {
     regContainer.appendChild(selectcontainer);
 }
 
-window.rmmaskselector = function(id2rm) {
-    var target = document.getElementById(id2rm.id);
-    target.remove();
-    changeRegionMask();
-}
-
 // Function to submit a form with a loading overlay
 window.submitForm = function () {
     // Extracting form values from HTML elements
@@ -99,7 +93,7 @@ window.submitForm = function () {
         smooth: smoothfactor
     };
 
-    // Creating an overlay with a loading bar
+    // Creating an overlay with loading bars
     var overlay = document.createElement("div");
     overlay.style.position = "fixed";
     overlay.style.top = "0";
@@ -108,21 +102,69 @@ window.submitForm = function () {
     overlay.style.height = "100%";
     overlay.style.backgroundColor = "rgba(255, 255, 255, 0.7)";
     overlay.style.display = "flex";
+    overlay.style.flexDirection = "column";
     overlay.style.alignItems = "center";
     overlay.style.justifyContent = "center";
 
-    // Creating a loading bar inside the overlay
-    var loadingBar = document.createElement("div");
-    loadingBar.style.border = "4px solid #3498db";
-    loadingBar.style.borderRadius = "50%";
-    loadingBar.style.borderTop = "4px solid #ffffff";
-    loadingBar.style.width = "40px";
-    loadingBar.style.height = "40px";
-    loadingBar.style.animation = "spin 1s linear infinite";
+    // Creating the first loading bar inside the overlay
+    var firstLoadingBar = document.createElement("div");
+    firstLoadingBar.style.border = "4px solid #3498db";
+    firstLoadingBar.style.borderRadius = "50%";
+    firstLoadingBar.style.borderTop = "4px solid #ffffff";
+    firstLoadingBar.style.width = "40px";
+    firstLoadingBar.style.height = "40px";
+    firstLoadingBar.style.animation = "spin 1s linear infinite";
+    overlay.appendChild(firstLoadingBar);
 
-    // Appending the loading bar to the overlay
-    overlay.appendChild(loadingBar);
+    // Creating the second loading bar inside the overlay
+    var secondLoadingBar = document.createElement("div");
+    secondLoadingBar.style.marginTop = "20px";
+    secondLoadingBar.style.width = "100%";
+    secondLoadingBar.style.backgroundColor = "#f3f3f3";
+    secondLoadingBar.style.height = "20px";
+    overlay.appendChild(secondLoadingBar);
+
+    // Creating the progress bar inside the second loading bar
+    var secondLoadingProgress = document.createElement("div");
+    secondLoadingProgress.id = "second-loading-progress";
+    secondLoadingProgress.style.width = "0%";
+    secondLoadingProgress.style.backgroundColor = "#3498db";
+    secondLoadingProgress.style.height = "100%";
+    secondLoadingBar.appendChild(secondLoadingProgress);
+
+    // Creating the progress text below the second loading bar
+    var progressText = document.createElement("div");
+    progressText.style.marginTop = "20px";
+    progressText.id = "progress-text";
+    progressText.style.marginTop = "5px";
+    progressText.style.fontSize = "14px";
+    progressText.style.textAlign = "center";
+    overlay.appendChild(progressText);
+
+    // Appending the overlay to the body
     document.body.appendChild(overlay);
+
+    function updateSecondLoading(progress) {
+        var secondLoadingProgress = document.getElementById('second-loading-progress');
+        var progressText = document.getElementById('progress-text');
+        secondLoadingProgress.style.width = Math.ceil(progress*100) + '%';
+        progressText.textContent = 'Progress: ' + Math.ceil(progress*100) + '%';
+    }
+
+    function fetchPercentageProgress() {
+        fetch('/.tmp/processing_progress.txt')
+            .then(response => response.text())
+            .then(data => {
+                console.log("Content of /.tmp/percentage_progress:", data);
+                var progress = parseFloat(data);
+                updateSecondLoading(progress);
+            })
+            .catch(error => console.error('Error fetching content:', error));
+    }
+
+    // Call fetchPercentageProgress initially
+    fetchPercentageProgress();
+    var intervalId = setInterval(fetchPercentageProgress, 500);
 
     // Creating an XMLHttpRequest for the POST request to the server
     var xhr = new XMLHttpRequest();
@@ -134,6 +176,7 @@ window.submitForm = function () {
         if (xhr.readyState == 4) {
             // Removing the overlay once the response is received
             document.body.removeChild(overlay);
+            clearInterval(intervalId);
 
             if (xhr.status == 200) {
                 // Parsing the JSON response and displaying the plot
@@ -152,6 +195,7 @@ window.submitForm = function () {
     var jsonData = JSON.stringify(formData);
     xhr.send(jsonData);
 };
+
 
 function createRadioButtons() {
     var container = document.getElementById('radio-container');
