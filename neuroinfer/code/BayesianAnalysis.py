@@ -4,6 +4,11 @@ import pandas as pd
 import pickle
 
 from neuroinfer.code.run_bayesian import run_bayesian_analysis_coordinates, run_bayesian_analysis_area
+from neuroinfer import TEMPLATE_FOLDER
+from neuroinfer.code.plot_generator import generate_nifit_mask
+from nilearn.image import coord_transform
+
+atlas_path=TEMPLATE_FOLDER/'atlases'/'HarvardOxford'/'HarvardOxford-cort-maxprob-thr25-2mm.nii.gz'
 
 '''
 The script orchestrates Bayesian analysis on brain data  ensuring efficiency and insightful interpretation through statistical summaries and graphical representations.
@@ -24,19 +29,25 @@ def run_bayesian_analysis_router(cog_list, area, prior_list, x_target, y_target,
         "'b' for difference measure;\n" +
         "'c' for ratio measure.\n" +
         "'d' for z measure.\n")
+    
+    
 
     script_directory = os.path.dirname(os.path.abspath(__file__))
     global_path = os.path.dirname(script_directory)
     results_folder_path = os.path.join(global_path, "results")
+    data_path = os.path.join(global_path, "data")  # Path to the saved_result folder
 
     # Check if results_folder_path exists, if not, create it
     if not os.path.exists(results_folder_path):
-        os.makedirs(results_folder_path)
-
+        os.makedirs(results_folder_path) 
 
     if not pd.isnull(area) and pd.isnull(x_target) and pd.isnull(y_target) and pd.isnull(z_target):
-        # Call run_bayesian_analysis_area if area is not nan and coordinates are nan
-        results=run_bayesian_analysis_area(cog_list, prior_list, area, radius, result_df, cm)
+        mask,affine=generate_nifit_mask(area,atlas_path)
+        affine_inv = np.linalg.inv(affine) #inverse of the affine matrix to convert from MNI coordinates tp voxel coordinates
+
+        dt_papers_nq, xyz_coords = load_or_calculate_variables(data_path, affine_inv)
+
+        results=run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, result_df,cm,dt_papers_nq,xyz_coords)
 
         # Save results_dict to a pickle file
         file_path = os.path.join(results_folder_path, f"results_area_cm_{cm}_{area}_{cog_list}.pkl")
@@ -47,7 +58,13 @@ def run_bayesian_analysis_router(cog_list, area, prior_list, x_target, y_target,
 
     elif not np.isnan(x_target) and not np.isnan(y_target) and not np.isnan(z_target) and np.isnan(area):
         # Call run_bayesian_analysis_coordinates if coordinates are not nan and area is nan
-        results=run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, result_df, cm)
+        mask,affine=generate_nifit_mask(1,atlas_path) #area is set to 1 to get the mask at the coordinates
+        affine_inv = np.linalg.inv(affine) #inverse of the affine matrix to convert from MNI coordinates tp voxel coordinates
+
+        dt_papers_nq, xyz_coords = load_or_calculate_variables(data_path, affine_inv)
+
+        x_target, y_target, z_target = coord_transform(x_target, y_target, z_target,affine_inv)
+        results=run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, result_df, cm,xyz_coords,dt_papers_nq)
 
         pickle_file_name = f'results_BHL_coordinates_cm_{cm}_x{x_target}_y{y_target}_z{z_target}.pickle'
         pickle_file_path = os.path.join(results_folder_path, pickle_file_name)
@@ -61,4 +78,39 @@ def run_bayesian_analysis_router(cog_list, area, prior_list, x_target, y_target,
     else:
         # Handle the case where none of the conditions are met
         print("Invalid combination of input values. Please check.")
+
+
+def load_or_calculate_variables(data_path, affine_inv):
+    dt_papers_nq_path = os.path.join(data_path, 'dt_papers_nq.pkl')
+    xyz_coords_path = os.path.join(data_path, 'xyz_coords.pkl')
+
+    # Check if the files exist
+    if os.path.exists(dt_papers_nq_path) and os.path.exists(xyz_coords_path):
+        # Load dt_papers_nq
+        with open(dt_papers_nq_path, 'rb') as f:
+            dt_papers_nq = pickle.load(f)
+
+        # Load xyz_coords
+        with open(xyz_coords_path, 'rb') as f:
+            xyz_coords = pickle.load(f)
+    else:
+        # Calculate and save dt_papers_nq
+        dt_papers_nq = pd.read_csv(os.path.join(data_path, 'data-neurosynth_version-7_coordinates.tsv'), sep='\t')
+
+        # Calculate the Euclidean distance from each point to the center of the sphere
+        mni_coords = dt_papers_nq[["x", "y", "z"]].values  # assuming this is a list of triplets
+
+        # Convert MNI coordinates to voxel coordinates for each coordinate
+        xyz_coords = [coord_transform(a[0], a[1], a[2], affine_inv) for a in mni_coords]
+
+        # Save dt_papers_nq
+        with open(dt_papers_nq_path, 'wb') as f:
+            pickle.dump(dt_papers_nq, f)
+
+        # Save xyz_coords
+        with open(xyz_coords_path, 'wb') as f:
+            pickle.dump(xyz_coords, f)
+    
+    return dt_papers_nq, xyz_coords
+
 
