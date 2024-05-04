@@ -4,7 +4,7 @@ window.displayPlot = function(imageData) {
     update_papaya_viewer(true);
 
     // Getting the graphics container element
-    var graphicsContainer = document.getElementById("graphicsContainer");
+    var graphicsContainer = document.getElementById("graphics-container");
 
     // Checking if the graphics container element exists
     if (graphicsContainer) {

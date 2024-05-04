@@ -56,19 +56,13 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
     cog_all, prior_all, ids_cog_nq_all, intersection_cog_nq_all, intersection_not_cog_nq_all = [], [], [], [], []
     lik_cog_nq_all, lik_not_cog_nq_all, lik_ratio_nq_all, post_cog_nq_all, df_nq_all, rm_nq_all, z_measure_all = [], [], [], [], [], [], []
 
-    feature_names = feature_df.columns
-
-    script_directory = os.path.dirname(os.path.abspath(__file__))
-    global_path = os.path.dirname(script_directory)
-    data_path = os.path.join(global_path, "data")
-
-
     for q, cog in enumerate(cog_list):
         prior = prior_list[q]
 
-        if cog not in feature_names:
-            print(f'Please check the correct spelling of: "{cog}"; it is not in the NeuroSynth list. '
-                  'In the meanwhile, the script goes to the next *cog*, if any.')
+        if cog not in feature_df.columns:  # features names
+            print(f'Please check the correct spelling of: "{cog}"; it is not in the NeuroSynth list. ')
+            return None
+
         else:
             cog_all.append(cog)
             prior_all.append(prior)
@@ -147,16 +141,11 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
         "z_target": z_target,
         "radius": radius,
     }
-
-    #return df_data_all, cm, cog_all, prior_all, x_target, y_target, z_target, radius
-    return results        
-
+    return results
 
 
 def get_distance(coord1, coord2):
-    #print(np.linalg.norm(np.array(coord1) - np.array(coord2)))
     return np.linalg.norm(np.array(coord1) - np.array(coord2))
-
 
 
 def get_atlas_coordinates_json(json_path):
@@ -165,7 +154,7 @@ def get_atlas_coordinates_json(json_path):
 
     return coordinates_atlas
 
-#
+
 def run_bayesian_analysis_area(cog_list, prior_list, mask, radius, feature_df,cm,dt_papers_nq_id_list, nb_unique_paper, xyz_coords):
     """
     Perform Bayesian analysis in a specified area using coordinates from the atlas.
