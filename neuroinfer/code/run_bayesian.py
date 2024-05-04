@@ -125,8 +125,7 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
         sort_column = 'Z-measure'
 
     df_data_all = pd.DataFrame(data_all, columns=df_columns)
-    df_data_all_sorted = df_data_all.sort_values(sort_column, ascending=False)
-    print(df_data_all_sorted)
+    print(df_data_all)
 
     elapsed = time.time() - t
     print('time elapsed:', elapsed)
