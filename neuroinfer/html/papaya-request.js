@@ -336,10 +336,29 @@ window.createSliceNavigator = function (col_names) {
     container.style.display = 'grid';
 }
 
+function voxelsInsideSphere(radius) {
+    // Calculate the dimensions of the bounding box
+    let sideLength = Math.ceil(2 * radius); // Round up to ensure the sphere is fully contained
+    // Initialize counter for voxels inside the sphere
+    let count = 0;
+    // Iterate over all voxels in the bounding box
+    for (let x = -sideLength; x <= sideLength; x++) {
+        for (let y = -sideLength; y <= sideLength; y++) {
+            for (let z = -sideLength; z <= sideLength; z++) {
+                // Check if the voxel is inside the sphere using the sphere equation
+                if (x**2 + y**2 + z**2 <= radius**2) {
+                    count++;
+                }
+            }
+        }
+    }
+    return count;
+}
 
 window.getvsinsphere = function() {
     var radius = document.getElementById("radius").value;
     var container = document.getElementById('totvxinsphere');
-    var totvx = Math.floor((4/3) * Math.PI * Math.pow(parseInt(radius), 3));
+    // var totvx = Math.floor((4/3) * Math.PI * Math.pow(parseInt(radius), 3));
+    var totvx = voxelsInsideSphere(radius);
     container.innerHTML = "number of voxel in each sphere: " + totvx;
 }
