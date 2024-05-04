@@ -38,6 +38,18 @@ function autocompleteWords() {
   }
 }
 
+document.body.addEventListener('click', event => {
+  const textarea = document.getElementById('words');
+  const autocompleteContainer = document.getElementById('autocomplete-suggestions');
+
+  // Check if click target is not the textarea or autocomplete container
+  if (event.target !== textarea && event.target !== autocompleteContainer) {
+    autocompleteContainer.innerHTML = '';
+  }
+
+  // Stop the event from propagating further
+  event.stopPropagation();
+});
         document.addEventListener("DOMContentLoaded", function() {
             // Get all labels and help containers
             const labels = document.querySelectorAll('.help-caller');
