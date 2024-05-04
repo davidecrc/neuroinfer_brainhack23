@@ -187,7 +187,7 @@ def generate_nifit_mask(region_id, atlas_target_path, smooth_factor=0):
 
     # convert to Nifti1Image by using the original affine transformation as reference
 
-    if smooth_factor > 0:
+    if int(smooth_factor) > 0:
         mask = smooth_mask(mask, int(smooth_factor))
     return mask, atlas_img.affine
 
