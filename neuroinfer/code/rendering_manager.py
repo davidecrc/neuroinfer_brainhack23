@@ -114,7 +114,7 @@ def main_analyse_and_render(data):
     # The generate_nifti_bf_heatmap function utilizes the coordinates and Bayesian factors
     # to generate a heatmap and saves it as a NIfTI file. This heatmap visually represents
     # the spatial distribution of the Bayesian factor values in the specified brain region.
-    overlay_results, filenames = generate_nifti_bf_heatmap(result_dict, atlas_path, radius, cog_list)
+    overlay_results, filenames = generate_nifti_bf_heatmap(result_dict, atlas_path, radius, cog_list, mask)
 
     img_base64 = create_hist(overlay_results, cog_list)
 

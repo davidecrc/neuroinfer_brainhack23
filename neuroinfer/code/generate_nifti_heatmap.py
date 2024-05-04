@@ -8,7 +8,7 @@ from nilearn import image
 from neuroinfer.code.utils import get_sphere_coords
 
 
-def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius, cog_list):
+def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius, cog_list, mask):
     """
     Generate a NIfTI heatmap based on sorted coordinates and bayesian factors/measurements.
 
@@ -58,6 +58,7 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius, cog_list):
                 counter[sphere_coords[0][sc_i], sphere_coords[1][sc_i], sphere_coords[2][sc_i], cog_counter] += 1
 
     overlay_results = overlay_results/np.where(counter == 0, 1, counter)
+    overlay_results = overlay_results*np.repeat(mask[:,:,:,np.newaxis], overlay_results.shape[-1], 3 )
 
     # Check if the '.tmp/' directory exists, if not, create it
     if not os.path.isdir('.tmp/'):
