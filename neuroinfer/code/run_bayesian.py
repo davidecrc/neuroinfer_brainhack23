@@ -11,7 +11,7 @@ from PIL import Image
 from nilearn import image
 from scipy import sparse
 import json
-from neuroinfer import PKG_FOLDER
+from neuroinfer import PKG_FOLDER, DATA_FOLDER
 import pickle
 
 '''
@@ -180,14 +180,6 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask, radius, feature_df,cm
     Returns:
     - results: list of BF and coordinates.
     """
-
-    # Set the global path
-    # Get the directory of the current Python script
-    script_directory = os.path.dirname(os.path.abspath(__file__))
-    global_path = os.path.dirname(script_directory)
-    print('Global path: ',global_path)
-    data_path = os.path.join(global_path, "data")  # Path to the saved_result folder
-    print('Data path: ',data_path)
 
     t_area = time.time()
 
