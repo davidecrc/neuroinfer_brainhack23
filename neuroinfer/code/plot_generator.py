@@ -37,7 +37,7 @@ def create_mask_region(brain_region, smooth_factor):
     smooth_factor = np.int32(smooth_factor)
 
     # Use the 'generate_nifit_mask' function to create the NIfTI mask for the specified brain region
-    mask_3d, _ = generate_nifit_mask(brain_region, atlas_path, smooth_factor)
+    mask_3d, affine = generate_nifit_mask(brain_region, atlas_path, smooth_factor)
 
     print(type(mask_3d))
     print(type(mask_3d[1,1,1]))
