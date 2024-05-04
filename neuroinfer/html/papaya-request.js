@@ -73,7 +73,8 @@ window.submitForm = function () {
     var x = document.getElementById("x").value;
     var y = document.getElementById("y").value;
     var z = document.getElementById("z").value;
-    words = document.getElementById("words").value;
+    words_str = document.getElementById("words").value;
+    words = words_str.split(',');
     var probabilities = document.getElementById("probabilities").value;
     smoothfactor = document.getElementById("smooth").value;
 
@@ -84,7 +85,7 @@ window.submitForm = function () {
         x: x,
         y: y,
         z: z,
-        words: words,
+        words: words_str,
         probabilities: probabilities,
         func: "do_analysis",
         smooth: smoothfactor
@@ -133,6 +134,7 @@ window.submitForm = function () {
                 filenames = response.message; // Store filenames globally
                 update_papaya_viewer(response.message);
                 createRadioButtons();
+                createSliceNavigator(words);
                 document.getElementById("image-navigator").style.display = 'grid';
             }
         }
@@ -144,7 +146,6 @@ window.submitForm = function () {
 };
 
 function createRadioButtons() {
-    var words_split = words.split(",");
     var container = document.getElementById('radio-container');
     container.innerHTML = ''; // Clear previous content
 
@@ -153,9 +154,9 @@ function createRadioButtons() {
     emptyCell.setAttribute('class', 'grid-item')
     container.appendChild(emptyCell);
 
-    for (var h = 0; h < words_split.length; h++) { // Adjusted to match the number of columns in the table
+    for (var h = 0; h < words.length; h++) { // Adjusted to match the number of columns in the table
         var headerCell = document.createElement('div');
-        headerCell.textContent = words_split[h]; // Adjusted index to match words array
+        headerCell.textContent = words[h]; // Adjusted index to match words array
         headerCell.setAttribute('class', 'grid-item')
         container.appendChild(headerCell);
     }
@@ -166,7 +167,7 @@ function createRadioButtons() {
         cell.textContent = 'overaly_' + (i + 1); // Adjusted index to match words array
         cell.setAttribute('class', 'grid-item')
         container.appendChild(cell);
-        for (var j = 0; j < words_split.length; j++) { // Adjusted to match the number of columns in the table
+        for (var j = 0; j < words.length; j++) { // Adjusted to match the number of columns in the table
             var cell = document.createElement('div');
                 var checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
@@ -179,7 +180,7 @@ function createRadioButtons() {
         }
     }
     var autoRepeat = "";
-    for (var i = 0; i < words_split.length + 1; i++) {
+    for (var i = 0; i < words.length + 1; i++) {
         autoRepeat += "auto ";
     }
 
@@ -193,15 +194,13 @@ function createRadioButtons() {
 
 
 function update_overlays() {
-    var words_split = words.split(",");
-    var container = document.getElementById('radio-container');
     var numRows = 3; // Assuming you have 3 rows of checkboxes
 
     var checkboxValues = [];
 
     for (var i = 0; i < numRows; i++) {
         var rowValues = [];
-        for (var j = 0; j < words_split.length; j++) { // Assuming `words` is defined globally or within scope
+        for (var j = 0; j < words.length; j++) { // Assuming `words` is defined globally or within scope
             var checkboxId = 'row_' + i + '_file_' + (j - 1); // Adjusted index to match checkbox IDs
             var checkbox = document.getElementById(checkboxId);
             rowValues.push(checkbox.checked); // Pushing boolean value of checkbox
@@ -231,6 +230,7 @@ function update_overlays() {
             console.log("response:")
             console.log(response.message)
             update_papaya_viewer(response.message);
+            createSliceNavigator(["Overlay 1", "Overlay 2", "Overlay 3"]);
         }
     };
 
@@ -241,4 +241,45 @@ function update_overlays() {
 
 window.reset = function reset() {
 update_papaya_viewer(filenames);
+createSliceNavigator(words);
 };
+
+
+window.createSliceNavigator = function (col_names) {
+    var container = document.getElementById('image-navigator');
+    container.innerHTML = ''; // Clear previous content
+
+    for (var h = 0; h < col_names.length; h++) { // Adjusted to match the number of columns in the table
+        var headerCell = document.createElement('div');
+        headerCell.textContent = col_names[h]; // Adjusted index to match words array
+        headerCell.setAttribute('class', 'grid-item')
+        container.appendChild(headerCell);
+    }
+
+    for (var j = 0; j < col_names.length; j++) {
+        var cell = document.createElement('div');
+        cell.setAttribute('class', 'grid-item');
+        var radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.id = "radio" + j;
+        radio.name = "fileSelector";
+        radio.value = "" + j;
+        if (j == 0) {
+            radio.checked = true;
+        }
+        cell.appendChild(radio)
+        container.appendChild(cell)
+    }
+
+    var autoRepeat = "";
+    for (var i = 0; i < col_names.length; i++) {
+        autoRepeat += "auto ";
+    }
+    var button = document.createElement('button');
+    button.type = "button";
+    button.onclick = reset;
+    button.innerHTML = "reset";
+    container.appendChild(button);
+    container.style.gridTemplateColumns = autoRepeat.trim();
+    container.style.display = 'grid';
+}
