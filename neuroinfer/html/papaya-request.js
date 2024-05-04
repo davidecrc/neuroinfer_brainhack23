@@ -3,7 +3,7 @@ window.changeRegionMask = function() {
     // Extracting the selected brain region from the HTML element
     ids = [];
     var brainRegionArray = document.querySelectorAll('select[name="brainRegion"]');
-    for (i = 0; i < brainRegionArray.length; i++) {
+    for (var i = 0; i < brainRegionArray.length; i++) {
         ids.push(brainRegionArray[i].value);
     }
     smoothfactor = document.getElementById("smooth").value;
@@ -26,8 +26,16 @@ window.changeRegionMask = function() {
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4 && xhr.status == 200) {
             update_papaya_viewer(true);
+            var response = JSON.parse(xhr.responseText);
+            var dispnvx = document.getElementById("totalnumberofvoxel");
+            dispnvx.innerHTML = "total voxel inside the mask: " + response.totvx;
+            dispnvx.style.backgroundColor = 'white';
         }
     };
+
+    var dispnvx = document.getElementById("totalnumberofvoxel");
+    dispnvx.innerHTML = "calculating the mask.. ";
+    dispnvx.style.backgroundColor = 'white';
 
     // Converting form data to JSON and sending the POST request
     var jsonData = JSON.stringify(formData);
@@ -64,7 +72,7 @@ window.rmmaskselector = function(id2rm) {
 // Function to submit a form with a loading overlay
 window.submitForm = function () {
     // Extracting form values from HTML elements
-        brainRegion = [];
+    var brainRegion = [];
     var brainRegionArray = document.querySelectorAll('select[name="brainRegion"]');
     for (i = 0; i < brainRegionArray.length; i++) {
         brainRegion.push(brainRegionArray[i].value);
@@ -73,10 +81,10 @@ window.submitForm = function () {
     var x = document.getElementById("x").value;
     var y = document.getElementById("y").value;
     var z = document.getElementById("z").value;
-    words_str = document.getElementById("words").value;
+    var words_str = document.getElementById("words").value;
     words = words_str.split(',');
     var probabilities = document.getElementById("probabilities").value;
-    smoothfactor = document.getElementById("smooth").value;
+    var smoothfactor = document.getElementById("smooth").value;
 
     // Creating form data with the analysis parameters
     var formData = {
@@ -282,4 +290,12 @@ window.createSliceNavigator = function (col_names) {
     container.appendChild(button);
     container.style.gridTemplateColumns = autoRepeat.trim();
     container.style.display = 'grid';
+}
+
+
+window.getvsinsphere = function() {
+    var radius = document.getElementById("radius").value;
+    var container = document.getElementById('totvxinsphere');
+    var totvx = Math.floor((4/3) * Math.PI * Math.pow(parseInt(radius), 3));
+    container.innerHTML = "number of voxel in each sphere: " + totvx;
 }
