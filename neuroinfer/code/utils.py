@@ -62,7 +62,8 @@ def get_sphere_coords(coords, vx_radius, overlay_results):
 def create_hist(overlay_results, cog_list):
     overlay_results = np.reshape(overlay_results, (-1, overlay_results.shape[-1]))
     num_items = overlay_results.shape[-1]
-    hist_bins = np.histogram_bin_edges(overlay_results.flatten(), bins=overlay_results.flatten()/num_items/20)
+    nbins = min(int(len(overlay_results.flatten())/num_items/20), 200)
+    hist_bins = np.histogram_bin_edges(overlay_results.flatten(), bins=nbins)
     plt.figure()
     for i in range(num_items):
         nonzeros_results = overlay_results[overlay_results[:, i] != 0, i]
@@ -72,7 +73,7 @@ def create_hist(overlay_results, cog_list):
         gmm = gmm.fit(X=np.expand_dims(nonzeros_results, 1))
 
         # Evaluate GMM
-        gmm_x = np.linspace(0, np.max(nonzeros_results), 50)
+        gmm_x = np.linspace(0, np.max(nonzeros_results), nbins)
         gmm_y = np.exp(gmm.score_samples(gmm_x.reshape(-1, 1)))
 
         plt.hist(nonzeros_results, bins=hist_bins, label=cog_list[i], density=True)
