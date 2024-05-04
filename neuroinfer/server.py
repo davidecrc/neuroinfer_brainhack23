@@ -62,7 +62,6 @@ def run_flask_app():
     # Start the Flask app on the specified port
     app.run()
 
-
 # Function to start the HTTP server in a separate thread
 def run_http_server():
     # Use SimpleHTTPRequestHandler to handle HTTP requests

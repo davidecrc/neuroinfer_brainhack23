@@ -6,6 +6,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from nilearn import image
 from scipy.ndimage import convolve
+from sklearn.mixture import GaussianMixture
 
 
 def smooth_mask(mask_3d, n):
@@ -59,11 +60,23 @@ def get_sphere_coords(coords, vx_radius, overlay_results):
 
 
 def create_hist(overlay_results, cog_list):
-    hist_bins = np.histogram_bin_edges(overlay_results.flatten(), bins=30)
+    overlay_results = np.reshape(overlay_results, (-1, overlay_results.shape[-1]))
     num_items = overlay_results.shape[-1]
+    hist_bins = np.histogram_bin_edges(overlay_results.flatten(), bins=overlay_results.flatten()/num_items/20)
+    plt.figure()
     for i in range(num_items):
-        flattened_data = overlay_results[..., i].flatten()
-        plt.hist(flattened_data, bins=hist_bins[1:], label=cog_list[i])
+        nonzeros_results = overlay_results[overlay_results[:, i] != 0, i]
+
+        # Fit GMM
+        gmm = GaussianMixture(n_components=3)
+        gmm = gmm.fit(X=np.expand_dims(nonzeros_results, 1))
+
+        # Evaluate GMM
+        gmm_x = np.linspace(0, np.max(nonzeros_results), 50)
+        gmm_y = np.exp(gmm.score_samples(gmm_x.reshape(-1, 1)))
+
+        plt.hist(nonzeros_results, bins=hist_bins, label=cog_list[i], density=True)
+        plt.plot(gmm_x, gmm_y, alpha=.5, lw=4)
 
     # Add labels and legend
     plt.xlabel('BF')
