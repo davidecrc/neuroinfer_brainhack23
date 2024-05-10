@@ -11,7 +11,7 @@ from PIL import Image
 from nilearn import image
 from scipy import sparse
 import json
-from neuroinfer import PKG_FOLDER
+from neuroinfer import PKG_FOLDER, DATA_FOLDER
 import pickle
 
 '''
@@ -50,25 +50,19 @@ def calculate_z(posterior, prior):
     return z
 
 
-def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm,xyz_coords,dt_papers_nq):
+def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm, xyz_coords, dt_papers_nq_id_np, nb_unique_paper):
     frequency_threshold = 0.05
     t = time.time()
     cog_all, prior_all, ids_cog_nq_all, intersection_cog_nq_all, intersection_not_cog_nq_all = [], [], [], [], []
     lik_cog_nq_all, lik_not_cog_nq_all, lik_ratio_nq_all, post_cog_nq_all, df_nq_all, rm_nq_all, z_measure_all = [], [], [], [], [], [], []
 
-    feature_names = feature_df.columns
-
-    script_directory = os.path.dirname(os.path.abspath(__file__))
-    global_path = os.path.dirname(script_directory)
-    data_path = os.path.join(global_path, "data")
-
-
     for q, cog in enumerate(cog_list):
         prior = prior_list[q]
 
-        if cog not in feature_names:
-            print(f'Please check the correct spelling of: "{cog}"; it is not in the NeuroSynth list. '
-                  'In the meanwhile, the script goes to the next *cog*, if any.')
+        if cog not in feature_df.columns:  # features names
+            print(f'Please check the correct spelling of: "{cog}"; it is not in the NeuroSynth list. ')
+            return None
+
         else:
             cog_all.append(cog)
             prior_all.append(prior)
@@ -78,10 +72,9 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
             ids_cog_nq_all.append(ids_cog_nq)            
             center = np.array([x_target, y_target, z_target])
             
-            
             distances = np.linalg.norm(xyz_coords - center, axis=1) #check operation applicability
             # Use the distances to filter the DataFrame
-            list_activations_nq = dt_papers_nq[distances <= radius]["id"].tolist()
+            list_activations_nq = dt_papers_nq_id_np[distances <= radius]
 
             total_activations_nq = len(list_activations_nq)
             intersection_cog_nq = len(set(ids_cog_nq) & set(list_activations_nq))
@@ -90,8 +83,7 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
             intersection_cog_nq_all.append(intersection_cog_nq)
             intersection_not_cog_nq_all.append(intersection_not_cog_nq)
 
-            total_database_nq = dt_papers_nq["id"].nunique()
-            total_not_cog_nq = total_database_nq - len(set(ids_cog_nq))
+            total_not_cog_nq = nb_unique_paper - len(ids_cog_nq)
 
             lik_cog_nq = round(intersection_cog_nq / len(ids_cog_nq), 3)
             lik_cog_nq_all.append(lik_cog_nq)
@@ -133,8 +125,7 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
         sort_column = 'Z-measure'
 
     df_data_all = pd.DataFrame(data_all, columns=df_columns)
-    df_data_all_sorted = df_data_all.sort_values(sort_column, ascending=False)
-    print(df_data_all_sorted)
+    print(df_data_all)
 
     elapsed = time.time() - t
     print('time elapsed:', elapsed)
@@ -149,16 +140,11 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
         "z_target": z_target,
         "radius": radius,
     }
-
-    #return df_data_all, cm, cog_all, prior_all, x_target, y_target, z_target, radius
-    return results        
-
+    return results
 
 
 def get_distance(coord1, coord2):
-    #print(np.linalg.norm(np.array(coord1) - np.array(coord2)))
     return np.linalg.norm(np.array(coord1) - np.array(coord2))
-
 
 
 def get_atlas_coordinates_json(json_path):
@@ -167,8 +153,8 @@ def get_atlas_coordinates_json(json_path):
 
     return coordinates_atlas
 
-#
-def run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, feature_df,cm,dt_papers_nq,xyz_coords):
+
+def run_bayesian_analysis_area(cog_list, prior_list, mask, radius, feature_df,cm,dt_papers_nq_id_list, nb_unique_paper, xyz_coords):
     """
     Perform Bayesian analysis in a specified area using coordinates from the atlas.
 
@@ -182,14 +168,6 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, fe
     Returns:
     - results: list of BF and coordinates.
     """
-
-    # Set the global path
-    # Get the directory of the current Python script
-    script_directory = os.path.dirname(os.path.abspath(__file__))
-    global_path = os.path.dirname(script_directory)
-    print('Global path: ',global_path)
-    data_path = os.path.join(global_path, "data")  # Path to the saved_result folder
-    print('Data path: ',data_path)
 
     t_area = time.time()
 
@@ -207,7 +185,7 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, fe
         coord.append([x_target, y_target, z_target])
         if i==0:
             results = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target,
-                                                        radius, feature_df, cm,xyz_coords,dt_papers_nq)
+                                                        radius, feature_df, cm,xyz_coords,dt_papers_nq_id_list, nb_unique_paper)
             #print(results_dict[i])           
             # Append a tuple containing the BF value and the coordinates to result_with_coordinates
             result_all.append(results)
@@ -218,17 +196,18 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, fe
         if get_distance((x_target, y_target, z_target), coordinates_area[i + 1]) > radius:  # TODO upload checking all the distance from the ROIS
             print(f'Calculating cm for the {i + 1} ROI out of {len(coordinates_area)}, {((i + 1) / len(coordinates_area)) * 100:.2f}%')
 
-            if i % 10 == 0:
+            if i % 5 == 0:
                 #create the folder if not existing
                 os.makedirs(PKG_FOLDER / 'neuroinfer' / '.tmp', exist_ok=True)                
-                with open(PKG_FOLDER / 'neuroinfer' / '.tmp' / 'processing_progress', 'w') as f_tmp:
+                with open(PKG_FOLDER / 'neuroinfer' / '.tmp' / 'processing_progress.txt', 'w') as f_tmp:
                     f_tmp.write(str((i + 1) / len(coordinates_area)))
             print(get_distance((x_target, y_target, z_target), coordinates_area[i + 1]))
             # Call run_bayesian_analysis_coordinates with the current coordinates
-            results = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm,xyz_coords,dt_papers_nq)
+            results = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm, xyz_coords, dt_papers_nq_id_list, nb_unique_paper)
             # Append a tuple containing the BF value and the coordinates to result_with_coordinates
             result_all.append(results)
 
+    os.remove(PKG_FOLDER / 'neuroinfer' / '.tmp' / 'processing_progress.txt')
     elapsed_area = time.time() - t_area
     print(f'Time in min: {round(elapsed_area / 60, 2)}')
 

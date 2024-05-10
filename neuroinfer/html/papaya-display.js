@@ -4,10 +4,9 @@ window.displayPlot = function(imageData) {
     update_papaya_viewer(true);
 
     // Getting the graphics container element
-    var graphicsContainer = document.getElementById("graphicsContainer");
+    var graphicsContainer = document.getElementById("graphics-container");
 
     // Checking if the graphics container element exists
-    if (graphicsContainer) {
         // Creating an image element
         var img = new Image();
 
@@ -21,8 +20,5 @@ window.displayPlot = function(imageData) {
         // Appending the image to the graphics container
         graphicsContainer.innerHTML = '';
         graphicsContainer.appendChild(img);
-    } else {
-        // Logging an error if the graphics container element is not found
-        console.error("Graphics container element not found");
-    }
+
 };

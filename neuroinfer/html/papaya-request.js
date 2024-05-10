@@ -3,7 +3,7 @@ window.changeRegionMask = function() {
     // Extracting the selected brain region from the HTML element
     ids = [];
     var brainRegionArray = document.querySelectorAll('select[name="brainRegion"]');
-    for (i = 0; i < brainRegionArray.length; i++) {
+    for (var i = 0; i < brainRegionArray.length; i++) {
         ids.push(brainRegionArray[i].value);
     }
     smoothfactor = document.getElementById("smooth").value;
@@ -26,8 +26,16 @@ window.changeRegionMask = function() {
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4 && xhr.status == 200) {
             update_papaya_viewer(true);
+            var response = JSON.parse(xhr.responseText);
+            var dispnvx = document.getElementById("totalnumberofvoxel");
+            dispnvx.innerHTML = "total voxel inside the mask: " + response.totvx;
+            dispnvx.style.backgroundColor = 'white';
         }
     };
+
+    var dispnvx = document.getElementById("totalnumberofvoxel");
+    dispnvx.innerHTML = "calculating the mask.. ";
+    dispnvx.style.backgroundColor = 'white';
 
     // Converting form data to JSON and sending the POST request
     var jsonData = JSON.stringify(formData);
@@ -55,16 +63,10 @@ window.addBrainRegion = function() {
     regContainer.appendChild(selectcontainer);
 }
 
-window.rmmaskselector = function(id2rm) {
-    var target = document.getElementById(id2rm.id);
-    target.remove();
-    changeRegionMask();
-}
-
 // Function to submit a form with a loading overlay
 window.submitForm = function () {
     // Extracting form values from HTML elements
-        brainRegion = [];
+    var brainRegion = [];
     var brainRegionArray = document.querySelectorAll('select[name="brainRegion"]');
     for (i = 0; i < brainRegionArray.length; i++) {
         brainRegion.push(brainRegionArray[i].value);
@@ -73,9 +75,10 @@ window.submitForm = function () {
     var x = document.getElementById("x").value;
     var y = document.getElementById("y").value;
     var z = document.getElementById("z").value;
-    words = document.getElementById("words").value;
+    var words_str = document.getElementById("words").value;
+    words = words_str.split(',');
     var probabilities = document.getElementById("probabilities").value;
-    smoothfactor = document.getElementById("smooth").value;
+    var smoothfactor = document.getElementById("smooth").value;
 
     // Creating form data with the analysis parameters
     var formData = {
@@ -84,13 +87,13 @@ window.submitForm = function () {
         x: x,
         y: y,
         z: z,
-        words: words,
+        words: words_str,
         probabilities: probabilities,
         func: "do_analysis",
         smooth: smoothfactor
     };
 
-    // Creating an overlay with a loading bar
+    // Creating an overlay with loading bars
     var overlay = document.createElement("div");
     overlay.style.position = "fixed";
     overlay.style.top = "0";
@@ -99,21 +102,69 @@ window.submitForm = function () {
     overlay.style.height = "100%";
     overlay.style.backgroundColor = "rgba(255, 255, 255, 0.7)";
     overlay.style.display = "flex";
+    overlay.style.flexDirection = "column";
     overlay.style.alignItems = "center";
     overlay.style.justifyContent = "center";
 
-    // Creating a loading bar inside the overlay
-    var loadingBar = document.createElement("div");
-    loadingBar.style.border = "4px solid #3498db";
-    loadingBar.style.borderRadius = "50%";
-    loadingBar.style.borderTop = "4px solid #ffffff";
-    loadingBar.style.width = "40px";
-    loadingBar.style.height = "40px";
-    loadingBar.style.animation = "spin 1s linear infinite";
+    // Creating the first loading bar inside the overlay
+    var firstLoadingBar = document.createElement("div");
+    firstLoadingBar.style.border = "4px solid #3498db";
+    firstLoadingBar.style.borderRadius = "50%";
+    firstLoadingBar.style.borderTop = "4px solid #ffffff";
+    firstLoadingBar.style.width = "40px";
+    firstLoadingBar.style.height = "40px";
+    firstLoadingBar.style.animation = "spin 1s linear infinite";
+    overlay.appendChild(firstLoadingBar);
 
-    // Appending the loading bar to the overlay
-    overlay.appendChild(loadingBar);
+    // Creating the second loading bar inside the overlay
+    var secondLoadingBar = document.createElement("div");
+    secondLoadingBar.style.marginTop = "20px";
+    secondLoadingBar.style.width = "100%";
+    secondLoadingBar.style.backgroundColor = "#f3f3f3";
+    secondLoadingBar.style.height = "20px";
+    overlay.appendChild(secondLoadingBar);
+
+    // Creating the progress bar inside the second loading bar
+    var secondLoadingProgress = document.createElement("div");
+    secondLoadingProgress.id = "second-loading-progress";
+    secondLoadingProgress.style.width = "0%";
+    secondLoadingProgress.style.backgroundColor = "#3498db";
+    secondLoadingProgress.style.height = "100%";
+    secondLoadingBar.appendChild(secondLoadingProgress);
+
+    // Creating the progress text below the second loading bar
+    var progressText = document.createElement("div");
+    progressText.style.marginTop = "20px";
+    progressText.id = "progress-text";
+    progressText.style.marginTop = "5px";
+    progressText.style.fontSize = "14px";
+    progressText.style.textAlign = "center";
+    overlay.appendChild(progressText);
+
+    // Appending the overlay to the body
     document.body.appendChild(overlay);
+
+    function updateSecondLoading(progress) {
+        var secondLoadingProgress = document.getElementById('second-loading-progress');
+        var progressText = document.getElementById('progress-text');
+        secondLoadingProgress.style.width = Math.ceil(progress*100) + '%';
+        progressText.textContent = 'Progress: ' + Math.ceil(progress*100) + '%';
+    }
+
+    function fetchPercentageProgress() {
+        fetch('/.tmp/processing_progress.txt')
+            .then(response => response.text())
+            .then(data => {
+                console.log("Content of /.tmp/percentage_progress:", data);
+                var progress = parseFloat(data);
+                updateSecondLoading(progress);
+            })
+            .catch(error => console.error('Error fetching content:', error));
+    }
+
+    // Call fetchPercentageProgress initially
+    fetchPercentageProgress();
+    var intervalId = setInterval(fetchPercentageProgress, 500);
 
     // Creating an XMLHttpRequest for the POST request to the server
     var xhr = new XMLHttpRequest();
@@ -125,6 +176,7 @@ window.submitForm = function () {
         if (xhr.readyState == 4) {
             // Removing the overlay once the response is received
             document.body.removeChild(overlay);
+            clearInterval(intervalId);
 
             if (xhr.status == 200) {
                 // Parsing the JSON response and displaying the plot
@@ -133,6 +185,7 @@ window.submitForm = function () {
                 filenames = response.message; // Store filenames globally
                 update_papaya_viewer(response.message);
                 createRadioButtons();
+                createSliceNavigator(words);
                 document.getElementById("image-navigator").style.display = 'grid';
             }
         }
@@ -143,8 +196,8 @@ window.submitForm = function () {
     xhr.send(jsonData);
 };
 
+
 function createRadioButtons() {
-    var words_split = words.split(",");
     var container = document.getElementById('radio-container');
     container.innerHTML = ''; // Clear previous content
 
@@ -153,9 +206,9 @@ function createRadioButtons() {
     emptyCell.setAttribute('class', 'grid-item')
     container.appendChild(emptyCell);
 
-    for (var h = 0; h < words_split.length; h++) { // Adjusted to match the number of columns in the table
+    for (var h = 0; h < words.length; h++) { // Adjusted to match the number of columns in the table
         var headerCell = document.createElement('div');
-        headerCell.textContent = words_split[h]; // Adjusted index to match words array
+        headerCell.textContent = words[h]; // Adjusted index to match words array
         headerCell.setAttribute('class', 'grid-item')
         container.appendChild(headerCell);
     }
@@ -166,7 +219,7 @@ function createRadioButtons() {
         cell.textContent = 'overaly_' + (i + 1); // Adjusted index to match words array
         cell.setAttribute('class', 'grid-item')
         container.appendChild(cell);
-        for (var j = 0; j < words_split.length; j++) { // Adjusted to match the number of columns in the table
+        for (var j = 0; j < words.length; j++) { // Adjusted to match the number of columns in the table
             var cell = document.createElement('div');
                 var checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
@@ -179,7 +232,7 @@ function createRadioButtons() {
         }
     }
     var autoRepeat = "";
-    for (var i = 0; i < words_split.length + 1; i++) {
+    for (var i = 0; i < words.length + 1; i++) {
         autoRepeat += "auto ";
     }
 
@@ -193,15 +246,13 @@ function createRadioButtons() {
 
 
 function update_overlays() {
-    var words_split = words.split(",");
-    var container = document.getElementById('radio-container');
     var numRows = 3; // Assuming you have 3 rows of checkboxes
 
     var checkboxValues = [];
 
     for (var i = 0; i < numRows; i++) {
         var rowValues = [];
-        for (var j = 0; j < words_split.length; j++) { // Assuming `words` is defined globally or within scope
+        for (var j = 0; j < words.length; j++) { // Assuming `words` is defined globally or within scope
             var checkboxId = 'row_' + i + '_file_' + (j - 1); // Adjusted index to match checkbox IDs
             var checkbox = document.getElementById(checkboxId);
             rowValues.push(checkbox.checked); // Pushing boolean value of checkbox
@@ -231,6 +282,7 @@ function update_overlays() {
             console.log("response:")
             console.log(response.message)
             update_papaya_viewer(response.message);
+            createSliceNavigator(["Overlay 1", "Overlay 2", "Overlay 3"]);
         }
     };
 
@@ -241,4 +293,72 @@ function update_overlays() {
 
 window.reset = function reset() {
 update_papaya_viewer(filenames);
+createSliceNavigator(words);
 };
+
+
+window.createSliceNavigator = function (col_names) {
+    var container = document.getElementById('image-navigator');
+    container.innerHTML = ''; // Clear previous content
+
+    for (var h = 0; h < col_names.length; h++) { // Adjusted to match the number of columns in the table
+        var headerCell = document.createElement('div');
+        headerCell.textContent = col_names[h]; // Adjusted index to match words array
+        headerCell.setAttribute('class', 'grid-item')
+        container.appendChild(headerCell);
+    }
+
+    for (var j = 0; j < col_names.length; j++) {
+        var cell = document.createElement('div');
+        cell.setAttribute('class', 'grid-item');
+        var radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.id = "radio" + j;
+        radio.name = "fileSelector";
+        radio.value = "" + j;
+        if (j == 0) {
+            radio.checked = true;
+        }
+        cell.appendChild(radio)
+        container.appendChild(cell)
+    }
+
+    var autoRepeat = "";
+    for (var i = 0; i < col_names.length; i++) {
+        autoRepeat += "auto ";
+    }
+    var button = document.createElement('button');
+    button.type = "button";
+    button.onclick = reset;
+    button.innerHTML = "reset";
+    container.appendChild(button);
+    container.style.gridTemplateColumns = autoRepeat.trim();
+    container.style.display = 'grid';
+}
+
+function voxelsInsideSphere(radius) {
+    // Calculate the dimensions of the bounding box
+    let sideLength = Math.ceil(2 * radius); // Round up to ensure the sphere is fully contained
+    // Initialize counter for voxels inside the sphere
+    let count = 0;
+    // Iterate over all voxels in the bounding box
+    for (let x = -sideLength; x <= sideLength; x++) {
+        for (let y = -sideLength; y <= sideLength; y++) {
+            for (let z = -sideLength; z <= sideLength; z++) {
+                // Check if the voxel is inside the sphere using the sphere equation
+                if (x**2 + y**2 + z**2 <= radius**2) {
+                    count++;
+                }
+            }
+        }
+    }
+    return count;
+}
+
+window.getvsinsphere = function() {
+    var radius = document.getElementById("radius").value;
+    var container = document.getElementById('totvxinsphere');
+    // var totvx = Math.floor((4/3) * Math.PI * Math.pow(parseInt(radius), 3));
+    var totvx = voxelsInsideSphere(radius);
+    container.innerHTML = "number of voxel in each sphere: " + totvx;
+}
