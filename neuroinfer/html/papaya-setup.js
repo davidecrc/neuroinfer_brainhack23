@@ -4,6 +4,7 @@ var params = {};
 var filenames = [];
 var words = [];
 var overlays = [];
+var currentCoords = [0, 0, 0];
 
 // Event listener for when the DOM content is loaded
 document.addEventListener("DOMContentLoaded", function() {
@@ -16,6 +17,7 @@ document.addEventListener("DOMContentLoaded", function() {
     params["showImageButtons"] = true;
     params["mainView"] = 'axial';
     params["kioskMode"] = true;
+    params["coordinate"] = currentCoords;
 
     // Initializing the Papaya viewer with the specified parameters
     update_papaya_viewer();

@@ -1,5 +1,6 @@
 // Function to update the Papaya viewer with or without a mask
 window.update_papaya_viewer = function(mask = false) {
+    params["coordinate"]=currentCoords;
     if (Array.isArray(mask)) {
         // If mask is an array, read the first element
         overlays = mask;
