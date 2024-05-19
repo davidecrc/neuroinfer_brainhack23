@@ -1,4 +1,5 @@
 import base64
+import random
 from io import BytesIO
 
 import nibabel as nib
@@ -70,6 +71,9 @@ def create_hist(overlay_results, cog_list):
     nbins = min(int(len(overlay_results.flatten())/num_items/20), 200)
     hist_bins = np.histogram_bin_edges(overlay_results.flatten(), bins=nbins)
     plt.figure()
+
+    color = ["#FF0000", "#00FF00", "#0000FF", "#00AAFF", "#AA00FF", "#FFAA00"]
+
     for i in range(num_items):
         nonzeros_results = overlay_results[overlay_results[:, i] != 0, i]
 
@@ -81,8 +85,8 @@ def create_hist(overlay_results, cog_list):
         gmm_x = np.linspace(0, np.max(nonzeros_results), nbins)
         gmm_y = np.exp(gmm.score_samples(gmm_x.reshape(-1, 1)))
 
-        plt.hist(nonzeros_results, bins=hist_bins, label=cog_list[i], density=True,  alpha=.5)
-        plt.plot(gmm_x, gmm_y, alpha=.5, color='k', lw=4)
+        plt.hist(nonzeros_results, bins=hist_bins, label=cog_list[i], density=True, color=color[i], alpha=.5)
+        plt.plot(gmm_x, gmm_y, color=color[i], lw=3)
 
     # Add labels and legend
     plt.xlabel('BF')
