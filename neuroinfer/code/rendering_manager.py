@@ -62,6 +62,8 @@ def create_mask_region(brain_region, smooth_factor):
 def update_overlay(combination_bool, file_list):
     output_names = []
     for index, bool_list in enumerate(combination_bool):
+        print(bool_list)
+        print(file_list)
         output_names.append(os.path.join('.tmp/', f"overlay_{index}.nii.gz"))
         get_combined_overlays(bool_list, file_list, output_names[index])
 

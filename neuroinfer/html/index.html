@@ -45,8 +45,12 @@
             right: 5px;
             font-size: 36px;
         }
-    </style>
-</head>
+        #sliders {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+    </style></head>
 <body>
 
 <div class="banner">
@@ -139,6 +143,21 @@
         <div id="image-navigator">
         </div>
 
+    <div id="sliders">
+        <label>
+            Minimum Value:
+            <input type="range" id="minSlider" min="0" max="255" value="0">
+        </label>
+        <label>
+            Mid Value (1):
+            <input type="range" id="midSlider" min="0" max="255" value="128">
+        </label>
+        <label>
+            Maximum Value:
+            <input type="range" id="maxSlider" min="0" max="255" value="255">
+        </label>
+    </div>
+
         <div id="visualizer"></div>
 
         <div id="radio-grid-container">
@@ -157,6 +176,7 @@
 <script src="papaya-request.js"></script>
 <script src="papaya-display.js"></script>
 <script src="fetch-brain-regions.js"></script>
+    <script src="update_lut.js"></script>
 <!-- JavaScript to handle radio button changes -->
 <script>
     // Function to handle radio button changes
