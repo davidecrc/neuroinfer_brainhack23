@@ -5,6 +5,7 @@ var filenames = [];
 var words = [];
 var overlays = [];
 var currentCoords = [0, 0, 0];
+var init_loader = 1;
 
 // Event listener for when the DOM content is loaded
 document.addEventListener("DOMContentLoaded", function() {

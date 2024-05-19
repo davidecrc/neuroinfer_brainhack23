@@ -156,15 +156,27 @@ window.submitForm = function () {
         fetch(url)
             .then(response => response.text())
             .then(data => {
-                console.log("Content of /.tmp/percentage_progress:", data);
+                console.log(init_loader);
+                //console.log("Content of /.tmp/percentage_progress:", data);
                 var progress = parseFloat(data);
-                updateSecondLoading(progress);
+                if (isNaN(progress)) {
+                    (init_loader) ? updateSecondLoading(0) : updateSecondLoading(1);
+                }
+                else {
+                    updateSecondLoading(progress);
+                    init_loader = 0;
+                }
+
             })
-            .catch(error => console.error('Error fetching content:', error));
+            .catch(error => {
+                console.error('Error fetching content:', error);
+                (init_loader) ? updateSecondLoading(0) : updateSecondLoading(1);
+            });
     }
 
     // Call fetchPercentageProgress initially
     fetchPercentageProgress();
+    init_loader=1;
     var intervalId = setInterval(fetchPercentageProgress, 500);
 
     // Creating an XMLHttpRequest for the POST request to the server
