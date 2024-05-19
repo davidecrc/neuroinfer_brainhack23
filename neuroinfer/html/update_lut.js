@@ -50,10 +50,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Apply the new LUT to the viewer's screen volume
         viewer.screenVolumes[0].lut = new papaya.viewer.ColorTable("Custom", lutData);
-        viewer.screenVolumes[0].changeColorTable("Custom");
+        viewer.screenVolumes[0].lutName = "Costume"
 
-        // Redraw the viewer
-        viewer.drawViewer(true);
+        viewer.updateScreenSliceTransforms();
+        viewer.drawViewer(!1,!0);
     }
 
     // Add event listeners to sliders
