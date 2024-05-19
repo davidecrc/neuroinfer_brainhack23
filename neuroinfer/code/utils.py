@@ -85,8 +85,8 @@ def create_hist(overlay_results, cog_list):
         gmm_x = np.linspace(0, np.max(nonzeros_results), nbins)
         gmm_y = np.exp(gmm.score_samples(gmm_x.reshape(-1, 1)))
 
-        plt.hist(nonzeros_results, bins=hist_bins, label=cog_list[i], density=True, color=color[i], alpha=.5)
-        plt.plot(gmm_x, gmm_y, color=color[i], lw=3)
+        plt.hist(nonzeros_results, bins=hist_bins, label=cog_list[i], density=True, color=color[i], alpha=.7)
+        plt.plot(gmm_x, gmm_y, color=color[i], lw=2)
 
     # Add labels and legend
     plt.xlabel('BF')
