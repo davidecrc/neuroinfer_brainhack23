@@ -296,6 +296,11 @@ update_papaya_viewer(filenames);
 createSliceNavigator(words);
 };
 
+function handleRadioButtonChange() {
+    var selectedValue = document.querySelector('input[name="fileSelector"]:checked').value;
+    // Call update_papaya_viewer with the selected filenames element
+    update_papaya_viewer(overlays[selectedValue]);
+}
 
 window.createSliceNavigator = function (col_names) {
     var container = document.getElementById('image-navigator');
@@ -319,6 +324,7 @@ window.createSliceNavigator = function (col_names) {
         if (j == 0) {
             radio.checked = true;
         }
+        radio.addEventListener('change', handleRadioButtonChange);
         cell.appendChild(radio)
         container.appendChild(cell)
     }
