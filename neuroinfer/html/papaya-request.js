@@ -152,7 +152,8 @@ window.submitForm = function () {
     }
 
     function fetchPercentageProgress() {
-        fetch('/.tmp/processing_progress.txt')
+        const url = `/.tmp/processing_progress.txt?cacheBuster=${Math.random()}`;
+        fetch(url)
             .then(response => response.text())
             .then(data => {
                 console.log("Content of /.tmp/percentage_progress:", data);
