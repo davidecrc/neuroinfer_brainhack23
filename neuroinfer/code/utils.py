@@ -18,9 +18,14 @@ def smooth_mask(mask_3d, n):
 
     # Apply convolution to perform smoothing
     smoothed_mask = convolve(mask_3d.astype(float), kernel)
+    print(smoothed_mask.shape)
+    print(smoothed_mask.dtype)
+    print(mask_3d.shape)
+    print(mask_3d.dtype)
 
     # Convert back to binary mask
     smoothed_mask = (mask_3d + smoothed_mask > 0.4).astype(float)
+    print(smoothed_mask.shape)
 
     return smoothed_mask
 
@@ -134,6 +139,7 @@ def generate_nifti_mask(region_id, atlas_target_path, smooth_factor=0):
 
     # convert to Nifti1Image by using the original affine transformation as reference
 
-    if int(smooth_factor) > 0:
-        mask = smooth_mask(mask, int(smooth_factor))
+    for j in range(int(smooth_factor)):
+        mask = smooth_mask(mask, 1)
+
     return mask, atlas_img.affine
