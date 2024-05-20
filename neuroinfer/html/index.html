@@ -45,11 +45,6 @@
             right: 5px;
             font-size: 36px;
         }
-        #sliders {
-            display: flex;
-            justify-content: space-around;
-            margin: 20px 0;
-        }
     </style></head>
 <body>
 
@@ -144,18 +139,19 @@
         </div>
 
     <div id="sliders">
-        <label>
-            Minimum Value:
-            <input type="range" id="minSlider" min="0" max="255" value="0">
-        </label>
-        <label>
-            Mid Value (1):
-            <input type="range" id="midSlider" min="0" max="255" value="128">
-        </label>
-        <label>
-            Maximum Value:
-            <input type="range" id="maxSlider" min="0" max="255" value="255">
-        </label>
+    <div class="minmax-container"><span style="float: left;"><label>min</label><input type="number" style="width: 25px"></span>
+        <span style="float: right;"><label>max</label><input type="number" style="width: 25px"></span>
+    </div>
+    <div class="slider-container">
+        <input type="range" min="0" max="275" value="0" class="slider" id="colorRange1">
+    </div>
+    <div class="slider-container">
+        <input type="range" min="0" max="275" value="137" class="slider" id="colorRange2">
+    </div>
+    <div class="slider-container">
+        <input type="range" min="0" max="275" value="275" class="slider" id="colorRange3">
+    </div>
+        <button type="button" onclick="updateLUT()" style="float:right; width:auto">Apply Color Map</button>
     </div>
 
         <div id="visualizer"></div>
@@ -169,29 +165,15 @@
         <h2>Graphics placeholder</h2>
     </div>
 </div>
-<!--  <script type="text/javascript" src="main.js"></script> <!-- must be placed here as it will look for div id "visualizer" -->
+
 <script src="autocompletion.js"></script>
 <script src="papaya-setup.js"></script>
 <script src="papaya-update.js"></script>
 <script src="papaya-request.js"></script>
-<script src="papaya-display.js"></script>
+<script src="papaya-display.js"></script>  <!-- must be placed here as it will look for div id "visualizer" -->
 <script src="fetch-brain-regions.js"></script>
-    <script src="update_lut.js"></script>
-<!-- JavaScript to handle radio button changes -->
-<script>
-    // Function to handle radio button changes
-    function handleRadioButtonChange() {
-        var selectedValue = document.querySelector('input[name="fileSelector"]:checked').value;
-        // Call update_papaya_viewer with the selected filenames element
-        update_papaya_viewer(overlays[selectedValue]);
-    }
-
-    // Add event listeners to radio buttons
-    var radioButtons = document.querySelectorAll('input[name="fileSelector"]');
-    radioButtons.forEach(function (radioButton) {
-        radioButton.addEventListener('change', handleRadioButtonChange);
-    });
-</script>
+<script src="update_lut.js"></script>
+<script src="sliders.js"></script>
 
 </body>
 </html>
