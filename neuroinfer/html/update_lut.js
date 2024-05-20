@@ -1,4 +1,4 @@
- function updateLUT() {
+ window.updateLUT = function () {
         const slider1 = document.getElementById('colorRange1');
         const slider2 = document.getElementById('colorRange2');
         const slider3 = document.getElementById('colorRange3');
@@ -12,12 +12,19 @@
         ];
         console.log(colors);
 
-        colors.forEach((hsl) => colors.push(hslToRgb(hsl));
+        const rgbColors = [];
+
+        // Iterate over each HSL value in the original array
+        colors.forEach((hsl) => {
+            // Convert HSL to RGB and push the result into the new array
+            rgbColors.push(hslToRgb(hsl/360, 1, 0.5));
+        });
+        console.log(rgbColors);
 
         const lutData = [];
-        lutData.push([parseInt(minvalue.value), colors[3]]);
-        lutData.push([1, colors[4]]);
-        lutData.push([parseInt(maxvalue.value), colors[5]]);
+        lutData.push([parseInt(minvalue.value), rgbColors[0]]);
+        lutData.push([1, rgbColors[1]]);
+        lutData.push([parseInt(maxvalue.value), rgbColors[2]]);
 
         params["luts"] = [{"name": "Custom", "data": lutData}];
         for (let overlay_id in overlays) {
@@ -41,5 +48,14 @@ function hslToRgb(h, s, l) {
     b = hueToRgb(p, q, h - 1/3);
   }
 
-  return [round(r * 255), round(g * 255), round(b * 255)];
+  return [Math.floor(r * 255), Math.floor(g * 255), Math.floor(b * 255)];
+}
+
+function hueToRgb(p, q, t) {
+  if (t < 0) t += 1;
+  if (t > 1) t -= 1;
+  if (t < 1/6) return p + (q - p) * 6 * t;
+  if (t < 1/2) return q;
+  if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+  return p;
 }
