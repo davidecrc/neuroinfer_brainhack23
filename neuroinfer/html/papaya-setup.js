@@ -6,6 +6,11 @@ var words = [];
 var overlays = [];
 var currentCoords = [0, 0, 0];
 var init_loader = 1;
+var current_overlay = null;
+visualizer = document.getElementById("visualizer");
+visualizer.setAttribute("class","papaya");
+visualizer.setAttribute("data-params","params");
+papaya.Container.startPapaya();
 
 // Event listener for when the DOM content is loaded
 document.addEventListener("DOMContentLoaded", function() {

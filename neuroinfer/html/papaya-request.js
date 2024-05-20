@@ -196,7 +196,8 @@ window.submitForm = function () {
                 var response = JSON.parse(xhr.responseText);
                 displayPlot(response.image);
                 filenames = response.message; // Store filenames globally
-                update_papaya_viewer(response.message);
+                filenames = filenames.map(i => '/' + i);
+                update_papaya_viewer(filenames);
                 createRadioButtons();
                 createSliceNavigator(words);
                 document.getElementById("image-navigator").style.display = 'grid';
