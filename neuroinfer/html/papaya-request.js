@@ -317,6 +317,13 @@ function handleRadioButtonChange() {
 }
 
 window.createSliceNavigator = function (col_names) {
+    var slider = document.getElementById('sliders');
+    slider.style.display = "block";
+    var graphics = document.getElementById('-container');
+    graphics.style.display = "block";
+    var max_input = document.getElementById('max');
+    max_input.value = max_value;
+
     var container = document.getElementById('image-navigator');
     container.innerHTML = ''; // Clear previous content
 
