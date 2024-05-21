@@ -12,28 +12,28 @@
         ];
         console.log(colors);
 
-        const rgbColors = [];
-
-        // Iterate over each HSL value in the original array
-        colors.forEach((hsl) => {
-            // Convert HSL to RGB and push the result into the new array
-            rgbColors.push(hslToRgb(hsl/360, 1, 0.5));
-        });
-        console.log(rgbColors);
-
         const lutData = [];
-        lutData.push([parseInt(minvalue.value), rgbColors[0]]);
-        lutData.push([1, rgbColors[1]]);
-        lutData.push([parseInt(maxvalue.value), rgbColors[2]]);
+        rgbColors = hslToRgb(colors[0]/360, 1, 0.5);
+        lutData.push([parseInt(minvalue.value)/max_value, rgbColors[0], rgbColors[1], rgbColors[2]]);
+        rgbColors = hslToRgb(colors[1]/360, 1, 0.5);
+        lutData.push([1/max_value, rgbColors[0], rgbColors[1], rgbColors[2]]);
+        rgbColors = hslToRgb(colors[2]/360, 1, 0.5);
+        lutData.push([parseInt(maxvalue.value)/max_value, rgbColors[0], rgbColors[1], rgbColors[2]]);
+        console.log(lutData);
 
-        params["luts"] = [{"name": "Custom", "data": lutData}];
-        for (let overlay_id in overlays) {
-            params[overlay_id] = {lut: "Custom"};
-        }
-        params[current_overlay] = {lut: "Custom"};
+        let lut_id = (Math.random() + 1).toString(36).substring(7);
+
+        params["luts"] = [{"name": lut_id, "data": lutData}];
+        overlays.forEach( (overlay_id) =>
+            params[getFileName(overlay_id)] = {lut: lut_id})
+
+        params[getFileName(current_overlay)] = {lut: lut_id};
         update_papaya_viewer(current_overlay);
     }
 
+function getFileName(path) {
+    return path.split('/').pop();
+}
 
 function hslToRgb(h, s, l) {
   let r, g, b;
@@ -48,7 +48,7 @@ function hslToRgb(h, s, l) {
     b = hueToRgb(p, q, h - 1/3);
   }
 
-  return [Math.floor(r * 255), Math.floor(g * 255), Math.floor(b * 255)];
+  return [r, g, b];
 }
 
 function hueToRgb(p, q, t) {
