@@ -127,7 +127,8 @@ def main_analyse_and_render(data):
         'num_slices': len(filenames),
         'status': 'success',
         'message': filenames,
-        'image': img_base64
+        'image': img_base64,
+        'max_value': np.max(overlay_results)
     }
 
     return response

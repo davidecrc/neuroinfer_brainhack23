@@ -7,6 +7,7 @@ var overlays = [];
 var currentCoords = [0, 0, 0];
 var init_loader = 1;
 var current_overlay = null;
+var max_value = null;
 visualizer = document.getElementById("visualizer");
 visualizer.setAttribute("class","papaya");
 visualizer.setAttribute("data-params","params");

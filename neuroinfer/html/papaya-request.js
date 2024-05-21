@@ -197,6 +197,7 @@ window.submitForm = function () {
                 displayPlot(response.image);
                 filenames = response.message; // Store filenames globally
                 filenames = filenames.map(i => '/' + i);
+                max_value = parseFloat(response.max_value);
                 update_papaya_viewer(filenames);
                 createRadioButtons();
                 createSliceNavigator(words);
