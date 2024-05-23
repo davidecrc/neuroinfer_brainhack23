@@ -42,7 +42,7 @@ def handle_post_request():
     # Check if only one key is present in the request
     if 'func' in form_keys and dict_request['func'] == "update_mask":
         # If the only key is 'brainRegion', attempt to create a mask for the specified brain region
-        response = create_mask_region(dict_request['brainRegion'], dict_request['smooth'])
+        response = create_mask_region(dict_request['atlas'], dict_request['brainRegion'], dict_request['smooth'])
     # If 'combination_bool' and 'file_list' keys are present, send them to update_overlay
     elif 'func' in form_keys and dict_request['func'] == "update_overlays":
         print(dict_request['combination_bool'])

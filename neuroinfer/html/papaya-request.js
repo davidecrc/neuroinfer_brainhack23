@@ -11,6 +11,7 @@ window.changeRegionMask = function() {
 
     // Creating form data with the brain region information
     var formData = {
+        atlas : selected_atlas,
         brainRegion: ids,
         smooth: smoothfactor,
         func: "update_mask"
@@ -82,6 +83,7 @@ window.submitForm = function () {
 
     // Creating form data with the analysis parameters
     var formData = {
+        atlas : selected_atlas,
         brainRegion: brainRegion,
         radius: radius,
         x: x,
@@ -195,8 +197,8 @@ window.submitForm = function () {
                 // Parsing the JSON response and displaying the plot
                 var response = JSON.parse(xhr.responseText);
                 displayPlot(response.image);
-                filenames = response.message; // Store filenames globally
-                filenames = filenames.map(i => '/' + i);
+                filenames_sys = response.message; // Store filenames globally
+                filenames = filenames_sys.map(i => '/' + i);
                 max_value = parseFloat(response.max_value);
                 update_papaya_viewer(filenames);
                 createRadioButtons();
@@ -281,7 +283,7 @@ function update_overlays() {
     // Creating form data with the brain region information
     var formData = {
         combination_bool: checkboxValues,
-        file_list: filenames,
+        file_list: filenames_sys,
         func: "update_overlays"
     };
 
@@ -320,7 +322,7 @@ function handleRadioButtonChange() {
 window.createSliceNavigator = function (col_names) {
     var slider = document.getElementById('sliders');
     slider.style.display = "block";
-    var graphics = document.getElementById('-container');
+    var graphics = document.getElementById('graphics-container');
     graphics.style.display = "block";
     var max_input = document.getElementById('max');
     max_input.value = max_value;

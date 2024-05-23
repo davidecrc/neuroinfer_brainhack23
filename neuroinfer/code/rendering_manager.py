@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import nibabel as nib
 import os
@@ -11,10 +13,10 @@ from neuroinfer.code.run_bayesian import run_bayesian_analysis_area
 from neuroinfer.code.utils import get_combined_overlays, create_hist, generate_nifti_mask
 
 plt.switch_backend('Agg')
-atlas_path = TEMPLATE_FOLDER / 'atlases' / 'HarvardOxford' / 'HarvardOxford-cort-maxprob-thr25-2mm.nii.gz'
+atlas_path = TEMPLATE_FOLDER / 'atlases'
 
 
-def create_mask_region(brain_region, smooth_factor):
+def create_mask_region(atlas, brain_region, smooth_factor):
     """
     Create a NIfTI mask for a specified list of brain regions.
 
@@ -32,9 +34,10 @@ def create_mask_region(brain_region, smooth_factor):
     """
     print(brain_region)
     smooth_factor = np.int32(smooth_factor)
+    print(atlas_path / atlas)
 
     # Use the 'generate_nifit_mask' function to create the NIfTI mask for the specified brain region
-    mask_3d, affine = generate_nifti_mask(brain_region, atlas_path, smooth_factor)
+    mask_3d, affine = generate_nifti_mask(brain_region, atlas_path / atlas, smooth_factor)
     tot_vx = np.sum(mask_3d)
 
     print(type(mask_3d))
@@ -102,7 +105,7 @@ def main_analyse_and_render(data):
     cog_list, prior_list, x_target, y_target, z_target, radius, brain_region = parse_input_args(data)
 
     # Generating a NIfTI mask for the selected region
-    mask, affine = generate_nifti_mask(data['brainRegion'], atlas_path, data['smooth'])
+    mask, affine = generate_nifti_mask(data['brainRegion'], atlas_path / data["atlas"], data['smooth'])
     affine_inv = np.linalg.inv(affine)
 
     # Perform Bayesian analysis to obtain coordinates (coords) and Bayesian factor values (bf)
@@ -118,7 +121,7 @@ def main_analyse_and_render(data):
     # The generate_nifti_bf_heatmap function utilizes the coordinates and Bayesian factors
     # to generate a heatmap and saves it as a NIfTI file. This heatmap visually represents
     # the spatial distribution of the Bayesian factor values in the specified brain region.
-    overlay_results, filenames = generate_nifti_bf_heatmap(result_dict, atlas_path, radius, cog_list, mask)
+    overlay_results, filenames = generate_nifti_bf_heatmap(result_dict, atlas_path / data["atlas"], radius, cog_list, mask)
 
     img_base64 = create_hist(overlay_results, cog_list)
 

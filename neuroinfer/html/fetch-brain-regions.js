@@ -33,14 +33,16 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => console.error('Error fetching atlas files:', error));
 });
 
-function fetch_brain_regions(selectedFile = 'atlas_list_labels.json') {    // Fetching brain region data from a JSON file
+function fetch_brain_regions(selectedFile) {    // Fetching brain region data from a JSON file
     fetch('../data/' + selectedFile)
     .then(response => response.json())
     .then(data => {
         console.log(data)
         // Extracting brain regions and populating the select element
-        var brainRegions = data["har_ox_cort_maxprob-thr25-2mm"];
+        var brainRegions = data["data"];
+        selected_atlas = data["atlas"];
         var select = document.getElementById('brainRegion');
+        select.innerHTML = "";
 
         brainRegions.forEach(function(region) {
             var option = document.createElement('option');
