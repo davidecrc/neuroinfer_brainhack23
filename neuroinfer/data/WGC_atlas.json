@@ -1,0 +1,21 @@
+{
+  "atlas": "WGC.nii.gz",
+  "data": [
+    {
+      "id_lab": 0,
+      "lab": "Background"
+    },
+    {
+      "id_lab": 1,
+      "lab": "CSF"
+    },
+    {
+      "id_lab": 2,
+      "lab": "WM"
+    },
+    {
+      "id_lab": 3,
+      "lab": "GM"
+    }
+  ]
+}
