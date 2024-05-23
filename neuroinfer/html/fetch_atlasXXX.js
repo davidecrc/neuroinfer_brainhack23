@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
             select.addEventListener('change', function() {
                 // When a file is selected, call the fetch_brain_regions function with the selected file
                 const selectedFile = this.value;
+                console.log("selected file: "  + selectedFile)
                 fetch_brain_regions(selectedFile);
             });
         })
