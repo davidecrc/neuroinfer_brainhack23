@@ -298,7 +298,9 @@ function update_overlays() {
             var response = JSON.parse(xhr.responseText);
             console.log("response:")
             console.log(response.message)
-            update_papaya_viewer(response.message);
+            let overlay_sys = response.message; // Store filenames globally
+            overlay_sys = overlay_sys.map(i => '/' + i);
+            update_papaya_viewer(overlay_sys);
             createSliceNavigator(["Overlay 1", "Overlay 2", "Overlay 3"]);
         }
     };

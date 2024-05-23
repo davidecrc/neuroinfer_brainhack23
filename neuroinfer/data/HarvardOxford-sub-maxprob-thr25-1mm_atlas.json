@@ -1,4 +1,5 @@
 {"atlas" : "HarvardOxford-sub-maxprob-thr25-1mm.nii",
+  "res": 1,
   "data" : [{"id_lab": 0, "lab": "Background"},
     {"id_lab": 1,	"lab": "left cerebral white matter"},
     {"id_lab": 2,	"lab": "left cerebral cortex"},

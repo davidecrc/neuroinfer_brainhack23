@@ -51,6 +51,7 @@ def calculate_z(posterior, prior):
 
 
 def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm, xyz_coords, dt_papers_nq_id_np, nb_unique_paper):
+    xyz_coords = np.array(xyz_coords, dtype=np.float32)
     frequency_threshold = 0.05
     t = time.time()
     cog_all, prior_all, ids_cog_nq_all, intersection_cog_nq_all, intersection_not_cog_nq_all = [], [], [], [], []
@@ -69,10 +70,13 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
             print(f'Processing "{cog}" (step {q + 1} out of {len(cog_list)})')
 
             ids_cog_nq = feature_df.index[feature_df[cog] > frequency_threshold].tolist()
-            ids_cog_nq_all.append(ids_cog_nq)            
-            center = np.array([x_target, y_target, z_target])
-            
+            ids_cog_nq_all.append(ids_cog_nq)
+            center = np.array([x_target, y_target, z_target], dtype=np.float32)
+
+            #start_time = time.time()
             distances = np.linalg.norm(xyz_coords - center, axis=1) #check operation applicability
+            #print("--- %s seconds ---" % (time.time() - start_time))
+
             # Use the distances to filter the DataFrame
             list_activations_nq = dt_papers_nq_id_np[distances <= radius]
 

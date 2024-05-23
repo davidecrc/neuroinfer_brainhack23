@@ -13,15 +13,24 @@
         console.log(colors);
 
         const lutData = [];
-        rgbColors = hslToRgb(colors[0]/360, 1, 0.5);
-        lutData.push([parseInt(minvalue.value)/max_value, rgbColors[0], rgbColors[1], rgbColors[2]]);
-        rgbColors = hslToRgb(colors[1]/360, 1, 0.5);
-        lutData.push([1/max_value, rgbColors[0], rgbColors[1], rgbColors[2]]);
-        rgbColors = hslToRgb(colors[2]/360, 1, 0.5);
-        lutData.push([parseInt(maxvalue.value)/max_value, rgbColors[0], rgbColors[1], rgbColors[2]]);
+
+        for (let i = 0; i < 10; i++){
+            color_i = colors[0] + (colors[1] - colors[0])/10*i;
+            rgbColors = hslToRgb(color_i/360, 1, 0.5);
+            target_value = (parseInt(minvalue.value) + (1-parseInt(minvalue.value))/10*i)/max_value;
+            lutData.push([target_value, rgbColors[0], rgbColors[1], rgbColors[2]]);
+        }
+
+        for (let i = 0; i < 10; i++){
+            color_i = colors[1] + (colors[2] - colors[1])/10*i;
+            rgbColors = hslToRgb(color_i/360, 1, 0.5);
+            target_value = (1 + (parseInt(maxvalue.value)-1)/10*i)/max_value;
+            lutData.push([target_value, rgbColors[0], rgbColors[1], rgbColors[2]]);
+        }
+
         console.log(lutData);
 
-        let lut_id = (Math.random() + 1).toString(36).substring(7);
+        let lut_id = (Math.random() + 1).toString(36).substring(7); // random name to avoid cached files
 
         params["luts"] = [{"name": lut_id, "data": lutData}];
         overlays.forEach( (overlay_id) =>

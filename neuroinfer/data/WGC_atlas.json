@@ -1,5 +1,6 @@
 {
   "atlas": "WGC.nii.gz",
+  "res": 1,
   "data": [
     {
       "id_lab": 0,

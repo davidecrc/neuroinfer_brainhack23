@@ -1,4 +1,5 @@
 {"atlas" : "HarvardOxford-cort-maxprob-thr25-2mm.nii.gz",
+  "res": 2,
   "data" : [
     {"id_lab": 0, "lab": "Background"},
     {"id_lab": 1, "lab": "Frontal Pole"},
