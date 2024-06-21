@@ -17,6 +17,7 @@ The script calculates various statistics including likelihood, prior, posterior,
 It uses the functions get_atlas_coordinates_json e get_distance to obtain the coordinates in an atlas and the distance between pair of coordinates.
 '''
 
+
 def calculate_z(posterior, prior):
     """
     Calculate the Z-measure based on posterior and prior probabilities.
