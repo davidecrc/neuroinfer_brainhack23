@@ -51,6 +51,8 @@ def handle_post_request():
     elif 'func' in form_keys and dict_request['func'] == "do_analysis":
         # If multiple keys are present, perform the main analysis and rendering
         response = main_analyse_and_render(dict_request)
+    elif 'func' in form_keys and dict_request['func'] == "load_results":
+        response = load_results(loadfile)
 
     # Return the response as JSON
     return jsonify(response)

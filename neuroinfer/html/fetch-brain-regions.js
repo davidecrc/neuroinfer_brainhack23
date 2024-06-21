@@ -53,3 +53,32 @@ function fetch_brain_regions(selectedFile) {    // Fetching brain region data fr
     })
     .catch(error => console.error('Error:', error));
 }
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetching the list of files from the '../data/' directory
+    fetch('../results/')
+        .then(response => response.text()) // Convert the response to text
+        .then(data => {
+            // Split the text response by newline to get a list of files
+            const fileList = data.split('\n');
+
+            // Filter the list to include only files containing 'atlas' in their name
+            const atlasFiles = fileList.filter(file => file.includes('pkl'));
+
+            // Get the select element to populate with the atlas files
+            const select = document.getElementById('resultsList');
+            const regex = /<a.*?>(.*?)<\/a>/;
+            // Populate the select element with the atlas files as options
+            atlasFiles.forEach(file => {
+                let filename = regex.exec(file)
+                filename = filename && filename[1];
+                const option = document.createElement('option');
+                option.value = filename;
+                option.textContent = filename;
+                select.appendChild(option);
+            });
+
+        })
+        .catch(error => console.error('Error fetching atlas files:', error));
+});

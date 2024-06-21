@@ -116,10 +116,16 @@ def main_analyse_and_render(data):
                                                   DATA_FOLDER / "metadata7.tsv",
                                                   DATA_FOLDER / "vocabulary7.txt")
     dt_papers_nq_id_list, nb_unique_paper, xyz_coords = load_or_calculate_variables(DATA_FOLDER, affine_inv)
-    result_dict = run_bayesian_analysis_area(cog_list, prior_list, mask, radius, result_df, 'a', dt_papers_nq_id_list, nb_unique_paper, xyz_coords)
-
+    result_dict = run_bayesian_analysis_area(cog_list, prior_list, mask, radius, result_df, 'a',
+                                             dt_papers_nq_id_list, nb_unique_paper, xyz_coords)
+    result_dict.update({'atlas': atlas_path / data["atlas"],
+                        'radius': radius,
+                        'cog_list': cog_list,
+                        'mask': mask,
+                        })
     with open(RESULTS_FOLDER / f"results_area_cm_{brain_region}_{cog_list}.pkl", 'wb') as f:
         pickle.dump(result_dict, f)
+
     # Generate a NIfTI heatmap using the coordinates and Bayesian factors
     # The generate_nifti_bf_heatmap function utilizes the coordinates and Bayesian factors
     # to generate a heatmap and saves it as a NIfTI file. This heatmap visually represents
@@ -138,6 +144,30 @@ def main_analyse_and_render(data):
     }
 
     return response
+
+
+def load_results(filename):
+    with open(filename, 'rb') as f:
+        loaded_dict = pickle.load(f)
+
+    overlay_results, filenames = generate_nifti_bf_heatmap(loaded_dict, loaded_dict["atlas"],
+                                                           loaded_dict["radius"],
+                                                           loaded_dict["cog_list"],
+                                                           loaded_dict["mask"])
+
+    img_base64 = create_hist(overlay_results, loaded_dict["cog_list"])
+
+    # Send the base64 encoded image data as a response
+    response = {
+        'num_slices': len(filenames),
+        'status': 'success',
+        'message': filenames,
+        'image': img_base64,
+        'max_value': np.max(overlay_results)
+    }
+
+    return response
+
 
 
 def parse_input_args(data):

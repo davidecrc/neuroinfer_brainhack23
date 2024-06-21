@@ -55,6 +55,14 @@
     <div class="container" id="form-container">
         <h2 style="text-align: center;">Coordinate and Probability Input</h2>
         <form id="myForm">
+            <label for="resultsList">Load previous results from file:</label>
+            <select id="resultsList" name="resultsList">
+                <option>--</option>
+            </select>
+            <button type="button" onclick="load_prev()" style="margin-top:10px">LOAD</button>
+
+            <hr class="hr-text" data-content="">
+
             <label for="atlasList">Atlas List:</label>
             <select id="atlasList" name="atlasList">
                 <option>-- SElECT ONE DATASET --</option>

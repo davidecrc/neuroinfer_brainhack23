@@ -146,6 +146,8 @@ window.submitForm = function () {
     // Appending the overlay to the body
     document.body.appendChild(overlay);
 
+
+
     function updateSecondLoading(progress) {
         var secondLoadingProgress = document.getElementById('second-loading-progress');
         var progressText = document.getElementById('progress-text');
@@ -394,3 +396,44 @@ window.getvsinsphere = function() {
     var totvx = voxelsInsideSphere(radius);
     container.innerHTML = "number of voxel in each sphere: " + totvx;
 }
+
+// Function to submit a form with a loading overlay
+window.load_prev = function () {
+    // Extracting form values from HTML elements
+    var file2load = document.getElementById("resultsList").value;
+
+    // Creating form data with the analysis parameters
+    var formData = {
+        loadfile : file2load,
+        func: "load_results",
+    };
+
+    // Creating an XMLHttpRequest for the POST request to the server
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "http://127.0.0.1:5000/", true);
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+    // Handling the response after the POST request
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState == 4) {
+            // Removing the overlay once the response is received
+
+            if (xhr.status == 200) {
+                // Parsing the JSON response and displaying the plot
+                var response = JSON.parse(xhr.responseText);
+                displayPlot(response.image);
+                filenames_sys = response.message; // Store filenames globally
+                filenames = filenames_sys.map(i => '/' + i);
+                max_value = parseFloat(response.max_value);
+                update_papaya_viewer(filenames);
+                createRadioButtons();
+                createSliceNavigator(words);
+                document.getElementById("image-navigator").style.display = 'grid';
+            }
+        }
+    };
+
+    // Converting form data to JSON and sending the POST request
+    var jsonData = JSON.stringify(formData);
+    xhr.send(jsonData);
+};
