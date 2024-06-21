@@ -75,18 +75,21 @@ def create_hist(overlay_results, cog_list):
     color = ["#FF0000", "#00FF00", "#0000FF", "#00AAFF", "#AA00FF", "#FFAA00"]
 
     for i in range(num_items):
-        nonzeros_results = overlay_results[overlay_results[:, i] != 0, i]
+        try:
+            nonzeros_results = overlay_results[overlay_results[:, i] != 0, i]
 
-        # Fit GMM
-        gmm = GaussianMixture(n_components=3)
-        gmm = gmm.fit(X=np.expand_dims(nonzeros_results, 1))
+            # Fit GMM
+            gmm = GaussianMixture(n_components=3)
+            gmm = gmm.fit(X=np.expand_dims(nonzeros_results, 1))
 
-        # Evaluate GMM
-        gmm_x = np.linspace(0, np.max(nonzeros_results), nbins)
-        gmm_y = np.exp(gmm.score_samples(gmm_x.reshape(-1, 1)))
+            # Evaluate GMM
+            gmm_x = np.linspace(0, np.max(nonzeros_results), nbins)
+            gmm_y = np.exp(gmm.score_samples(gmm_x.reshape(-1, 1)))
 
-        plt.hist(nonzeros_results, bins=hist_bins, label=cog_list[i], density=True, color=color[i], alpha=.3)
-        plt.plot(gmm_x, gmm_y, color=color[i], lw=2)
+            plt.hist(nonzeros_results, bins=hist_bins, label=cog_list[i], density=True, color=color[i], alpha=.3)
+            plt.plot(gmm_x, gmm_y, color=color[i], lw=2)
+        except ValueError:
+            pass
 
     # Add labels and legend
     plt.xlabel('BF')
