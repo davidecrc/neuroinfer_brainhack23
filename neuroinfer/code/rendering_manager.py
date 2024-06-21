@@ -1,3 +1,4 @@
+import pickle
 from pathlib import Path
 
 import numpy as np
@@ -5,7 +6,7 @@ import nibabel as nib
 import os
 import matplotlib.pyplot as plt
 
-from neuroinfer import DATA_FOLDER, TEMPLATE_FOLDER
+from neuroinfer import DATA_FOLDER, TEMPLATE_FOLDER, RESULTS_FOLDER
 from neuroinfer.code.BayesianAnalysis import load_or_calculate_variables
 from neuroinfer.code.DataLoading import load_data_and_create_dataframe
 from neuroinfer.code.generate_nifti_heatmap import generate_nifti_bf_heatmap
@@ -117,6 +118,8 @@ def main_analyse_and_render(data):
     dt_papers_nq_id_list, nb_unique_paper, xyz_coords = load_or_calculate_variables(DATA_FOLDER, affine_inv)
     result_dict = run_bayesian_analysis_area(cog_list, prior_list, mask, radius, result_df, 'a', dt_papers_nq_id_list, nb_unique_paper, xyz_coords)
 
+    with open(RESULTS_FOLDER / f"results_area_cm_{brain_region}_{cog_list}.pkl", 'wb') as f:
+        pickle.dump(result_dict, f)
     # Generate a NIfTI heatmap using the coordinates and Bayesian factors
     # The generate_nifti_bf_heatmap function utilizes the coordinates and Bayesian factors
     # to generate a heatmap and saves it as a NIfTI file. This heatmap visually represents
