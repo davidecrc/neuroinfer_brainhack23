@@ -1,18 +1,9 @@
-# Standard Library Imports
 import os
 import time
-from argparse import ArgumentParser
-
-# Third-party Library Imports
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from PIL import Image
-from nilearn import image
-from scipy import sparse
 import json
-from neuroinfer import PKG_FOLDER, DATA_FOLDER
-import pickle
+from neuroinfer import PKG_FOLDER
 
 '''
 Script to run_bayesian_analysis_coordinates
@@ -73,9 +64,7 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
             ids_cog_nq_all.append(ids_cog_nq)
             center = np.array([x_target, y_target, z_target], dtype=np.float32)
 
-            #start_time = time.time()
-            distances = np.linalg.norm(xyz_coords - center, axis=1) #check operation applicability
-            #print("--- %s seconds ---" % (time.time() - start_time))
+            distances = np.linalg.norm(xyz_coords - center, axis=1)
 
             # Use the distances to filter the DataFrame
             list_activations_nq = dt_papers_nq_id_np[distances <= radius]
@@ -114,19 +103,15 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
     if cm == "a":
         df_columns.extend(['BF', 'Prior', 'Posterior'])
         data_all = list(zip(cog_all, lik_cog_nq_all, lik_ratio_nq_all, prior_all, post_cog_nq_all))
-        sort_column = 'BF'
     elif cm == "b":
         df_columns.extend(['Difference', 'Prior', 'Posterior'])
         data_all = list(zip(cog_all, lik_cog_nq_all, df_nq_all, prior_all, post_cog_nq_all))
-        sort_column = 'Difference'
     elif cm == "c":
         df_columns.extend(['Ratio', 'Prior', 'Posterior'])
         data_all = list(zip(cog_all, lik_cog_nq_all, rm_nq_all, prior_all, post_cog_nq_all))
-        sort_column = 'Ratio'
     elif cm == "d":
         df_columns.extend(['Z-measure', 'Prior', 'Posterior'])
         data_all = list(zip(cog_all, lik_cog_nq_all, z_measure_all, prior_all, post_cog_nq_all))
-        sort_column = 'Z-measure'
 
     df_data_all = pd.DataFrame(data_all, columns=df_columns)
     print(df_data_all)
