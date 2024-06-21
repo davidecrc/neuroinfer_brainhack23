@@ -147,7 +147,7 @@ def main_analyse_and_render(data):
 
 
 def load_results(filename):
-    with open(filename, 'rb') as f:
+    with open(RESULTS_FOLDER / filename, 'rb') as f:
         loaded_dict = pickle.load(f)
 
     overlay_results, filenames = generate_nifti_bf_heatmap(loaded_dict, loaded_dict[0]["atlas"],
@@ -155,7 +155,7 @@ def load_results(filename):
                                                            loaded_dict[0]["cog_list"],
                                                            loaded_dict[0]["mask"])
 
-    img_base64 = create_hist(overlay_results, loaded_dict["cog_list"])
+    img_base64 = create_hist(overlay_results, loaded_dict[0]["cog_list"])
 
     # Send the base64 encoded image data as a response
     response = {
