@@ -166,17 +166,16 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask, radius, feature_df,cm
     
     # Initialize an empty list to store results and coordinates
     result_all = []
-    coord=[]
+    coord = []
     
     # Iterate through the coordinates_area
     for i in range(len(coordinates_area)-1): #-1 in order to have the last coordinates_area[i+1]) #TODO improve
         
         x_target, y_target, z_target = coordinates_area[i]
         coord.append([x_target, y_target, z_target])
-        if i==0:
+        if i == 0:
             results = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target,
                                                         radius, feature_df, cm,xyz_coords,dt_papers_nq_id_list, nb_unique_paper)
-            #print(results_dict[i])           
             # Append a tuple containing the BF value and the coordinates to result_with_coordinates
             result_all.append(results)
 
@@ -200,12 +199,5 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask, radius, feature_df,cm
     os.remove(PKG_FOLDER / 'neuroinfer' / '.tmp' / 'processing_progress.txt')
     elapsed_area = time.time() - t_area
     print(f'Time in min: {round(elapsed_area / 60, 2)}')
-
     print(result_all)
-    
-
     return result_all
-
-#crea un volume con stesso volume del template
-#man mano che si scorrono le coordinate si mette a 0 l'intorno di quella coordinat con in input il raggio (occhio a considerare padding). Quando si considera la coordinata successiva, ripete il calcolo del BF solo se e' diversa da 0 
-#cosi' da non ripetere il calcolo del BF per coordinate vicine
