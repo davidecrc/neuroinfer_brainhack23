@@ -118,7 +118,7 @@ def main_analyse_and_render(data):
     dt_papers_nq_id_list, nb_unique_paper, xyz_coords = load_or_calculate_variables(DATA_FOLDER, affine_inv)
     result_dict = run_bayesian_analysis_area(cog_list, prior_list, mask, radius, result_df, 'a',
                                              dt_papers_nq_id_list, nb_unique_paper, xyz_coords)
-    result_dict.update({'atlas': atlas_path / data["atlas"],
+    result_dict[0].update({'atlas': atlas_path / data["atlas"],
                         'radius': radius,
                         'cog_list': cog_list,
                         'mask': mask,
@@ -150,10 +150,10 @@ def load_results(filename):
     with open(filename, 'rb') as f:
         loaded_dict = pickle.load(f)
 
-    overlay_results, filenames = generate_nifti_bf_heatmap(loaded_dict, loaded_dict["atlas"],
-                                                           loaded_dict["radius"],
-                                                           loaded_dict["cog_list"],
-                                                           loaded_dict["mask"])
+    overlay_results, filenames = generate_nifti_bf_heatmap(loaded_dict, loaded_dict[0]["atlas"],
+                                                           loaded_dict[0]["radius"],
+                                                           loaded_dict[0]["cog_list"],
+                                                           loaded_dict[0]["mask"])
 
     img_base64 = create_hist(overlay_results, loaded_dict["cog_list"])
 
