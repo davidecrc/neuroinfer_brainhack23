@@ -4,11 +4,11 @@ import pandas as pd
 import pickle
 
 from neuroinfer.code.run_bayesian import run_bayesian_analysis_coordinates, run_bayesian_analysis_area
-from neuroinfer import TEMPLATE_FOLDER, PKG_FOLDER, DATA_FOLDER, RESULTS_FOLDER
+from neuroinfer import TEMPLATE_FOLDER, DATA_FOLDER, RESULTS_FOLDER
 from neuroinfer.code.utils import generate_nifti_mask
 from nilearn.image import coord_transform
 
-atlas_path=TEMPLATE_FOLDER/'atlases'/'HarvardOxford'/'HarvardOxford-cort-maxprob-thr25-2mm.nii.gz'
+atlas_path = TEMPLATE_FOLDER / 'atlases' / 'HarvardOxford' / 'HarvardOxford-cort-maxprob-thr25-2mm.nii.gz'
 
 '''
 The script orchestrates Bayesian analysis on brain data  ensuring efficiency and insightful interpretation through statistical summaries and graphical representations.
@@ -21,6 +21,7 @@ The script calculates various statistics including likelihood, prior, posterior,
 It plots BF distributions and computes basic statistical metrics. 
 
 '''
+
 
 def run_bayesian_analysis_router(cog_list, area, prior_list, x_target, y_target, z_target, radius, result_df):
     cm = input(
@@ -41,25 +42,18 @@ def run_bayesian_analysis_router(cog_list, area, prior_list, x_target, y_target,
     dt_papers_nq_id_list, nb_unique_paper, xyz_coords = load_or_calculate_variables(DATA_FOLDER, affine_inv)
 
     if not pd.isnull(area) and pd.isnull(x_target) and pd.isnull(y_target) and pd.isnull(z_target):
-        results=run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, result_df,cm,dt_papers_nq_id_list, nb_unique_paper,xyz_coords)
+        results = run_bayesian_analysis_area(cog_list, prior_list, mask,affine_inv, radius, result_df,cm,dt_papers_nq_id_list, nb_unique_paper,xyz_coords)
 
         # Save results_dict to a pickle file
-        file_path = os.path.join(results_folder_path, f"results_area_cm_{cm}_{area}_{cog_list}.pkl")
-
-        with open(file_path, "wb") as f:
-            pickle.dump(results, f)
-        print(f"Results saved to: {file_path}")
+        save_results(results, RESULTS_FOLDER / f"results_area_cm_{cm}_{area}_{cog_list}.pkl")
 
     elif not np.isnan(x_target) and not np.isnan(y_target) and not np.isnan(z_target) and np.isnan(area):
         # Call run_bayesian_analysis_coordinates if coordinates are not nan and area is nan
         x_target, y_target, z_target = coord_transform(x_target, y_target, z_target,affine_inv)
-        results=run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, result_df, cm,xyz_coords,dt_papers_nq_id_list, nb_unique_paper)
+        results = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, result_df, cm,xyz_coords,dt_papers_nq_id_list, nb_unique_paper)
 
         pickle_file_name = f'results_BHL_coordinates_cm_{cm}_x{x_target}_y{y_target}_z{z_target}.pickle'
-        pickle_file_path = os.path.join(results_folder_path, pickle_file_name)
-        with open(pickle_file_path, 'wb') as file:
-            pickle.dump(results, file)
-        print(f"Results saved to: {pickle_file_path}")
+        save_results(results, RESULTS_FOLDER / pickle_file_name)
 
     elif np.isnan(area):
         # Print a message asking to check the input value if area is nan
@@ -67,6 +61,12 @@ def run_bayesian_analysis_router(cog_list, area, prior_list, x_target, y_target,
     else:
         # Handle the case where none of the conditions are met
         print("Invalid combination of input values. Please check.")
+
+
+def save_results(results, filename):
+    with open(filename, 'wb') as f:
+        pickle.dump(results, f)
+    print(f"Results saved to: {filename}")
 
 
 def load_or_calculate_variables(data_path, affine_inv):
