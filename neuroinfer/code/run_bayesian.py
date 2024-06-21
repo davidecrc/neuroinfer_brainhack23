@@ -8,13 +8,15 @@ from neuroinfer import PKG_FOLDER
 '''
 Script to run_bayesian_analysis_coordinates
 
-The script orchestrates Bayesian analysis on brain data  ensuring efficiency and insightful interpretation through statistical summaries and graphical representations.
+The script orchestrates Bayesian analysis on brain data  ensuring efficiency and insightful interpretation through
+statistical summaries and graphical representations.
 It offers two analysis pathways:
 -`run_bayesian_analysis_area`: conducts analysis over defined brain regions, leveraging coordinates from an atlas.
 -`run_bayesian_analysis_coordinates`: performs analysis at specified coordinates.
 
 The script calculates various statistics including likelihood, prior, posterior, and Bayesian Factor (BF).
-It uses the functions get_atlas_coordinates_json e get_distance to obtain the coordinates in an atlas and the distance between pair of coordinates.
+It uses the functions get_atlas_coordinates_json e get_distance to obtain the coordinates in an atlas and the distance 
+between pair of coordinates.
 '''
 
 
