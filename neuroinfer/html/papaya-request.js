@@ -1,5 +1,4 @@
-
-    // Function to show the overlay
+// Function to show the overlay
 function showOverlay() {
     const overlay = document.getElementById('overlay');
     overlay.classList.remove('hidden');
@@ -11,6 +10,28 @@ function hideOverlay() {
     const overlay = document.getElementById('overlay');
     overlay.classList.remove('visible');
     overlay.classList.add('hidden');
+}
+
+window.downloadMaskFile = function() {
+        // Construct the URL to download the file
+        const fileUrl = '/.tmp/mask.nii.gz';
+
+        // Create an anchor element
+        const anchor = document.createElement('a');
+        anchor.style.display = 'none';
+        document.body.appendChild(anchor);
+
+        // Set the HREF attribute of the anchor element to the file URL
+        anchor.href = fileUrl;
+
+        // Set the download attribute to specify the file name
+        anchor.download = 'mask.nii.gz';
+
+        // Trigger a click event on the anchor element to initiate download
+        anchor.click();
+
+        // Clean up: Remove the anchor from the document
+        document.body.removeChild(anchor);
 }
 
 function updateSecondLoading(progress) {

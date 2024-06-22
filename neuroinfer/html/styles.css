@@ -2,7 +2,6 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Helvetica', serif; /* Use a classic font (example: Times New Roman) */
-  background-color: #fcfcfa;
   background-color: #222;
   min-width: 1200px;
 }
@@ -105,10 +104,6 @@ button:hover {
   text-align: center;
 }
 
-.papaya {
-  /* Add specific styles for the visualizer if needed */
-}
-
 #autocomplete-suggestions {
   position: absolute;
   background-color: #fff;
@@ -160,7 +155,6 @@ button:hover {
     width: 80%;
   }
 }
-
 
 .hr-text {
   line-height: 2em;
@@ -351,3 +345,4 @@ width:20px;
     cursor: pointer;
     border-radius: 50%;
 }
+

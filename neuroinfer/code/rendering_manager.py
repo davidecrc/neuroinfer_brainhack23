@@ -166,7 +166,6 @@ def load_results(filename):
         'max_value': np.max(overlay_results),
         'words': loaded_dict[0]["cog_list"],
     }
-
     return response
 
 
