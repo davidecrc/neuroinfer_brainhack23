@@ -43,6 +43,12 @@ function fetchPercentageProgress() {
         });
 }
 
+window.rmmaskselector = function(id2rm) {
+    var target = document.getElementById(id2rm.id);
+    target.remove();
+    changeRegionMask();
+}
+
 // Function to change the region mask through a POST request
 window.changeRegionMask = function() {
     // Extracting the selected brain region from the HTML element
