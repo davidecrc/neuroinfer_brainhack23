@@ -163,7 +163,8 @@ def load_results(filename):
         'status': 'success',
         'message': filenames,
         'image': img_base64,
-        'max_value': np.max(overlay_results)
+        'max_value': np.max(overlay_results),
+        'words': loaded_dict[0]["cog_list"],
     }
 
     return response
