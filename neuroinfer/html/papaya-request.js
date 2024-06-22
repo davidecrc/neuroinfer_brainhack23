@@ -1,3 +1,48 @@
+
+    // Function to show the overlay
+function showOverlay() {
+    const overlay = document.getElementById('overlay');
+    overlay.classList.remove('hidden');
+    overlay.classList.add('visible');
+}
+
+// Function to hide the overlay
+function hideOverlay() {
+    const overlay = document.getElementById('overlay');
+    overlay.classList.remove('visible');
+    overlay.classList.add('hidden');
+}
+
+function updateSecondLoading(progress) {
+    var secondLoadingProgress = document.getElementById('second-loading-progress');
+    var progressText = document.getElementById('progress-text');
+    secondLoadingProgress.style.width = Math.ceil(progress*100) + '%';
+    progressText.textContent = 'Progress: ' + Math.ceil(progress*100) + '%';
+}
+
+function fetchPercentageProgress() {
+    const url = `/.tmp/processing_progress.txt?cacheBuster=${Math.random()}`;
+    fetch(url)
+        .then(response => response.text())
+        .then(data => {
+            console.log(init_loader);
+            //console.log("Content of /.tmp/percentage_progress:", data);
+            var progress = parseFloat(data);
+            if (isNaN(progress)) {
+                (init_loader) ? updateSecondLoading(0) : updateSecondLoading(1);
+            }
+            else {
+                updateSecondLoading(progress);
+                init_loader = 0;
+            }
+
+        })
+        .catch(error => {
+            console.error('Error fetching content:', error);
+            (init_loader) ? updateSecondLoading(0) : updateSecondLoading(1);
+        });
+}
+
 // Function to change the region mask through a POST request
 window.changeRegionMask = function() {
     // Extracting the selected brain region from the HTML element
@@ -95,88 +140,7 @@ window.submitForm = function () {
         smooth: smoothfactor
     };
 
-    // Creating an overlay with loading bars
-    var overlay = document.createElement("div");
-    overlay.style.position = "fixed";
-    overlay.style.top = "0";
-    overlay.style.left = "0";
-    overlay.style.width = "100%";
-    overlay.style.height = "100%";
-    overlay.style.backgroundColor = "rgba(255, 255, 255, 0.7)";
-    overlay.style.display = "flex";
-    overlay.style.flexDirection = "column";
-    overlay.style.alignItems = "center";
-    overlay.style.justifyContent = "center";
-
-    // Creating the first loading bar inside the overlay
-    var firstLoadingBar = document.createElement("div");
-    firstLoadingBar.style.border = "4px solid #3498db";
-    firstLoadingBar.style.borderRadius = "50%";
-    firstLoadingBar.style.borderTop = "4px solid #ffffff";
-    firstLoadingBar.style.width = "40px";
-    firstLoadingBar.style.height = "40px";
-    firstLoadingBar.style.animation = "spin 1s linear infinite";
-    overlay.appendChild(firstLoadingBar);
-
-    // Creating the second loading bar inside the overlay
-    var secondLoadingBar = document.createElement("div");
-    secondLoadingBar.style.marginTop = "20px";
-    secondLoadingBar.style.width = "100%";
-    secondLoadingBar.style.backgroundColor = "#f3f3f3";
-    secondLoadingBar.style.height = "20px";
-    overlay.appendChild(secondLoadingBar);
-
-    // Creating the progress bar inside the second loading bar
-    var secondLoadingProgress = document.createElement("div");
-    secondLoadingProgress.id = "second-loading-progress";
-    secondLoadingProgress.style.width = "0%";
-    secondLoadingProgress.style.backgroundColor = "#3498db";
-    secondLoadingProgress.style.height = "100%";
-    secondLoadingBar.appendChild(secondLoadingProgress);
-
-    // Creating the progress text below the second loading bar
-    var progressText = document.createElement("div");
-    progressText.style.marginTop = "20px";
-    progressText.id = "progress-text";
-    progressText.style.marginTop = "5px";
-    progressText.style.fontSize = "14px";
-    progressText.style.textAlign = "center";
-    overlay.appendChild(progressText);
-
-    // Appending the overlay to the body
-    document.body.appendChild(overlay);
-
-
-
-    function updateSecondLoading(progress) {
-        var secondLoadingProgress = document.getElementById('second-loading-progress');
-        var progressText = document.getElementById('progress-text');
-        secondLoadingProgress.style.width = Math.ceil(progress*100) + '%';
-        progressText.textContent = 'Progress: ' + Math.ceil(progress*100) + '%';
-    }
-
-    function fetchPercentageProgress() {
-        const url = `/.tmp/processing_progress.txt?cacheBuster=${Math.random()}`;
-        fetch(url)
-            .then(response => response.text())
-            .then(data => {
-                console.log(init_loader);
-                //console.log("Content of /.tmp/percentage_progress:", data);
-                var progress = parseFloat(data);
-                if (isNaN(progress)) {
-                    (init_loader) ? updateSecondLoading(0) : updateSecondLoading(1);
-                }
-                else {
-                    updateSecondLoading(progress);
-                    init_loader = 0;
-                }
-
-            })
-            .catch(error => {
-                console.error('Error fetching content:', error);
-                (init_loader) ? updateSecondLoading(0) : updateSecondLoading(1);
-            });
-    }
+    showOverlay();
 
     // Call fetchPercentageProgress initially
     fetchPercentageProgress();
@@ -192,7 +156,7 @@ window.submitForm = function () {
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
             // Removing the overlay once the response is received
-            document.body.removeChild(overlay);
+            hideOverlay();
             clearInterval(intervalId);
 
             if (xhr.status == 200) {
@@ -412,6 +376,7 @@ window.load_prev = function () {
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "http://127.0.0.1:5000/", true);
     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    showOverlay();
 
     // Handling the response after the POST request
     xhr.onreadystatechange = function () {
@@ -420,8 +385,10 @@ window.load_prev = function () {
 
             if (xhr.status == 200) {
                 // Parsing the JSON response and displaying the plot
+                hideOverlay();
                 var response = JSON.parse(xhr.responseText);
                 displayPlot(response.image);
+                words = response.words;
                 filenames_sys = response.message; // Store filenames globally
                 filenames = filenames_sys.map(i => '/' + i);
                 max_value = parseFloat(response.max_value);
