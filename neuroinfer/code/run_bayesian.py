@@ -45,9 +45,8 @@ def calculate_z(posterior, prior):
 
 
 def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm, xyz_coords, dt_papers_nq_id_np, nb_unique_paper):
-    xyz_coords = np.array(xyz_coords, dtype=np.float32)
-    frequency_threshold = 0.05
     t = time.time()
+    frequency_threshold = 0.05
     cog_all, prior_all, ids_cog_nq_all, intersection_cog_nq_all, intersection_not_cog_nq_all = [], [], [], [], []
     lik_cog_nq_all, lik_not_cog_nq_all, lik_ratio_nq_all, post_cog_nq_all, df_nq_all, rm_nq_all, z_measure_all = [], [], [], [], [], [], []
 
@@ -116,7 +115,7 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
         df_columns.extend(['Z-measure', 'Prior', 'Posterior'])
         data_all = list(zip(cog_all, lik_cog_nq_all, z_measure_all, prior_all, post_cog_nq_all))
 
-    df_data_all = pd.DataFrame(data_all, columns=df_columns)
+    df_data_all = pd.DataFrame(data_all, columns = df_columns)
     print(df_data_all)
 
     elapsed = time.time() - t

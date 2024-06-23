@@ -116,6 +116,7 @@ def main_analyse_and_render(data):
                                                   DATA_FOLDER / "metadata7.tsv",
                                                   DATA_FOLDER / "vocabulary7.txt")
     dt_papers_nq_id_list, nb_unique_paper, xyz_coords = load_or_calculate_variables(DATA_FOLDER, affine_inv)
+    xyz_coords = np.array(xyz_coords, dtype=np.float32);
     result_dict = run_bayesian_analysis_area(cog_list, prior_list, mask, radius, result_df, 'a',
                                              dt_papers_nq_id_list, nb_unique_paper, xyz_coords)
     result_dict[0].update({'atlas': atlas_path / data["atlas"],
