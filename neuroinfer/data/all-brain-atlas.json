@@ -1,0 +1,1 @@
+{"atlas" : "all-brain-mask", "data" : [{"id_lab": 0, "lab": "Background"}, {"id_lab": 1, "lab": "GM"},  {"id_lab": 1, "lab": "WM"}, {"id_lab": 1, "lab": "Cerebellum"}, {"id_lab": 2, "lab": "LSF"}, {"id_lab": 1, "lab": "sub"}, {"id_lab": 1, "lab": "Brainstem"}]}

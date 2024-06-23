@@ -1,3 +1,75 @@
+// Function to show the overlay
+function showOverlay() {
+    const overlay = document.getElementById('overlay');
+    overlay.classList.remove('hidden');
+    overlay.classList.add('visible');
+}
+
+// Function to hide the overlay
+function hideOverlay() {
+    const overlay = document.getElementById('overlay');
+    overlay.classList.remove('visible');
+    overlay.classList.add('hidden');
+}
+
+window.downloadMaskFile = function() {
+        // Construct the URL to download the file
+        const fileUrl = '/.tmp/mask.nii.gz';
+
+        // Create an anchor element
+        const anchor = document.createElement('a');
+        anchor.style.display = 'none';
+        document.body.appendChild(anchor);
+
+        // Set the HREF attribute of the anchor element to the file URL
+        anchor.href = fileUrl;
+
+        // Set the download attribute to specify the file name
+        anchor.download = 'mask.nii.gz';
+
+        // Trigger a click event on the anchor element to initiate download
+        anchor.click();
+
+        // Clean up: Remove the anchor from the document
+        document.body.removeChild(anchor);
+}
+
+function updateSecondLoading(progress) {
+    var secondLoadingProgress = document.getElementById('second-loading-progress');
+    var progressText = document.getElementById('progress-text');
+    secondLoadingProgress.style.width = Math.ceil(progress*100) + '%';
+    progressText.textContent = 'Progress: ' + Math.ceil(progress*100) + '%';
+}
+
+function fetchPercentageProgress() {
+    const url = `/.tmp/processing_progress.txt?cacheBuster=${Math.random()}`;
+    fetch(url)
+        .then(response => response.text())
+        .then(data => {
+            console.log(init_loader);
+            //console.log("Content of /.tmp/percentage_progress:", data);
+            var progress = parseFloat(data);
+            if (isNaN(progress)) {
+                (init_loader) ? updateSecondLoading(0) : updateSecondLoading(1);
+            }
+            else {
+                updateSecondLoading(progress);
+                init_loader = 0;
+            }
+
+        })
+        .catch(error => {
+            console.error('Error fetching content:', error);
+            (init_loader) ? updateSecondLoading(0) : updateSecondLoading(1);
+        });
+}
+
+window.rmmaskselector = function(id2rm) {
+    var target = document.getElementById(id2rm.id);
+    target.remove();
+    changeRegionMask();
+}
+
 // Function to change the region mask through a POST request
 window.changeRegionMask = function() {
     // Extracting the selected brain region from the HTML element
@@ -11,6 +83,7 @@ window.changeRegionMask = function() {
 
     // Creating form data with the brain region information
     var formData = {
+        atlas : selected_atlas,
         brainRegion: ids,
         smooth: smoothfactor,
         func: "update_mask"
@@ -82,6 +155,7 @@ window.submitForm = function () {
 
     // Creating form data with the analysis parameters
     var formData = {
+        atlas : selected_atlas,
         brainRegion: brainRegion,
         radius: radius,
         x: x,
@@ -93,77 +167,11 @@ window.submitForm = function () {
         smooth: smoothfactor
     };
 
-    // Creating an overlay with loading bars
-    var overlay = document.createElement("div");
-    overlay.style.position = "fixed";
-    overlay.style.top = "0";
-    overlay.style.left = "0";
-    overlay.style.width = "100%";
-    overlay.style.height = "100%";
-    overlay.style.backgroundColor = "rgba(255, 255, 255, 0.7)";
-    overlay.style.display = "flex";
-    overlay.style.flexDirection = "column";
-    overlay.style.alignItems = "center";
-    overlay.style.justifyContent = "center";
-
-    // Creating the first loading bar inside the overlay
-    var firstLoadingBar = document.createElement("div");
-    firstLoadingBar.style.border = "4px solid #3498db";
-    firstLoadingBar.style.borderRadius = "50%";
-    firstLoadingBar.style.borderTop = "4px solid #ffffff";
-    firstLoadingBar.style.width = "40px";
-    firstLoadingBar.style.height = "40px";
-    firstLoadingBar.style.animation = "spin 1s linear infinite";
-    overlay.appendChild(firstLoadingBar);
-
-    // Creating the second loading bar inside the overlay
-    var secondLoadingBar = document.createElement("div");
-    secondLoadingBar.style.marginTop = "20px";
-    secondLoadingBar.style.width = "100%";
-    secondLoadingBar.style.backgroundColor = "#f3f3f3";
-    secondLoadingBar.style.height = "20px";
-    overlay.appendChild(secondLoadingBar);
-
-    // Creating the progress bar inside the second loading bar
-    var secondLoadingProgress = document.createElement("div");
-    secondLoadingProgress.id = "second-loading-progress";
-    secondLoadingProgress.style.width = "0%";
-    secondLoadingProgress.style.backgroundColor = "#3498db";
-    secondLoadingProgress.style.height = "100%";
-    secondLoadingBar.appendChild(secondLoadingProgress);
-
-    // Creating the progress text below the second loading bar
-    var progressText = document.createElement("div");
-    progressText.style.marginTop = "20px";
-    progressText.id = "progress-text";
-    progressText.style.marginTop = "5px";
-    progressText.style.fontSize = "14px";
-    progressText.style.textAlign = "center";
-    overlay.appendChild(progressText);
-
-    // Appending the overlay to the body
-    document.body.appendChild(overlay);
-
-    function updateSecondLoading(progress) {
-        var secondLoadingProgress = document.getElementById('second-loading-progress');
-        var progressText = document.getElementById('progress-text');
-        secondLoadingProgress.style.width = Math.ceil(progress*100) + '%';
-        progressText.textContent = 'Progress: ' + Math.ceil(progress*100) + '%';
-    }
-
-    function fetchPercentageProgress() {
-        fetch('/.tmp/processing_progress.txt')
-            .then(response => response.text())
-            .then(data => {
-                console.log("Content of /.tmp/percentage_progress:", data);
-                var progress = parseFloat(data);
-                updateSecondLoading(progress);
-            })
-            .catch(error => console.error('Error fetching content:', error));
-    }
+    showOverlay();
 
     // Call fetchPercentageProgress initially
     fetchPercentageProgress();
+    init_loader=1;
     var intervalId = setInterval(fetchPercentageProgress, 500);
 
     // Creating an XMLHttpRequest for the POST request to the server
@@ -175,15 +183,17 @@ window.submitForm = function () {
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
             // Removing the overlay once the response is received
-            document.body.removeChild(overlay);
+            hideOverlay();
             clearInterval(intervalId);
 
             if (xhr.status == 200) {
                 // Parsing the JSON response and displaying the plot
                 var response = JSON.parse(xhr.responseText);
                 displayPlot(response.image);
-                filenames = response.message; // Store filenames globally
-                update_papaya_viewer(response.message);
+                filenames_sys = response.message; // Store filenames globally
+                filenames = filenames_sys.map(i => '/' + i);
+                max_value = parseFloat(response.max_value);
+                update_papaya_viewer(filenames);
                 createRadioButtons();
                 createSliceNavigator(words);
                 document.getElementById("image-navigator").style.display = 'grid';
@@ -266,7 +276,7 @@ function update_overlays() {
     // Creating form data with the brain region information
     var formData = {
         combination_bool: checkboxValues,
-        file_list: filenames,
+        file_list: filenames_sys,
         func: "update_overlays"
     };
 
@@ -281,7 +291,9 @@ function update_overlays() {
             var response = JSON.parse(xhr.responseText);
             console.log("response:")
             console.log(response.message)
-            update_papaya_viewer(response.message);
+            let overlay_sys = response.message; // Store filenames globally
+            overlay_sys = overlay_sys.map(i => '/' + i);
+            update_papaya_viewer(overlay_sys);
             createSliceNavigator(["Overlay 1", "Overlay 2", "Overlay 3"]);
         }
     };
@@ -296,8 +308,20 @@ update_papaya_viewer(filenames);
 createSliceNavigator(words);
 };
 
+function handleRadioButtonChange() {
+    var selectedValue = document.querySelector('input[name="fileSelector"]:checked').value;
+    // Call update_papaya_viewer with the selected filenames element
+    update_papaya_viewer(overlays[selectedValue]);
+}
 
 window.createSliceNavigator = function (col_names) {
+    var slider = document.getElementById('sliders');
+    slider.style.display = "block";
+    var graphics = document.getElementById('graphics-container');
+    graphics.style.display = "block";
+    var max_input = document.getElementById('max');
+    max_input.value = max_value;
+
     var container = document.getElementById('image-navigator');
     container.innerHTML = ''; // Clear previous content
 
@@ -319,6 +343,7 @@ window.createSliceNavigator = function (col_names) {
         if (j == 0) {
             radio.checked = true;
         }
+        radio.addEventListener('change', handleRadioButtonChange);
         cell.appendChild(radio)
         container.appendChild(cell)
     }
@@ -362,3 +387,47 @@ window.getvsinsphere = function() {
     var totvx = voxelsInsideSphere(radius);
     container.innerHTML = "number of voxel in each sphere: " + totvx;
 }
+
+// Function to submit a form with a loading overlay
+window.load_prev = function () {
+    // Extracting form values from HTML elements
+    var file2load = document.getElementById("resultsList").value;
+
+    // Creating form data with the analysis parameters
+    var formData = {
+        loadfile : file2load,
+        func: "load_results",
+    };
+
+    // Creating an XMLHttpRequest for the POST request to the server
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "http://127.0.0.1:5000/", true);
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    showOverlay();
+
+    // Handling the response after the POST request
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState == 4) {
+            // Removing the overlay once the response is received
+
+            if (xhr.status == 200) {
+                // Parsing the JSON response and displaying the plot
+                hideOverlay();
+                var response = JSON.parse(xhr.responseText);
+                displayPlot(response.image);
+                words = response.words;
+                filenames_sys = response.message; // Store filenames globally
+                filenames = filenames_sys.map(i => '/' + i);
+                max_value = parseFloat(response.max_value);
+                update_papaya_viewer(filenames);
+                createRadioButtons();
+                createSliceNavigator(words);
+                document.getElementById("image-navigator").style.display = 'grid';
+            }
+        }
+    };
+
+    // Converting form data to JSON and sending the POST request
+    var jsonData = JSON.stringify(formData);
+    xhr.send(jsonData);
+};

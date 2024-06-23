@@ -4,7 +4,7 @@ import threading
 import webbrowser
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from neuroinfer.code.rendering_manager import main_analyse_and_render, create_mask_region, update_overlay
+from neuroinfer.code.rendering_manager import main_analyse_and_render, create_mask_region, update_overlay, load_results
 
 # CORS (Cross-Origin Resource Sharing):
 # - CORS is a browser security feature controlling access to resources from different domains.
@@ -42,7 +42,7 @@ def handle_post_request():
     # Check if only one key is present in the request
     if 'func' in form_keys and dict_request['func'] == "update_mask":
         # If the only key is 'brainRegion', attempt to create a mask for the specified brain region
-        response = create_mask_region(dict_request['brainRegion'], dict_request['smooth'])
+        response = create_mask_region(dict_request['atlas'], dict_request['brainRegion'], dict_request['smooth'])
     # If 'combination_bool' and 'file_list' keys are present, send them to update_overlay
     elif 'func' in form_keys and dict_request['func'] == "update_overlays":
         print(dict_request['combination_bool'])
@@ -51,6 +51,8 @@ def handle_post_request():
     elif 'func' in form_keys and dict_request['func'] == "do_analysis":
         # If multiple keys are present, perform the main analysis and rendering
         response = main_analyse_and_render(dict_request)
+    elif 'func' in form_keys and dict_request['func'] == "load_results":
+        response = load_results(dict_request['loadfile'])
 
     # Return the response as JSON
     return jsonify(response)

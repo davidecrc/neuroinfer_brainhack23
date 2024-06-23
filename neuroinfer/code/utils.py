@@ -1,4 +1,5 @@
 import base64
+import random
 from io import BytesIO
 
 import nibabel as nib
@@ -18,9 +19,14 @@ def smooth_mask(mask_3d, n):
 
     # Apply convolution to perform smoothing
     smoothed_mask = convolve(mask_3d.astype(float), kernel)
+    print(smoothed_mask.shape)
+    print(smoothed_mask.dtype)
+    print(mask_3d.shape)
+    print(mask_3d.dtype)
 
     # Convert back to binary mask
     smoothed_mask = (mask_3d + smoothed_mask > 0.4).astype(float)
+    print(smoothed_mask.shape)
 
     return smoothed_mask
 
@@ -65,19 +71,25 @@ def create_hist(overlay_results, cog_list):
     nbins = min(int(len(overlay_results.flatten())/num_items/20), 200)
     hist_bins = np.histogram_bin_edges(overlay_results.flatten(), bins=nbins)
     plt.figure()
+
+    color = ["#FF0000", "#00FF00", "#0000FF", "#00AAFF", "#AA00FF", "#FFAA00"]
+
     for i in range(num_items):
-        nonzeros_results = overlay_results[overlay_results[:, i] != 0, i]
+        try:
+            nonzeros_results = overlay_results[overlay_results[:, i] != 0, i]
 
-        # Fit GMM
-        gmm = GaussianMixture(n_components=3)
-        gmm = gmm.fit(X=np.expand_dims(nonzeros_results, 1))
+            # Fit GMM
+            gmm = GaussianMixture(n_components=3)
+            gmm = gmm.fit(X=np.expand_dims(nonzeros_results, 1))
 
-        # Evaluate GMM
-        gmm_x = np.linspace(0, np.max(nonzeros_results), nbins)
-        gmm_y = np.exp(gmm.score_samples(gmm_x.reshape(-1, 1)))
+            # Evaluate GMM
+            gmm_x = np.linspace(0, np.max(nonzeros_results), nbins)
+            gmm_y = np.exp(gmm.score_samples(gmm_x.reshape(-1, 1)))
 
-        plt.hist(nonzeros_results, bins=hist_bins, label=cog_list[i], density=True,  alpha=.5)
-        plt.plot(gmm_x, gmm_y, alpha=.5, color='k', lw=4)
+            plt.hist(nonzeros_results, bins=hist_bins, label=cog_list[i], density=True, color=color[i], alpha=.3)
+            plt.plot(gmm_x, gmm_y, color=color[i], lw=2)
+        except ValueError:
+            pass
 
     # Add labels and legend
     plt.xlabel('BF')
@@ -134,6 +146,7 @@ def generate_nifti_mask(region_id, atlas_target_path, smooth_factor=0):
 
     # convert to Nifti1Image by using the original affine transformation as reference
 
-    if int(smooth_factor) > 0:
-        mask = smooth_mask(mask, int(smooth_factor))
+    for j in range(int(smooth_factor)):
+        mask = smooth_mask(mask, 1)
+
     return mask, atlas_img.affine
