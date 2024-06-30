@@ -1,9 +1,9 @@
  window.updateLUT = function () {
-        const slider1 = document.getElementById('colorRange1');
-        const slider2 = document.getElementById('colorRange2');
-        const slider3 = document.getElementById('colorRange3');
-        const minvalue = document.getElementById('min');
-        const maxvalue = document.getElementById('max');
+        let slider1 = document.getElementById('colorRange1');
+        let slider2 = document.getElementById('colorRange2');
+        let slider3 = document.getElementById('colorRange3');
+        let minvalue = document.getElementById('min');
+        let maxvalue = document.getElementById('max');
 
         const colors = [
             parseInt(slider1.value),
@@ -12,19 +12,27 @@
         ];
         console.log(colors);
 
-        const lutData = [];
+        let lutData = [];
+        step_grad = 50;
 
-        for (let i = 0; i < 10; i++){
-            color_i = colors[0] + (colors[1] - colors[0])/10*i;
+        for (let i = 0; i < step_grad; i++){
+            color_i = colors[0] + (colors[1] - colors[0])*i/step_grad;
             rgbColors = hslToRgb(color_i/360, 1, 0.5);
-            target_value = (parseInt(minvalue.value) + (1-parseInt(minvalue.value))/10*i)/max_value;
+            target_value = (parseInt(minvalue.value) + (1-parseInt(minvalue.value))*i/step_grad)/max_value;
             lutData.push([target_value, rgbColors[0], rgbColors[1], rgbColors[2]]);
         }
 
-        for (let i = 0; i < 10; i++){
-            color_i = colors[1] + (colors[2] - colors[1])/10*i;
+        for (let i = 0; i < step_grad; i++){
+            color_i = colors[1] + (colors[2] - colors[1])*i/step_grad;
             rgbColors = hslToRgb(color_i/360, 1, 0.5);
-            target_value = (1 + (parseInt(maxvalue.value)-1)/10*i)/max_value;
+            target_value = (1 + (parseInt(maxvalue.value)-1)*i/step_grad)/max_value;
+            lutData.push([target_value, rgbColors[0], rgbColors[1], rgbColors[2]]);
+        }
+
+        for (let i = 0; i < step_grad; i++){
+            color_i = colors[2];
+            rgbColors = hslToRgb(color_i/360, 1, 0.5);
+            target_value = (parseInt(maxvalue.value)/max_value + (1-parseInt(maxvalue.value)/max_value)*i/step_grad);
             lutData.push([target_value, rgbColors[0], rgbColors[1], rgbColors[2]]);
         }
 
