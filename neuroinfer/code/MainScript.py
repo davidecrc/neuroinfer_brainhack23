@@ -58,7 +58,7 @@ if __name__ == "__main__":
                         nargs='?',
                         #default="../data/vocabulary7.txt",
                         default=data_path+"/vocabulary7.txt",
-                        help="Path to the vocabulary file (cognitive labels).")
+                        help="Path to the vocabulary file (comemorgnitive labels).")
 
     args = parser.parse_args()
 
