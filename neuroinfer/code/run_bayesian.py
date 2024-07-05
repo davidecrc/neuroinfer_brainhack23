@@ -1,30 +1,24 @@
-# Standard Library Imports
 import os
 import time
-from argparse import ArgumentParser
-
-# Third-party Library Imports
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from PIL import Image
-from nilearn import image
-from scipy import sparse
 import json
-from neuroinfer import PKG_FOLDER, DATA_FOLDER
-import pickle
+from neuroinfer import PKG_FOLDER
 
 '''
 Script to run_bayesian_analysis_coordinates
 
-The script orchestrates Bayesian analysis on brain data  ensuring efficiency and insightful interpretation through statistical summaries and graphical representations.
+The script orchestrates Bayesian analysis on brain data  ensuring efficiency and insightful interpretation through
+statistical summaries and graphical representations.
 It offers two analysis pathways:
 -`run_bayesian_analysis_area`: conducts analysis over defined brain regions, leveraging coordinates from an atlas.
 -`run_bayesian_analysis_coordinates`: performs analysis at specified coordinates.
 
 The script calculates various statistics including likelihood, prior, posterior, and Bayesian Factor (BF).
-It uses the functions get_atlas_coordinates_json e get_distance to obtain the coordinates in an atlas and the distance between pair of coordinates.
+It uses the functions get_atlas_coordinates_json e get_distance to obtain the coordinates in an atlas and the distance 
+between pair of coordinates.
 '''
+
 
 def calculate_z(posterior, prior):
     """
@@ -51,8 +45,8 @@ def calculate_z(posterior, prior):
 
 
 def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target, radius, feature_df, cm, xyz_coords, dt_papers_nq_id_np, nb_unique_paper):
-    frequency_threshold = 0.05
     t = time.time()
+    frequency_threshold = 0.05
     cog_all, prior_all, ids_cog_nq_all, intersection_cog_nq_all, intersection_not_cog_nq_all = [], [], [], [], []
     lik_cog_nq_all, lik_not_cog_nq_all, lik_ratio_nq_all, post_cog_nq_all, df_nq_all, rm_nq_all, z_measure_all = [], [], [], [], [], [], []
 
@@ -69,10 +63,11 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
             print(f'Processing "{cog}" (step {q + 1} out of {len(cog_list)})')
 
             ids_cog_nq = feature_df.index[feature_df[cog] > frequency_threshold].tolist()
-            ids_cog_nq_all.append(ids_cog_nq)            
-            center = np.array([x_target, y_target, z_target])
-            
-            distances = np.linalg.norm(xyz_coords - center, axis=1) #check operation applicability
+            ids_cog_nq_all.append(ids_cog_nq)
+            center = np.array([x_target, y_target, z_target], dtype=np.float32)
+
+            distances = np.linalg.norm(xyz_coords - center, axis=1)
+
             # Use the distances to filter the DataFrame
             list_activations_nq = dt_papers_nq_id_np[distances <= radius]
 
@@ -110,21 +105,17 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
     if cm == "a":
         df_columns.extend(['BF', 'Prior', 'Posterior'])
         data_all = list(zip(cog_all, lik_cog_nq_all, lik_ratio_nq_all, prior_all, post_cog_nq_all))
-        sort_column = 'BF'
     elif cm == "b":
         df_columns.extend(['Difference', 'Prior', 'Posterior'])
         data_all = list(zip(cog_all, lik_cog_nq_all, df_nq_all, prior_all, post_cog_nq_all))
-        sort_column = 'Difference'
     elif cm == "c":
         df_columns.extend(['Ratio', 'Prior', 'Posterior'])
         data_all = list(zip(cog_all, lik_cog_nq_all, rm_nq_all, prior_all, post_cog_nq_all))
-        sort_column = 'Ratio'
     elif cm == "d":
         df_columns.extend(['Z-measure', 'Prior', 'Posterior'])
         data_all = list(zip(cog_all, lik_cog_nq_all, z_measure_all, prior_all, post_cog_nq_all))
-        sort_column = 'Z-measure'
 
-    df_data_all = pd.DataFrame(data_all, columns=df_columns)
+    df_data_all = pd.DataFrame(data_all, columns = df_columns)
     print(df_data_all)
 
     elapsed = time.time() - t
@@ -176,17 +167,16 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask, radius, feature_df,cm
     
     # Initialize an empty list to store results and coordinates
     result_all = []
-    coord=[]
+    coord = []
     
     # Iterate through the coordinates_area
     for i in range(len(coordinates_area)-1): #-1 in order to have the last coordinates_area[i+1]) #TODO improve
         
         x_target, y_target, z_target = coordinates_area[i]
         coord.append([x_target, y_target, z_target])
-        if i==0:
+        if i == 0:
             results = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target,
                                                         radius, feature_df, cm,xyz_coords,dt_papers_nq_id_list, nb_unique_paper)
-            #print(results_dict[i])           
             # Append a tuple containing the BF value and the coordinates to result_with_coordinates
             result_all.append(results)
 
@@ -210,12 +200,5 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask, radius, feature_df,cm
     os.remove(PKG_FOLDER / 'neuroinfer' / '.tmp' / 'processing_progress.txt')
     elapsed_area = time.time() - t_area
     print(f'Time in min: {round(elapsed_area / 60, 2)}')
-
     print(result_all)
-    
-
     return result_all
-
-#crea un volume con stesso volume del template
-#man mano che si scorrono le coordinate si mette a 0 l'intorno di quella coordinat con in input il raggio (occhio a considerare padding). Quando si considera la coordinata successiva, ripete il calcolo del BF solo se e' diversa da 0 
-#cosi' da non ripetere il calcolo del BF per coordinate vicine
