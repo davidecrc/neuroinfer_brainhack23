@@ -15,7 +15,7 @@ def smooth_mask(mask_3d, n):
     kernel_size = 2 * n + 1
 
     # Define the smoothing kernel for averaging
-    kernel = np.ones((kernel_size, kernel_size, kernel_size)) / (kernel_size ** 3)
+    kernel = np.ones((kernel_size, kernel_size, kernel_size)) / (kernel_size**3)
 
     # Apply convolution to perform smoothing
     smoothed_mask = convolve(mask_3d.astype(float), kernel)
@@ -52,11 +52,16 @@ def get_combined_overlays(bool_list, file_list, out_file):
 
 def get_sphere_coords(coords, vx_radius, overlay_results):
     volume_shape = overlay_results.shape
-    X, Y, Z = np.meshgrid(np.arange(volume_shape[0]),
-                          np.arange(volume_shape[1]),
-                          np.arange(volume_shape[2]), indexing='ij')
+    X, Y, Z = np.meshgrid(
+        np.arange(volume_shape[0]),
+        np.arange(volume_shape[1]),
+        np.arange(volume_shape[2]),
+        indexing="ij",
+    )
 
-    distances = np.sqrt((X - coords[0])**2 + (Y - coords[1])**2 + (Z - coords[2])**2)
+    distances = np.sqrt(
+        (X - coords[0]) ** 2 + (Y - coords[1]) ** 2 + (Z - coords[2]) ** 2
+    )
 
     template_3D = distances <= vx_radius
 
@@ -68,7 +73,7 @@ def get_sphere_coords(coords, vx_radius, overlay_results):
 def create_hist(overlay_results, cog_list):
     overlay_results = np.reshape(overlay_results, (-1, overlay_results.shape[-1]))
     num_items = overlay_results.shape[-1]
-    nbins = min(int(len(overlay_results.flatten())/num_items/20), 200)
+    nbins = min(int(len(overlay_results.flatten()) / num_items / 20), 200)
     hist_bins = np.histogram_bin_edges(overlay_results.flatten(), bins=nbins)
     plt.figure()
 
@@ -86,24 +91,30 @@ def create_hist(overlay_results, cog_list):
             gmm_x = np.linspace(0, np.max(nonzeros_results), nbins)
             gmm_y = np.exp(gmm.score_samples(gmm_x.reshape(-1, 1)))
 
-            plt.hist(nonzeros_results, bins=hist_bins, label=cog_list[i], density=True, color=color[i], alpha=.3)
+            plt.hist(
+                nonzeros_results,
+                bins=hist_bins,
+                label=cog_list[i],
+                density=True,
+                color=color[i],
+                alpha=0.3,
+            )
             plt.plot(gmm_x, gmm_y, color=color[i], lw=2)
         except ValueError:
             pass
 
     # Add labels and legend
-    plt.xlabel('BF')
-    plt.ylabel('Frequency')
-    plt.legend(loc='upper right')
-
+    plt.xlabel("BF")
+    plt.ylabel("Frequency")
+    plt.legend(loc="upper right")
 
     # Save the plot to a BytesIO object
     img_buffer = BytesIO()
-    plt.savefig(img_buffer, format='png')
+    plt.savefig(img_buffer, format="png")
     img_buffer.seek(0)
 
     # Convert the image in the BytesIO object to base64 encoding
-    img_base64 = base64.b64encode(img_buffer.read()).decode('utf-8')
+    img_base64 = base64.b64encode(img_buffer.read()).decode("utf-8")
     return img_base64
 
 
@@ -131,7 +142,6 @@ def generate_nifti_mask(region_id, atlas_target_path, smooth_factor=0):
         region_id = [region_id]
     # Convert region_id to integer
     region_id = [int(i) for i in region_id]
-
 
     # Load atlas image
     atlas_img = image.load_img(atlas_target_path)
