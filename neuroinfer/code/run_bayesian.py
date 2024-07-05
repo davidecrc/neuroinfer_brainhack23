@@ -1,32 +1,23 @@
-# Standard Library Imports
 import os
 import time
-from argparse import ArgumentParser
-
-# Third-party Library Imports
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from PIL import Image
-from nilearn import image
-from scipy import sparse
 import json
-from neuroinfer import PKG_FOLDER, DATA_FOLDER
-import pickle
+from neuroinfer import PKG_FOLDER
 
 """
 Script to run_bayesian_analysis_coordinates
 
-The script orchestrates Bayesian analysis on brain data  ensuring efficiency and insightful interpretation through statistical summaries and graphical representations.
+The script orchestrates Bayesian analysis on brain data  ensuring efficiency and insightful interpretation through
+statistical summaries and graphical representations.
 It offers two analysis pathways:
 -`run_bayesian_analysis_area`: conducts analysis over defined brain regions, leveraging coordinates from an atlas.
 -`run_bayesian_analysis_coordinates`: performs analysis at specified coordinates.
 
 The script calculates various statistics including likelihood, prior, posterior, and Bayesian Factor (BF).
 It uses the functions get_atlas_coordinates_json e get_distance to obtain the coordinates in an atlas and the distance between pair of coordinates.
+
 """
-
-
 def calculate_z(posterior, prior):
     """
     Calculate the Z-measure based on posterior and prior probabilities.
@@ -64,8 +55,10 @@ def run_bayesian_analysis_coordinates(
     dt_papers_nq_id_np,
     nb_unique_paper,
 ):
+
     frequency_threshold = 0.05
     t = time.time()
+
     (
         cog_all,
         prior_all,
@@ -156,17 +149,21 @@ def run_bayesian_analysis_coordinates(
             zip(cog_all, lik_cog_nq_all, lik_ratio_nq_all, prior_all, post_cog_nq_all)
         )
         sort_column = "BF"
+
     elif cm == "b":
         df_columns.extend(["Difference", "Prior", "Posterior"])
         data_all = list(
             zip(cog_all, lik_cog_nq_all, df_nq_all, prior_all, post_cog_nq_all)
         )
+
         sort_column = "Difference"
+
     elif cm == "c":
         df_columns.extend(["Ratio", "Prior", "Posterior"])
         data_all = list(
             zip(cog_all, lik_cog_nq_all, rm_nq_all, prior_all, post_cog_nq_all)
         )
+
         sort_column = "Ratio"
     elif cm == "d":
         df_columns.extend(["Z-measure", "Prior", "Posterior"])
@@ -174,6 +171,7 @@ def run_bayesian_analysis_coordinates(
             zip(cog_all, lik_cog_nq_all, z_measure_all, prior_all, post_cog_nq_all)
         )
         sort_column = "Z-measure"
+
 
     df_data_all = pd.DataFrame(data_all, columns=df_columns)
     print(df_data_all)
@@ -304,7 +302,6 @@ def run_bayesian_analysis_area(
 
     # Initialize an empty list to store results and coordinates
     result_all = []
-
     # Define padding
     padding = int(radius / 3)
 
@@ -327,10 +324,12 @@ def run_bayesian_analysis_area(
 
     # coord=[]
 
+
     # Iterate through the coordinates_area
     for i in range(
         len(coordinates_area) - 1
     ):  # -1 in order to have the last coordinates_area[i+1]) #TODO remove this -1
+
 
         x_target, y_target, z_target = coordinates_area[i]
         x_norm, y_norm, z_norm = normalize_coord(
@@ -410,6 +409,7 @@ def run_bayesian_analysis_area(
         #
 
         # if all(get_distance((x_target, y_target, z_target), coordinate) > rescaled_radius * 0.98 for coordinate in coord):
+
         # if get_distance((x_target, y_target, z_target), coordinates_area[i + 1]) > radius:  # TODO upload checking all the distance from the ROIS
         # print(f'Calculating cm for the {i + 1} ROI out of {len(coordinates_area)}, {((i + 1) / len(coordinates_area)) * 100:.2f}%')
 
@@ -427,12 +427,7 @@ def run_bayesian_analysis_area(
     os.remove(PKG_FOLDER / "neuroinfer" / ".tmp" / "processing_progress.txt")
     elapsed_area = time.time() - t_area
     print(f"Time in min: {round(elapsed_area / 60, 2)}")
-
     print(result_all)
 
     return result_all
 
-
-# crea un volume con stesso volume del template
-# man mano che si scorrono le coordinate si mette a 0 l'intorno di quella coordinat con in input il raggio (occhio a considerare padding). Quando si considera la coordinata successiva, ripete il calcolo del BF solo se e' diversa da 0
-# cosi' da non ripetere il calcolo del BF per coordinate vicine

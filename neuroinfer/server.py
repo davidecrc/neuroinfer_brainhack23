@@ -4,7 +4,7 @@ import threading
 import webbrowser
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from neuroinfer.code.rendering_manager import main_analyse_and_render, create_mask_region, update_overlay
+from neuroinfer.code.rendering_manager import main_analyse_and_render, create_mask_region, update_overlay, load_results
 
 # CORS (Cross-Origin Resource Sharing):
 # - CORS is a browser security feature controlling access to resources from different domains.
@@ -24,12 +24,12 @@ CORS(app)
 
 # Define constants for the server configuration
 PORT = 8031
-SERVER_URL = f'http://localhost:{PORT}'
-HOMEPAGE_URL = f'{SERVER_URL}/html/index.html'
+SERVER_URL = f"http://localhost:{PORT}"
+HOMEPAGE_URL = f"{SERVER_URL}/html/index.html"
 
 
 # Define a route for handling POST requests at the root path
-@app.route('/', methods=['POST'])
+@app.route("/", methods=["POST"])
 def handle_post_request():
     # Extract the JSON data from the POST request
     dict_request = request.json
@@ -40,21 +40,26 @@ def handle_post_request():
     print(dict_request)
 
     # Check if only one key is present in the request
-    if 'func' in form_keys and dict_request['func'] == "update_mask":
+    if "func" in form_keys and dict_request["func"] == "update_mask":
         # If the only key is 'brainRegion', attempt to create a mask for the specified brain region
-        response = create_mask_region(dict_request['brainRegion'], dict_request['smooth'])
+        response = create_mask_region(
+            dict_request["atlas"],
+            dict_request["brainRegion"],
+            dict_request["smooth"]
+        )
     # If 'combination_bool' and 'file_list' keys are present, send them to update_overlay
-    elif 'func' in form_keys and dict_request['func'] == "update_overlays":
-        print(dict_request['combination_bool'])
-        print(dict_request['file_list'])
-        response = update_overlay(dict_request['combination_bool'], dict_request['file_list'])
-    elif 'func' in form_keys and dict_request['func'] == "do_analysis":
+    elif "func" in form_keys and dict_request["func"] == "update_overlays":
+        print(dict_request["combination_bool"])
+        print(dict_request["file_list"])
+        response = update_overlay(dict_request["combination_bool"], dict_request["file_list"])
+    elif "func" in form_keys and dict_request["func"] == "do_analysis":
         # If multiple keys are present, perform the main analysis and rendering
         response = main_analyse_and_render(dict_request)
+    elif "func" in form_keys and dict_request["func"] == "load_results":
+        response = load_results(dict_request["loadfile"])
 
     # Return the response as JSON
     return jsonify(response)
-
 
 
 # Function to start the Flask app in a separate thread
@@ -62,20 +67,21 @@ def run_flask_app():
     # Start the Flask app on the specified port
     app.run()
 
+
 # Function to start the HTTP server in a separate thread
 def run_http_server():
     # Use SimpleHTTPRequestHandler to handle HTTP requests
     handler = SimpleHTTPRequestHandler
 
     # Create a TCP server bound to the specified port
-    httpd = TCPServer(('', PORT), handler)
+    httpd = TCPServer(("", PORT), handler)
 
     # Start serving HTTP requests indefinitely
     httpd.serve_forever()
 
 
 # Entry point of the script
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Create threads for running the Flask app and HTTP server
     flask_thread = threading.Thread(target=run_flask_app)
     http_server_thread = threading.Thread(target=run_http_server)

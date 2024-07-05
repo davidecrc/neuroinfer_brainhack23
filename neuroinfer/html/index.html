@@ -1,178 +1,321 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
 
-    <link rel="stylesheet" type="text/css" href="styles.css"/>
+    <link rel="stylesheet" type="text/css" href="styles.css" />
     <title>NEUROINFER - Papaya Viewer</title>
     <script type="text/javascript" src="papaya.js"></script>
 
     <style>
-        .help-container {
-            display: none;
-            position: absolute;
-            background-color: #f1f1f1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
+      .help-container {
+        display: none;
+        position: absolute;
+        background-color: #f1f1f1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
 
-        .deeper_help {
-            display: none;
-            position: absolute;
-            background-color: #f1f1f1;
-            padding: 30px;
-            border: 3px solid #ccc;
-            border-radius: 5px;
-            z-index: 1;
-            padding-top: 30px;
-            padding-bottom: 40px;
-            margin: 30px;
-            top: 40px;
-            left: 40px;;
-            right: 40px;
-            bottom: 20%;
-        }
+      .deeper_help {
+        display: none;
+        position: absolute;
+        background-color: #f1f1f1;
+        padding: 30px;
+        border: 3px solid #ccc;
+        border-radius: 5px;
+        z-index: 1;
+        padding-top: 30px;
+        padding-bottom: 40px;
+        margin: 30px;
+        top: 40px;
+        left: 40px;
+        right: 40px;
+        bottom: 20%;
+      }
 
-        .close-button {
-            cursor: pointer;
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            font-size: 36px;
-        }
+      .close-button {
+        cursor: pointer;
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        font-size: 36px;
+      }
     </style>
-</head>
-<body>
-
-<div class="banner">
-    NEUROINFER
-</div>
-<div class="main-container">
-    <div class="container" id="form-container">
-        <h2 style="text-align: center;">Coordinate and Probability Input</h2>
-        <form id="myForm">
-            <label for="atlasList">Atlas List:</label>
-            <select id="atlasList" name="atlasList">
-                <option>-- SElECT ONE DATASET --</option>
-            </select>
-
-            <label for="brainRegion" style="margin-top:10px">Brain Region:</label>
-            <div id="brainregionselector">
-            <div class="regionselector"><select id="brainRegion" name="brainRegion" onchange="changeRegionMask()"></select></div>
-            </div>
-            <button type="button" class="add-icon" style="background-color:#aaa; margin-top:10px;" onclick="addBrainRegion()">Add Region</button>
-
-            <div id="smoothcontainer" style="margin-top:10px"><label for="smooth">Smooth Factor:</label>
-                <input type="number" id="smooth" name="smooth" value="0" onchange="changeRegionMask()"></div>
-
-            <div id="totalnumberofvoxel"></div>
-
-            <hr class="hr-text" data-content="OR">
-
-            <div id="coords"><img src="help_icon.png" class="help-caller">Coordinates<label for="x">x:</label>
-                <input type="number" id="x" name="x" required>
-
-                <label for="y">y:</label>
-                <input type="number" id="y" name="y" required>
-
-                <label for="z">z:</label>
-                <input type="number" id="z" name="z" required></div>
-            <div class="help-container">Set the MNI coordinates of you ROI</div>
-
-            <div id="radiuscontainer"><img src="help_icon.png" class="help-caller"><label for="radius">Radius (mm):</label>
-                <input type="number" id="radius" name="radius" onchange="getvsinsphere()"><span id="totvxinsphere" style="margin-left: 10px"></span></div>
-            <div class="help-container">Set the radius in mm for either the ROI or Searchlight sphere</div>
-
-            <div id="nvx_incontainer"><img src="help_icon.png" class="help-caller"><label for="nvx">minimum portion of sphere in mask:</label>
-                <input type="number" id="nvx" name="nvx" value="1" min="0.1" max="1"></div>
-            <div class="help-container">Set a minimum percentage of sphere to be considered when fit in the mask</div>
-
-            <img src="help_icon.png" class="help-caller"><label for="words">List of Words (comma-separated):</label>
-            <textarea id="words" name="words" rows="4" oninput="autocompleteWords()" required></textarea>
-            <div id="autocomplete-suggestions"></div>
-            <div class="help-container">Provide a list of terms over which you would like to run your analysis (e.g.
-                visual, auditory, music)
-            </div>
-
-            <img src="help_icon.png" class="help-caller helpdeep-caller"><label for="probabilities">Priors probabilities
-            (comma-separated):</label>
-            <input type="text" id="probabilities" name="probabilities" required>
-            <div class="help-container">For each term chosen, please provide a prior between 0.01 and 0.99 (click for
-                more help)
-            </div>
-            <div class="deeper_help"><span class="close-button">&times;</span>
-                <h1>Prior Probability</h1>
-                <p><b>The prior probability is the probability of a certain hypothesis (here the occurrence of a term as
-                    proxy of the engagement of a cognitive process or function) before some evidence is taken into
-                    account.</b></p>
-                <p>It can be considered as an estimate of your subjective expectation about the hypothesis and it is
-                    based on your background knowledge. Within a Bayesian framework, the prior allows you to compute the
-                    posterior probability when gathered with the likelihoods.</p>
-                <p>To illustrate the concept of prior probability, consider a clinical scenario. The prior probability
-                    of a certain disease corresponds to the prevalence of the diseases in the general population, that
-                    is, the probability of having the disease in general (for instance, before that the result of a test
-                    is considered).</p>
-                <p>The prior ranges between 0 and 1. If you don’t know that specific value to assign to the prior, but
-                    you have some rough intuition about it, consider picking a “categorical” prior: low (0-0.3), medium
-                    (0.3-0.6), or high (0.6-0.9) prior. Instead, if you don't have any idea about how to set the prior
-                    of the hypothesis, consider to set the prior to a uniform value, i.e., 0.5.</p>
-            </div>
-
-            <label for="metric" style="margin-top:10px">Desired metric:</label>
-            <select id="metric" name="metric">
-                <option value="all">All</option>
-                <option value="bf">Bayesian Factor</option>
-                <option value="z">Z-measure</option>
-                <option value="diff">Difference</option>
-                <option value="ratio">Ratio</option></select>
-
-            <button type="button" onclick="submitForm()" style="margin-top:10px">Submit</button>
-        </form>
+  </head>
+  <body>
+    <div id="overlay" class="overlay hidden">
+      <div class="loading-bar"></div>
+      <div class="second-loading-bar">
+        <div id="second-loading-progress"></div>
+      </div>
+      <div id="progress-text" class="progress-text"></div>
     </div>
 
-    <div id="visualizer-container" class="container">
-        <div id="image-navigator">
+    <div class="banner">NEUROINFER</div>
+    <div class="main-container">
+      <div class="container" id="form-container">
+        <h2 style="text-align: center">Coordinate and Probability Input</h2>
+        <form id="myForm">
+          <label for="resultsList">Load previous results from file:</label>
+          <select id="resultsList" name="resultsList">
+            <option>--</option>
+          </select>
+          <button type="button" onclick="load_prev()" style="margin-top: 10px">
+            LOAD
+          </button>
+
+          <hr class="hr-text" data-content="" />
+
+          <label for="atlasList">Atlas List:</label>
+          <select id="atlasList" name="atlasList">
+            <option>-- SElECT ONE DATASET --</option>
+          </select>
+
+          <label for="brainRegion" style="margin-top: 10px"
+            >Brain Region:</label
+          >
+          <div id="brainregionselector">
+            <div class="regionselector">
+              <select
+                id="brainRegion"
+                name="brainRegion"
+                onchange="changeRegionMask()"
+              ></select>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="add-icon"
+            style="background-color: #aaa; margin-top: 10px"
+            onclick="addBrainRegion()"
+          >
+            Add Region
+          </button>
+
+          <div id="smoothcontainer" style="margin-top: 10px">
+            <label for="smooth">Smooth Factor:</label>
+            <input
+              type="number"
+              id="smooth"
+              name="smooth"
+              value="0"
+              onchange="changeRegionMask()"
+            />
+          </div>
+
+          <div id="totalnumberofvoxel"></div>
+
+          <hr class="hr-text" data-content="OR" />
+
+          <div id="coords">
+            <img src="help_icon.png" class="help-caller" />Coordinates<label
+              for="x"
+              >x:</label
+            >
+            <input type="number" id="x" name="x" required />
+
+            <label for="y">y:</label>
+            <input type="number" id="y" name="y" required />
+
+            <label for="z">z:</label>
+            <input type="number" id="z" name="z" required />
+          </div>
+          <div class="help-container">Set the MNI coordinates of you ROI</div>
+
+          <div id="radiuscontainer">
+            <img src="help_icon.png" class="help-caller" /><label for="radius"
+              >Radius (mm):</label
+            >
+            <input
+              type="number"
+              id="radius"
+              name="radius"
+              onchange="getvsinsphere()"
+            /><span id="totvxinsphere" style="margin-left: 10px"></span>
+          </div>
+          <div class="help-container">
+            Set the radius in mm for either the ROI or Searchlight sphere
+          </div>
+
+          <div id="nvx_incontainer">
+            <img src="help_icon.png" class="help-caller" /><label for="nvx"
+              >minimum portion of sphere in mask:</label
+            >
+            <input
+              type="number"
+              id="nvx"
+              name="nvx"
+              value="1"
+              min="0.1"
+              max="1"
+            />
+          </div>
+          <div class="help-container">
+            Set a minimum percentage of sphere to be considered when fit in the
+            mask
+          </div>
+
+          <img src="help_icon.png" class="help-caller" /><label for="words"
+            >List of Words (comma-separated):</label
+          >
+          <textarea
+            id="words"
+            name="words"
+            rows="4"
+            oninput="autocompleteWords()"
+            required
+          ></textarea>
+          <div id="autocomplete-suggestions"></div>
+          <div class="help-container">
+            Provide a list of terms over which you would like to run your
+            analysis (e.g. visual, auditory, music)
+          </div>
+
+          <img src="help_icon.png" class="help-caller helpdeep-caller" /><label
+            for="probabilities"
+            >Priors probabilities (comma-separated):</label
+          >
+          <input type="text" id="probabilities" name="probabilities" required />
+          <div class="help-container">
+            For each term chosen, please provide a prior between 0.01 and 0.99
+            (click for more help)
+          </div>
+          <div class="deeper_help">
+            <span class="close-button">&times;</span>
+            <h1>Prior Probability</h1>
+            <p>
+              <b
+                >The prior probability is the probability of a certain
+                hypothesis (here the occurrence of a term as proxy of the
+                engagement of a cognitive process or function) before some
+                evidence is taken into account.</b
+              >
+            </p>
+            <p>
+              It can be considered as an estimate of your subjective expectation
+              about the hypothesis and it is based on your background knowledge.
+              Within a Bayesian framework, the prior allows you to compute the
+              posterior probability when gathered with the likelihoods.
+            </p>
+            <p>
+              To illustrate the concept of prior probability, consider a
+              clinical scenario. The prior probability of a certain disease
+              corresponds to the prevalence of the diseases in the general
+              population, that is, the probability of having the disease in
+              general (for instance, before that the result of a test is
+              considered).
+            </p>
+            <p>
+              The prior ranges between 0 and 1. If you don’t know that specific
+              value to assign to the prior, but you have some rough intuition
+              about it, consider picking a “categorical” prior: low (0-0.3),
+              medium (0.3-0.6), or high (0.6-0.9) prior. Instead, if you don't
+              have any idea about how to set the prior of the hypothesis,
+              consider to set the prior to a uniform value, i.e., 0.5.
+            </p>
+          </div>
+
+          <label for="metric" style="margin-top: 10px">Desired metric:</label>
+          <select id="metric" name="metric">
+            <option value="all">All</option>
+            <option value="bf">Bayesian Factor</option>
+            <option value="z">Z-measure</option>
+            <option value="diff">Difference</option>
+            <option value="ratio">Ratio</option>
+          </select>
+
+          <button type="button" onclick="submitForm()" style="margin-top: 10px">
+            Submit
+          </button>
+        </form>
+      </div>
+
+      <div id="visualizer-container" class="container">
+        <div id="image-navigator"></div>
+
+        <div id="sliders" style="display: none">
+          <div class="minmax-container">
+            <span style="float: left"
+              ><label>min</label
+              ><input type="number" id="min" value="0" style="width: 50px"
+            /></span>
+            <span style="float: right"
+              ><label>max</label
+              ><input type="number" id="max" value="10" style="width: 50px"
+            /></span>
+          </div>
+          <div class="slider-container">
+            <input
+              type="range"
+              min="0"
+              max="275"
+              value="0"
+              class="slider"
+              id="colorRange1"
+            />
+          </div>
+          <div class="slider-container">
+            <input
+              type="range"
+              min="0"
+              max="275"
+              value="137"
+              class="slider"
+              id="colorRange2"
+            />
+          </div>
+          <div class="slider-container">
+            <input
+              type="range"
+              min="0"
+              max="275"
+              value="275"
+              class="slider"
+              id="colorRange3"
+            />
+          </div>
+          <button
+            type="button"
+            onclick="updateLUT()"
+            style="float: right; width: auto"
+          >
+            Apply Color Map
+          </button>
         </div>
 
         <div id="visualizer"></div>
 
         <div id="radio-grid-container">
-            <div id="radio-container"></div>
-        <button style="width: 100%" onclick="update_overlays()">Apply</button></div>
+          <div id="radio-container"></div>
+          <button style="width: 100%" onclick="update_overlays()">Apply</button>
+        </div>
+      </div>
+
+      <div class="container" id="graphics-container" style="display: none">
+        <button onclick="downloadMaskFile()">Download Mask</button>
+        <div id="graphics-container-plot"></div>
+      </div>
     </div>
 
-    <div class="container" id="graphics-container">
-        <h2>Graphics placeholder</h2>
-    </div>
-</div>
-<!--  <script type="text/javascript" src="main.js"></script> <!-- must be placed here as it will look for div id "visualizer" -->
-<script src="autocompletion.js"></script>
-<script src="papaya-setup.js"></script>
-<script src="papaya-update.js"></script>
-<script src="papaya-request.js"></script>
-<script src="papaya-display.js"></script>
-<script src="fetch-brain-regions.js"></script>
-<!-- JavaScript to handle radio button changes -->
-<script>
-    // Function to handle radio button changes
-    function handleRadioButtonChange() {
-        var selectedValue = document.querySelector('input[name="fileSelector"]:checked').value;
-        // Call update_papaya_viewer with the selected filenames element
-        update_papaya_viewer(overlays[selectedValue]);
-    }
-
-    // Add event listeners to radio buttons
-    var radioButtons = document.querySelectorAll('input[name="fileSelector"]');
-    radioButtons.forEach(function (radioButton) {
-        radioButton.addEventListener('change', handleRadioButtonChange);
-    });
-</script>
-
-</body>
+    <script src="autocompletion.js"></script>
+    <script src="papaya-setup.js"></script>
+    <script src="papaya-update.js"></script>
+    <script src="papaya-request.js"></script>
+    <script src="papaya-display.js"></script>
+    <!-- must be placed here as it will look for div id "visualizer" -->
+    <script src="fetch-brain-regions.js"></script>
+    <script src="update_lut.js"></script>
+    <script src="sliders.js"></script>
+  </body>
 </html>
-

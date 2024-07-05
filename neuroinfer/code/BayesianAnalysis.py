@@ -43,6 +43,7 @@ def run_bayesian_analysis_router(
     )
 
     # Check if RESULTS_FOLDER exists, if not, create it
+
     if not os.path.exists(RESULTS_FOLDER):
         os.makedirs(RESULTS_FOLDER)
 
@@ -65,6 +66,7 @@ def run_bayesian_analysis_router(
             cog_list,
             prior_list,
             mask,
+
             radius,
             result_df,
             cm,
@@ -73,14 +75,10 @@ def run_bayesian_analysis_router(
             xyz_coords,
         )
 
-        # Save results_dict to a pickle file
-        file_path = os.path.join(
-            RESULTS_FOLDER, f"results_area_cm_{cm}_{area}_{cog_list}.pkl"
-        )
 
-        with open(file_path, "wb") as f:
-            pickle.dump(results, f)
-        print(f"Results saved to: {file_path}")
+        save_results(
+            results, RESULTS_FOLDER / f"results_area_cm_{cm}_{area}_{cog_list}.pkl"
+        )
 
     elif (
         not np.isnan(x_target)
@@ -107,10 +105,8 @@ def run_bayesian_analysis_router(
         )
 
         pickle_file_name = f"results_BHL_coordinates_cm_{cm}_x{x_target}_y{y_target}_z{z_target}.pickle"
-        pickle_file_path = os.path.join(RESULTS_FOLDER, pickle_file_name)
-        with open(pickle_file_path, "wb") as file:
-            pickle.dump(results, file)
-        print(f"Results saved to: {pickle_file_path}")
+
+        save_results(results, RESULTS_FOLDER / pickle_file_name)
 
     elif np.isnan(area):
         # Print a message asking to check the input value if area is nan
@@ -118,6 +114,12 @@ def run_bayesian_analysis_router(
     else:
         # Handle the case where none of the conditions are met
         print("Invalid combination of input values. Please check.")
+
+
+def save_results(results, filename):
+    with open(filename, "wb") as f:
+        pickle.dump(results, f)
+    print(f"Results saved to: {filename}")
 
 
 def load_or_calculate_variables(data_path, affine_inv):
