@@ -101,28 +101,14 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
             z_measure_nq = calculate_z(post_cog_nq, prior) if cm == "d" else None
             z_measure_all.append(z_measure_nq) if z_measure_nq is not None else None
 
-    df_columns = ['cog', 'Likelihood']
-    if cm == "a":
-        df_columns.extend(['BF', 'Prior', 'Posterior'])
-        data_all = list(zip(cog_all, lik_cog_nq_all, lik_ratio_nq_all, prior_all, post_cog_nq_all))
-    elif cm == "b":
-        df_columns.extend(['Difference', 'Prior', 'Posterior'])
-        data_all = list(zip(cog_all, lik_cog_nq_all, df_nq_all, prior_all, post_cog_nq_all))
-    elif cm == "c":
-        df_columns.extend(['Ratio', 'Prior', 'Posterior'])
-        data_all = list(zip(cog_all, lik_cog_nq_all, rm_nq_all, prior_all, post_cog_nq_all))
-    elif cm == "d":
-        df_columns.extend(['Z-measure', 'Prior', 'Posterior'])
-        data_all = list(zip(cog_all, lik_cog_nq_all, z_measure_all, prior_all, post_cog_nq_all))
-
-    df_data_all = pd.DataFrame(data_all, columns = df_columns)
-    print(df_data_all)
+    df_columns = ['cog', 'Likelihood', 'Prior', 'Posterior', 'BF', 'Difference', 'Ratio', 'Z-measure']
+    values_dict = [cog_all, lik_cog_nq_all, prior_all, post_cog_nq_all, lik_ratio_nq_all, df_nq_all, rm_nq_all, z_measure_all]
+    results = dict(zip(df_columns, values_dict))
 
     elapsed = time.time() - t
     print('time elapsed:', elapsed)
 
-    results = {
-        "df_data_all": df_data_all,
+    results = results.update({
         "cm": cm,
         "cog_list": cog_all,
         "prior_list": prior_all,
@@ -130,7 +116,7 @@ def run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, 
         "y_target": y_target,
         "z_target": z_target,
         "radius": radius,
-    }
+    })
     return results
 
 
@@ -167,13 +153,13 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask, radius, feature_df,cm
     
     # Initialize an empty list to store results and coordinates
     result_all = []
-    coord = []
+    # coord = []
     
     # Iterate through the coordinates_area
     for i in range(len(coordinates_area)-1): #-1 in order to have the last coordinates_area[i+1]) #TODO improve
         
         x_target, y_target, z_target = coordinates_area[i]
-        coord.append([x_target, y_target, z_target])
+        # coord.append([x_target, y_target, z_target])
         if i == 0:
             results = run_bayesian_analysis_coordinates(cog_list, prior_list, x_target, y_target, z_target,
                                                         radius, feature_df, cm,xyz_coords,dt_papers_nq_id_list, nb_unique_paper)
@@ -186,7 +172,7 @@ def run_bayesian_analysis_area(cog_list, prior_list, mask, radius, feature_df,cm
         if get_distance((x_target, y_target, z_target), coordinates_area[i + 1]) > radius:  # TODO upload checking all the distance from the ROIS
             print(f'Calculating cm for the {i + 1} ROI out of {len(coordinates_area)}, {((i + 1) / len(coordinates_area)) * 100:.2f}%')
 
-            if i % 5 == 0:
+            if i % 10 == 0:
                 #create the folder if not existing
                 os.makedirs(PKG_FOLDER / 'neuroinfer' / '.tmp', exist_ok=True)                
                 with open(PKG_FOLDER / 'neuroinfer' / '.tmp' / 'processing_progress.txt', 'w') as f_tmp:

@@ -34,23 +34,26 @@ window.downloadMaskFile = function() {
         document.body.removeChild(anchor);
 }
 
-function updateSecondLoading(progress) {
+function updateSecondLoading(progress, cmd_txt="") {
     var secondLoadingProgress = document.getElementById('second-loading-progress');
     var progressText = document.getElementById('progress-text');
     secondLoadingProgress.style.width = Math.ceil(progress*100) + '%';
-    progressText.textContent = 'Progress: ' + Math.ceil(progress*100) + '%';
+    progressText.textContent = 'Progress: ' + cmd_txt + Math.ceil(progress*100) + '%';
 }
 
+
 function fetchPercentageProgress() {
-    const url = `/.tmp/processing_progress.txt?cacheBuster=${Math.random()}`;
+    let url = `/.tmp/processing_progress.txt?cacheBuster=${Math.random()}`;
     fetch(url)
         .then(response => response.text())
         .then(data => {
-            console.log(init_loader);
-            //console.log("Content of /.tmp/percentage_progress:", data);
-            var progress = parseFloat(data);
+            let regex_float = /[0-9]*?(.*?)[0-9]*?/;
+            let data_number = regex_float.exec(data)
+            let progress = parseFloat(data_number);
+            let regex_txt = /[aA-Zz]*?/;
+            let data_text = regex_txt.exec(data)
             if (isNaN(progress)) {
-                (init_loader) ? updateSecondLoading(0) : updateSecondLoading(1);
+                (init_loader) ? updateSecondLoading(0, data_text) : updateSecondLoading(1, data_text);
             }
             else {
                 updateSecondLoading(progress);
@@ -59,8 +62,7 @@ function fetchPercentageProgress() {
 
         })
         .catch(error => {
-            console.error('Error fetching content:', error);
-            (init_loader) ? updateSecondLoading(0) : updateSecondLoading(1);
+            (init_loader) ? updateSecondLoading(0, data_text) : updateSecondLoading(1, data_text);
         });
 }
 

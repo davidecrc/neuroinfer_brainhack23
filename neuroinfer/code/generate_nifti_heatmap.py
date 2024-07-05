@@ -5,6 +5,7 @@ import nibabel as nib
 import numpy as np
 from nilearn import image
 
+from neuroinfer import PKG_FOLDER
 from neuroinfer.code.utils import get_sphere_coords
 
 
@@ -29,7 +30,11 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius, cog_list, 
     """
     bf = []
     coords = []
-    for sphere in result_dict:
+    for j, sphere in enumerate(result_dict):
+        if j % 1 == 0:
+            os.makedirs(PKG_FOLDER / 'neuroinfer' / '.tmp', exist_ok=True)
+            with open(PKG_FOLDER / 'neuroinfer' / '.tmp' / 'processing_progress.txt', 'w') as f_tmp:
+                f_tmp.write("SPHERE_LOADING " + str((j + 1) / len(result_dict)))
         bf.append(sphere['df_data_all'].BF)
         coords.append([sphere['x_target'],
                        sphere['y_target'],
@@ -49,6 +54,10 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius, cog_list, 
     vx_radius = np.ceil(radius/vx_size)
 
     for j, coord in enumerate(coords):
+        if j % 1 == 0:
+            os.makedirs(PKG_FOLDER / 'neuroinfer' / '.tmp', exist_ok=True)
+            with open(PKG_FOLDER / 'neuroinfer' / '.tmp' / 'processing_progress.txt', 'w') as f_tmp:
+                f_tmp.write("HEATMAP " + str((j + 1) / len(coords)))
         sphere_coords = get_sphere_coords([int(coord[0]), int(coord[1]), int(coord[2])], vx_radius, overlay_results)
         for sc_i in range(sphere_coords[0].shape[0]):
             overlay_results[sphere_coords[0][sc_i], sphere_coords[1][sc_i], sphere_coords[2][sc_i], :] += bf[j] #TODO: this depends on the type of analysis done!

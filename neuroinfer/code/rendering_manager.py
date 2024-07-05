@@ -42,7 +42,7 @@ def create_mask_region(atlas, brain_region, smooth_factor):
     tot_vx = np.sum(mask_3d)
 
     print(type(mask_3d))
-    print(type(mask_3d[1,1,1]))
+    print(type(mask_3d[1, 1, 1]))
     print(mask_3d.shape)
 
     # Check if the '.tmp/' directory exists, if not, create it

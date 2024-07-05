@@ -23,7 +23,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Define constants for the server configuration
-PORT = 8031
+PORT = 8000
 SERVER_URL = f'http://localhost:{PORT}'
 HOMEPAGE_URL = f'{SERVER_URL}/html/index.html'
 
