@@ -5,11 +5,12 @@ jobs:
     name: runner / black formatter
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actionsx/prettier@v2
-        with:
-          args: --check .
       - uses: actions/checkout@v3
-      - uses: psf/black@stable
+      - name: Run Prettier
+        uses: creyD/prettier_action@v4.2
         with:
-          options: "--check --verbose"
+          prettier_options: --check "**/*.js" "**/*.html"
+      - name: Run Black
+        uses: psf/black@stable
+        with:
+          args: --check --verbose
