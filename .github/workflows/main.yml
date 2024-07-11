@@ -5,7 +5,10 @@ jobs:
     name: runner / black formatter
     runs-on: ubuntu-latest
     steps:
-      - uses: creyD/prettier_action@v4.3
+      - uses: actions/checkout@v2
+      - uses: actionsx/prettier@v2
+        with:
+          args: --check .
       - uses: actions/checkout@v3
       - uses: psf/black@stable
         with:
