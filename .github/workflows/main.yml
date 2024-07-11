@@ -7,10 +7,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Run Prettier
-        uses: creyD/prettier_action@v4.2
-        with:
-          prettier_options: --check
-          prettier_targets: "**/*.js **/*.html"
+        run: npx prettier --check "**/*.js" "**/*.html"
       - name: Run Black
         uses: psf/black@stable
         with:
