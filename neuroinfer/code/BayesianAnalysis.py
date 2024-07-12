@@ -66,7 +66,6 @@ def run_bayesian_analysis_router(
             cog_list,
             prior_list,
             mask,
-
             radius,
             result_df,
             cm,
@@ -74,7 +73,6 @@ def run_bayesian_analysis_router(
             nb_unique_paper,
             xyz_coords,
         )
-
 
         save_results(
             results, RESULTS_FOLDER / f"results_area_cm_{cm}_{area}_{cog_list}.pkl"

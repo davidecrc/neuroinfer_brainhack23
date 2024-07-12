@@ -18,6 +18,8 @@ The script calculates various statistics including likelihood, prior, posterior,
 It uses the functions get_atlas_coordinates_json e get_distance to obtain the coordinates in an atlas and the distance between pair of coordinates.
 
 """
+
+
 def calculate_z(posterior, prior):
     """
     Calculate the Z-measure based on posterior and prior probabilities.
@@ -172,7 +174,6 @@ def run_bayesian_analysis_coordinates(
         )
         sort_column = "Z-measure"
 
-
     df_data_all = pd.DataFrame(data_all, columns=df_columns)
     print(df_data_all)
 
@@ -324,12 +325,10 @@ def run_bayesian_analysis_area(
 
     # coord=[]
 
-
     # Iterate through the coordinates_area
     for i in range(
         len(coordinates_area) - 1
     ):  # -1 in order to have the last coordinates_area[i+1]) #TODO remove this -1
-
 
         x_target, y_target, z_target = coordinates_area[i]
         x_norm, y_norm, z_norm = normalize_coord(
@@ -430,4 +429,3 @@ def run_bayesian_analysis_area(
     print(result_all)
 
     return result_all
-
