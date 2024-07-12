@@ -5,6 +5,7 @@ from neuroinfer.code.UserInputs import get_user_inputs
 from neuroinfer.code.DataLoading import load_data_and_create_dataframe
 import os
 
+
 """
 Main Script- executes Bayesian analysis given NPZ, metadata, and vocabulary files based on user-defined parameters. 
 It parses command-line arguments for paths to NPZ, metadata, and vocabulary files.
