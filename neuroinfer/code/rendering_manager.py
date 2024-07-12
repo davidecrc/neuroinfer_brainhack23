@@ -1,10 +1,9 @@
-import pickle
-from pathlib import Path
-
-import numpy as np
-import nibabel as nib
 import os
+import pickle
+
 import matplotlib.pyplot as plt
+import nibabel as nib
+import numpy as np
 
 from neuroinfer import DATA_FOLDER, TEMPLATE_FOLDER, RESULTS_FOLDER
 from neuroinfer.code.BayesianAnalysis import load_or_calculate_variables
