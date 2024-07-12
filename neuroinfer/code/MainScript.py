@@ -76,14 +76,7 @@ if __name__ == "__main__":
     result_df, feature_names = load_data_and_create_dataframe(
         args.npz_file, args.metadata_file, args.vocab_file
     )
-    result_df, feature_names = load_data_and_create_dataframe(
-        args.npz_file, args.metadata_file, args.vocab_file
-    )
 
-    cog_list, prior_list, x_target, y_target, z_target, radius, area = get_user_inputs(
-        feature_names
-    )
-    # cog_list, prior_list, area, radius = get_user_inputs(feature_names)
     cog_list, prior_list, x_target, y_target, z_target, radius, area = get_user_inputs(
         feature_names
     )
@@ -103,26 +96,11 @@ if __name__ == "__main__":
             + str(radius)
             + " mm."
         )
-        print(
-            "Selected coordinates: "
-            + str(x_target)
-            + "; "
-            + str(y_target)
-            + "; "
-            + str(z_target)
-            + ". Radius: "
-            + str(radius)
-            + " mm."
-        )
 
     results_all_rois = run_bayesian_analysis_router(
         cog_list, area, prior_list, x_target, y_target, z_target, radius, result_df
     )
-    """
-    results_all_rois = run_bayesian_analysis_router(
-        cog_list, area, prior_list, x_target, y_target, z_target, radius, result_df
-    )
-    """
+
     # Save the results using pickle
     # Construct the path to the "results" folder
     script_directory = os.path.dirname(os.path.abspath(__file__))
@@ -142,5 +120,3 @@ if __name__ == "__main__":
         with open(pickle_file_path, "wb") as file:
             pickle.dump(results_all_rois, file)
         print(f"Results saved to: {pickle_file_path}")
-    """
-    """
