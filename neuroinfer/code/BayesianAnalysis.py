@@ -12,11 +12,7 @@ from neuroinfer.code.run_bayesian import (
 )
 from neuroinfer.code.utils import generate_nifti_mask
 
-atlas_path = (
-    TEMPLATE_FOLDER
-    / "atlases"
-    / "HarvardOxford-cort-maxprob-thr25-2mm.nii.gz"
-)
+atlas_path = TEMPLATE_FOLDER / "atlases" / "HarvardOxford-cort-maxprob-thr25-2mm.nii.gz"
 
 """
 The script orchestrates Bayesian analysis on brain data  ensuring efficiency and insightful interpretation through statistical summaries and graphical representations.
