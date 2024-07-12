@@ -1,0 +1,14 @@
+name: black-action
+on: [pull_request]
+jobs:
+  linter_name:
+    name: runner / black formatter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Prettier
+        run: npx prettier --check "**/*.js" "**/*.html" --ignore-path .prettierignore
+      - name: Run Black
+        uses: psf/black@stable
+        with:
+          args: --check --verbose
