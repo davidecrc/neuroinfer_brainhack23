@@ -7,14 +7,13 @@ from neuroinfer.code.run_bayesian import (
     run_bayesian_analysis_coordinates,
     run_bayesian_analysis_area,
 )
-from neuroinfer import TEMPLATE_FOLDER, PKG_FOLDER, DATA_FOLDER, RESULTS_FOLDER
+from neuroinfer import TEMPLATE_FOLDER, DATA_FOLDER, RESULTS_FOLDER
 from neuroinfer.code.utils import generate_nifti_mask
 from nilearn.image import coord_transform
 
 atlas_path = (
     TEMPLATE_FOLDER
     / "atlases"
-    / "HarvardOxford"
     / "HarvardOxford-cort-maxprob-thr25-2mm.nii.gz"
 )
 

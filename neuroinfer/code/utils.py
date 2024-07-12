@@ -1,5 +1,4 @@
 import base64
-import random
 from io import BytesIO
 
 import nibabel as nib

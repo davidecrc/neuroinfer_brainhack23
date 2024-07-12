@@ -1,9 +1,13 @@
 # MainScript.py
 import argparse
+import pickle
+import pandas as pd
+import os
+
 from neuroinfer.code.BayesianAnalysis import run_bayesian_analysis_router
 from neuroinfer.code.UserInputs import get_user_inputs
 from neuroinfer.code.DataLoading import load_data_and_create_dataframe
-import os
+from neuroinfer import RESULTS_FOLDER, DATA_FOLDER
 
 
 """
@@ -36,35 +40,28 @@ Output of the Bayesian analysis (results_all_rois). It has been saved inside run
 if __name__ == "__main__":
     """
     $ python MainScript.py /path/to/your/npz_tfidf_data/file.npz /path/to/your/metadata_paper/file.tsv /path/to/your/vocabulary/file.txt
-
     """
-
-    # Get the directory of the current Python script
-    script_directory = os.path.dirname(os.path.abspath(__file__))
-    # Navigate to the parent directory as global path
-    global_path = os.path.dirname(script_directory)
-    data_path = os.path.join(global_path, "data")  # Path to the saved_result folder
 
     parser = argparse.ArgumentParser(description="Load data and create a DataFrame.")
     parser.add_argument(
         "npz_file",
         nargs="?",
         # default="../data/features7.npz",
-        default=data_path + "/features7.npz",
+        default=DATA_FOLDER / "features7.npz",
         help="Path to the NPZ file containing features data (tfidf data).",
     )
     parser.add_argument(
         "metadata_file",
         nargs="?",
         # default="../data/metadata7.tsv",
-        default=data_path + "/metadata7.tsv",
+        default=DATA_FOLDER / "metadata7.tsv",
         help="Path to the metadata file (papers in the database).",
     )
     parser.add_argument(
         "vocab_file",
         nargs="?",
         # default="../data/vocabulary7.txt",
-        default=data_path + "/vocabulary7.txt",
+        default=DATA_FOLDER / "vocabulary7.txt",
         help="Path to the vocabulary file (comemorgnitive labels).",
     )
 
@@ -101,22 +98,14 @@ if __name__ == "__main__":
         cog_list, area, prior_list, x_target, y_target, z_target, radius, result_df
     )
 
-    # Save the results using pickle
-    # Construct the path to the "results" folder
-    script_directory = os.path.dirname(os.path.abspath(__file__))
-    global_path = os.path.dirname(script_directory)
-    results_folder_path = os.path.join(global_path, "results")
-
-    # Ensure the "results" folder exists; create it if not
-    # os.makedirs(results_folder_path, exist_ok=True)
-
+    os.makedirs(RESULTS_FOLDER, exist_ok=True)
     # Save the pickle file in the "results" folder if coordinates (the area one is saved in run_bayesian_analysis_area)
     if pd.isnull(area):
         # Use the coordinates to name the pickle file
         pickle_file_name = (
             f"results_BHL_coordinates_x{x_target}_y{y_target}_z{z_target}.pickle"
         )
-        pickle_file_path = os.path.join(results_folder_path, pickle_file_name)
+        pickle_file_path = RESULTS_FOLDER / pickle_file_name
         with open(pickle_file_path, "wb") as file:
             pickle.dump(results_all_rois, file)
         print(f"Results saved to: {pickle_file_path}")
