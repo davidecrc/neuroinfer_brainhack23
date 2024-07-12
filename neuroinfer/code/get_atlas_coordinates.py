@@ -1,9 +1,8 @@
-import nilearn
-from nilearn import datasets, image
-import numpy as np
 import json
-from BayesianAnalysis import get_atlas_coordinates_json
-import pandas as pd
+
+import nilearn
+import numpy as np
+from nilearn import datasets, image
 
 
 def extract_coordinates_from_atlas(atlas):

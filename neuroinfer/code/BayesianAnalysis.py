@@ -1,22 +1,18 @@
 import os
-import numpy as np
-import pandas as pd
 import pickle
 
+import numpy as np
+import pandas as pd
+from nilearn.image import coord_transform
+
+from neuroinfer import TEMPLATE_FOLDER, DATA_FOLDER, RESULTS_FOLDER
 from neuroinfer.code.run_bayesian import (
     run_bayesian_analysis_coordinates,
     run_bayesian_analysis_area,
 )
-from neuroinfer import TEMPLATE_FOLDER, DATA_FOLDER, RESULTS_FOLDER
 from neuroinfer.code.utils import generate_nifti_mask
-from nilearn.image import coord_transform
 
-atlas_path = (
-    TEMPLATE_FOLDER
-    / "atlases"
-    / "HarvardOxford"
-    / "HarvardOxford-cort-maxprob-thr25-2mm.nii.gz"
-)
+atlas_path = TEMPLATE_FOLDER / "atlases" / "HarvardOxford-cort-maxprob-thr25-2mm.nii.gz"
 
 """
 The script orchestrates Bayesian analysis on brain data  ensuring efficiency and insightful interpretation through statistical summaries and graphical representations.
@@ -42,7 +38,8 @@ def run_bayesian_analysis_router(
         + "'d' for z measure.\n"
     )
 
-    # Check if results_folder_path exists, if not, create it
+    # Check if RESULTS_FOLDER exists, if not, create it
+
     if not os.path.exists(RESULTS_FOLDER):
         os.makedirs(RESULTS_FOLDER)
 
@@ -65,7 +62,6 @@ def run_bayesian_analysis_router(
             cog_list,
             prior_list,
             mask,
-            affine_inv,
             radius,
             result_df,
             cm,
@@ -74,7 +70,6 @@ def run_bayesian_analysis_router(
             xyz_coords,
         )
 
-        # Save results_dict to a pickle file
         save_results(
             results, RESULTS_FOLDER / f"results_area_cm_{cm}_{area}_{cog_list}.pkl"
         )
@@ -104,6 +99,7 @@ def run_bayesian_analysis_router(
         )
 
         pickle_file_name = f"results_BHL_coordinates_cm_{cm}_x{x_target}_y{y_target}_z{z_target}.pickle"
+
         save_results(results, RESULTS_FOLDER / pickle_file_name)
 
     elif np.isnan(area):
