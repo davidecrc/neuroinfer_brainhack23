@@ -108,6 +108,7 @@ if __name__ == "__main__":
 
     # Update HOMEPAGE_URL with the actual port number
     homepage_url = f"http://localhost:{actual_port}/neuroinfer/html/index.html"
+    print(f"Open the following URL in your browser: {homepage_url}")
 
     # Open the updated homepage URL in a web browser
     webbrowser.open_new(homepage_url)
