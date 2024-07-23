@@ -28,9 +28,8 @@ app = Flask(__name__)
 CORS(app)
 
 # Define constants for the server configuration
-PORT = 8031
-SERVER_URL = f"http://localhost:{PORT}"
-HOMEPAGE_URL = f"{SERVER_URL}/html/index.html"
+PORT = 8000
+MAX_TRIES = 10  # maximum number of ports to try
 
 
 # Define a route for handling POST requests at the root path
@@ -75,14 +74,24 @@ def run_flask_app():
 
 # Function to start the HTTP server in a separate thread
 def run_http_server():
-    # Use SimpleHTTPRequestHandler to handle HTTP requests
     handler = SimpleHTTPRequestHandler
+    global PORT  # Make PORT a global variable so it can be updated
 
-    # Create a TCP server bound to the specified port
-    httpd = TCPServer(("", PORT), handler)
-
-    # Start serving HTTP requests indefinitely
-    httpd.serve_forever()
+    for i in range(MAX_TRIES):
+        try:
+            httpd = TCPServer(("", PORT + i), handler)
+            # Update the port number globally
+            global actual_port
+            actual_port = PORT + i
+            print(f"Serving on port {actual_port}")
+            # Start serving HTTP requests indefinitely
+            httpd.serve_forever()
+            break
+        except OSError as e:
+            if e.errno == 98:
+                print(f"Port {PORT + i} already in use. Trying next port...")
+            else:
+                raise
 
 
 # Entry point of the script
@@ -91,9 +100,17 @@ if __name__ == "__main__":
     flask_thread = threading.Thread(target=run_flask_app)
     http_server_thread = threading.Thread(target=run_http_server)
 
-    # Start the HTTP server and open the homepage in a web browser
+    # Start the HTTP server thread
     http_server_thread.start()
-    webbrowser.open_new(HOMEPAGE_URL)
+
+    # Wait a bit to ensure the server is up and running
+    http_server_thread.join(1)  # Adjust the wait time as needed
+
+    # Update HOMEPAGE_URL with the actual port number
+    homepage_url = f"http://localhost:{actual_port}/neuroinfer/html/index.html"
+
+    # Open the updated homepage URL in a web browser
+    webbrowser.open_new(homepage_url)
 
     # Start the Flask app
     flask_thread.start()

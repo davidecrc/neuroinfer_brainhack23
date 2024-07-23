@@ -1,5 +1,4 @@
 import pickle
-from pathlib import Path
 
 import numpy as np
 import nibabel as nib
@@ -183,7 +182,7 @@ def load_results(filename):
 
     overlay_results, filenames = generate_nifti_bf_heatmap(
         loaded_dict,
-        loaded_dict[0]["atlas"],
+        atlas_path / os.path.basename(loaded_dict[0]["atlas"]),
         loaded_dict[0]["radius"],
         loaded_dict[0]["cog_list"],
         loaded_dict[0]["mask"],

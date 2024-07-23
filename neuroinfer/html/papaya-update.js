@@ -13,11 +13,11 @@ window.update_papaya_viewer = function (mask = false) {
   }
   if (!mask) {
     // If mask is neither an array nor a string, set the images without a mask
-    params["images"] = ["/templates/mni_icbm152_t1_tal_nlin_asym_09c.nii.gz"];
-    current_overlay = "/templates/mni_icbm152_t1_tal_nlin_asym_09c.nii.gz";
+    params["images"] = ["/neuroinfer/templates/mni_icbm152_t1_tal_nlin_asym_09c.nii.gz"];
+    current_overlay = "/neuroinfer/templates/mni_icbm152_t1_tal_nlin_asym_09c.nii.gz";
   } else {
     params["images"] = [
-      "/templates/mni_icbm152_t1_tal_nlin_asym_09c.nii.gz",
+      "/neuroinfer/templates/mni_icbm152_t1_tal_nlin_asym_09c.nii.gz",
       current_overlay,
     ];
   }
