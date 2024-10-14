@@ -1,10 +1,8 @@
-# MainScript.py
 import argparse
 import os
 import pickle
 
 import pandas as pd
-
 from neuroinfer import RESULTS_FOLDER, DATA_FOLDER
 from neuroinfer.code.BayesianAnalysis import run_bayesian_analysis_router
 from neuroinfer.code.DataLoading import load_data_and_create_dataframe
@@ -12,29 +10,27 @@ from neuroinfer.code.UserInputs import get_user_inputs
 
 """
 Main Script- executes Bayesian analysis given NPZ, metadata, and vocabulary files based on user-defined parameters. 
-It parses command-line arguments for paths to NPZ, metadata, and vocabulary files.
-These files are loaded to create a DataFrame. 
-Users input parameters for Bayesian analysis, defining regions of interest.
-It ensures a "results" folder exists and saves analysis results using pickle, named according to the selected area. 
 
+This script loads data from NPZ (TF-IDF features), metadata (TSV), and vocabulary (TXT) files, 
+then performs a Bayesian analysis using user-provided parameters.
 
-INPUTS
-1) Command-line arguments:
-Path to an NPZ file containing TF-IDF features data.
-Path to a metadata file containing information about papers in a database.
-Path to a file containing vocabulary (cognitive labels).
+Inputs:
+- NPZ file: Contains TF-IDF feature data
+- Metadata (TSV) file: Describes the papers in the database.
+- Vocabulary (TXT) file: Contains labels used in the analysis.
+- User inputs: Cognitive regions of interest (cog_list), priors, and target coordinates (x, y, z) or an area.
 
-2)User input for Bayesian analysis parameters:
-cog_list: List of cognitive labels.
-prior_list: List of prior probabilities.
-x_target, y_target, z_target: Coordinates of the target area (for non-spherical regions).
-radius: Radius of the target area (for spherical regions).
-area: Selected area for analysis.
+Outputs:
+- A pickle file (.pickle) with Bayesian analysis results, named based on either:
+  - Target coordinates (if no area is provided), or
+  - Analysis area (handled in a separate function).
 
-OUTPUTS
-Results DataFrame (result_df) from the loaded data and created DataFrame.
-Output of the Bayesian analysis (results_all_rois). It has been saved inside run_bayesian_analysis_router.
-
+Steps:
+1. Parse file paths from command-line arguments or use default paths.
+2. Load data into a DataFrame and extract feature names.
+3. Collect user inputs (coordinates, area, priors) for analysis.
+4. Run Bayesian analysis based on inputs.
+5. Save results as a pickle file in the 'results' folder.
 """
 
 if __name__ == "__main__":

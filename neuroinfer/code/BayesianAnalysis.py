@@ -1,3 +1,21 @@
+"""
+This script orchestrates Bayesian analysis on brain data ensuring efficiency and insightful interpretation through statistical summaries and graphical representations.
+- `run_bayesian_analysis_area`: conducts analysis over defined brain regions, leveraging coordinates from an atlas.
+- `run_bayesian_analysis_coordinates`: performs analysis at specified coordinates.
+The pathway is chosen from the function run_bayesian_analysis_router based on the input (coordinates or area).
+
+
+Functions:
+    run_bayesian_analysis_router(cog_list, area, prior_list, x_target, y_target, z_target, radius, result_df):
+        Routes the Bayesian analysis based on the input parameters (coordinates or area).
+
+    save_results(results, filename):
+        Saves the results of the Bayesian analysis to a specified file.
+
+    load_or_calculate_variables(data_path, affine_inv):
+        Loads or calculates necessary variables for the Bayesian analysis.
+"""
+
 import os
 import pickle
 
@@ -13,18 +31,6 @@ from neuroinfer.code.run_bayesian import (
 from neuroinfer.code.utils import generate_nifti_mask
 
 atlas_path = TEMPLATE_FOLDER / "atlases" / "HarvardOxford-cort-maxprob-thr25-2mm.nii.gz"
-
-"""
-The script orchestrates Bayesian analysis on brain data  ensuring efficiency and insightful interpretation through statistical summaries and graphical representations.
-It offers two analysis pathways:
--`run_bayesian_analysis_area`: conducts analysis over defined brain regions, leveraging coordinates from an atlas.
--`run_bayesian_analysis_coordinates`: performs analysis at specified coordinates.
-The pathway is choosen from the function run_bayesian_analysis_router based on the input (coordinates or area)
-
-The script calculates various statistics including likelihood, prior, posterior, and Bayesian Factor (BF).
-It plots BF distributions and computes basic statistical metrics. 
-
-"""
 
 
 def run_bayesian_analysis_router(

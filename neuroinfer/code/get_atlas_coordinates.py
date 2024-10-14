@@ -1,5 +1,25 @@
-import json
+"""
+This script extracts coordinates from a specified brain atlas and saves them to a JSON file.
 
+Functions:
+    extract_coordinates_from_atlas(atlas):
+        Extracts coordinates from the given atlas.
+        Args:
+            atlas (dict): A dictionary containing atlas data with "labels" and "maps".
+        Returns:
+            dict: A dictionary where keys are label indices and values are lists of coordinates.
+
+    save_coordinates_to_json(coord_label_all, output_path):
+        Saves the extracted coordinates to a JSON file.
+        Args:
+            coord_label_all (dict): A dictionary of coordinates.
+            output_path (str): The file path where the JSON file will be saved.
+
+    main():
+        Main function to fetch the atlas, extract coordinates, and save them to a JSON file.
+"""
+
+import json
 import nilearn
 import numpy as np
 from nilearn import datasets, image
