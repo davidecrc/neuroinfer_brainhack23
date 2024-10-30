@@ -46,7 +46,7 @@ function updateSecondLoading(progress) {
 }
 
 function fetchPercentageProgress() {
-  const url = `/.tmp/processing_progress.txt?cacheBuster=${Math.random()}`;
+  const url = `.tmp/processing_progress.txt?cacheBuster=${Math.random()}`;
   fetch(url)
     .then((response) => response.text())
     .then((data) => {
@@ -420,6 +420,11 @@ window.load_prev = function () {
   xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
   showOverlay();
 
+  // Call fetchPercentageProgress initially
+  fetchPercentageProgress();
+  init_loader = 1;
+  var intervalId = setInterval(fetchPercentageProgress, 500);
+
   // Handling the response after the POST request
   xhr.onreadystatechange = function () {
     if (xhr.readyState == 4) {
@@ -428,6 +433,8 @@ window.load_prev = function () {
       if (xhr.status == 200) {
         // Parsing the JSON response and displaying the plot
         hideOverlay();
+        clearInterval(intervalId);
+
         var response = JSON.parse(xhr.responseText);
         displayPlot(response.image);
         words = response.words;

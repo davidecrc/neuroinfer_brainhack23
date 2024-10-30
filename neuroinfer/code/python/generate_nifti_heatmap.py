@@ -76,7 +76,7 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius, cog_list, 
                         cog_counter,
                     ] += 1
         if j % 300 == 0:
-            send_progress(str((j + 1) / sc_length))
+            send_progress(str((j + 1) / len(coords)))
 
     overlay_results = overlay_results / np.where(counter == 0, 1, counter)
     overlay_results = overlay_results * np.repeat(
