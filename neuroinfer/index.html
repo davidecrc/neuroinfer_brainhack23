@@ -13,45 +13,10 @@
       content="black-translucent"
     />
 
-    <link rel="stylesheet" type="text/css" href="styles.css" />
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <title>NEUROINFER - Papaya Viewer</title>
-    <script type="text/javascript" src="papaya.js"></script>
+    <script type="text/javascript" src="js/papaya.js"></script>
 
-    <style>
-      .help-container {
-        display: none;
-        position: absolute;
-        background-color: #f1f1f1;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-      }
-
-      .deeper_help {
-        display: none;
-        position: absolute;
-        background-color: #f1f1f1;
-        padding: 30px;
-        border: 3px solid #ccc;
-        border-radius: 5px;
-        z-index: 1;
-        padding-top: 30px;
-        padding-bottom: 40px;
-        margin: 30px;
-        top: 40px;
-        left: 40px;
-        right: 40px;
-        bottom: 20%;
-      }
-
-      .close-button {
-        cursor: pointer;
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        font-size: 36px;
-      }
-    </style>
   </head>
   <body>
     <div id="overlay" class="overlay hidden">
@@ -119,7 +84,7 @@
           <hr class="hr-text" data-content="OR" />
 
           <div id="coords">
-            <img src="help_icon.png" class="help-caller" />Coordinates<label
+            <img src="icons/help_icon.png" class="help-caller" />Coordinates<label
               for="x"
               >x:</label
             >
@@ -134,7 +99,7 @@
           <div class="help-container">Set the MNI coordinates of you ROI</div>
 
           <div id="radiuscontainer">
-            <img src="help_icon.png" class="help-caller" /><label for="radius"
+            <img src="icons/help_icon.png" class="help-caller" /><label for="radius"
               >Radius (mm):</label
             >
             <input
@@ -149,7 +114,7 @@
           </div>
 
           <div id="nvx_incontainer">
-            <img src="help_icon.png" class="help-caller" /><label for="nvx"
+            <img src="icons/help_icon.png" class="help-caller" /><label for="nvx"
               >minimum portion of sphere in mask:</label
             >
             <input
@@ -166,7 +131,7 @@
             mask
           </div>
 
-          <img src="help_icon.png" class="help-caller" /><label for="words"
+          <img src="icons/help_icon.png" class="help-caller" /><label for="words"
             >List of Words (comma-separated):</label
           >
           <textarea
@@ -182,7 +147,7 @@
             analysis (e.g. visual, auditory, music)
           </div>
 
-          <img src="help_icon.png" class="help-caller helpdeep-caller" /><label
+          <img src="icons/help_icon.png" class="help-caller helpdeep-caller" /><label
             for="probabilities"
             >Priors probabilities (comma-separated):</label
           >
@@ -308,14 +273,14 @@
       </div>
     </div>
 
-    <script src="autocompletion.js"></script>
-    <script src="papaya-setup.js"></script>
-    <script src="papaya-update.js"></script>
-    <script src="papaya-request.js"></script>
-    <script src="papaya-display.js"></script>
+    <script src="js/autocompletion.js"></script>
+    <script src="js/papaya-setup.js"></script>
+    <script src="js/papaya-update.js"></script>
+    <script src="js/papaya-request.js"></script>
+    <script src="js/papaya-display.js"></script>
     <!-- must be placed here as it will look for div id "visualizer" -->
-    <script src="fetch-brain-regions.js"></script>
-    <script src="update_lut.js"></script>
-    <script src="sliders.js"></script>
+    <script src="js/fetch-brain-regions.js"></script>
+    <script src="js/update_lut.js"></script>
+    <script src="js/sliders.js"></script>
   </body>
 </html>

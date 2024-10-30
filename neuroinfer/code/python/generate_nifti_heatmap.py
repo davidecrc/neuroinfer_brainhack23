@@ -5,7 +5,7 @@ import nibabel as nib
 import numpy as np
 from nilearn import image
 
-from neuroinfer.code.utils import get_sphere_coords
+from neuroinfer.code.python.utils import get_sphere_coords
 
 
 def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius, cog_list, mask):
@@ -53,28 +53,27 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius, cog_list, 
     vx_size = np.abs(reference_data_shape_nifti.affine[0, 0])
     vx_radius = np.ceil(radius / vx_size)
 
+    num_words = len(result_dict[0]["cog_list"])
+
     for j, coord in enumerate(coords):
         sphere_coords = get_sphere_coords(
             [int(coord[0]), int(coord[1]), int(coord[2])], vx_radius, overlay_results
         )
-        for sc_i in range(sphere_coords[0].shape[0]):
-            overlay_results[
-                sphere_coords[0][sc_i],
-                sphere_coords[1][sc_i],
-                sphere_coords[2][sc_i],
-                :,
-            ] += bf[
-                j
-            ]  # TODO: this depends on the type of analysis done!
-            for cog_counter in range(len(result_dict[0]["cog_list"])):
-                if bf[j][cog_counter] == 0:
-                    continue
-                counter[
-                    sphere_coords[0][sc_i],
-                    sphere_coords[1][sc_i],
-                    sphere_coords[2][sc_i],
-                    cog_counter,
-                ] += 1
+
+        sc_0, sc_1, sc_2 = sphere_coords[0], sphere_coords[1], sphere_coords[2]
+        sc_length = sc_0.shape[0]  # Store shape once
+        bf_j = bf[j]  # Cache bf[j] for fewer accesses
+
+        for sc_i in range(sc_length):
+            overlay_results[sc_0[sc_i], sc_1[sc_i], sc_2[sc_i], :] += bf_j  # TODO: this depends on the type of analysis done!
+            for cog_counter in range(num_words):
+                if bf[j][cog_counter] != 0:
+                    counter[
+                        sphere_coords[0][sc_i],
+                        sphere_coords[1][sc_i],
+                        sphere_coords[2][sc_i],
+                        cog_counter,
+                    ] += 1
 
     overlay_results = overlay_results / np.where(counter == 0, 1, counter)
     overlay_results = overlay_results * np.repeat(

@@ -3,12 +3,12 @@ import numpy as np
 import pandas as pd
 import pickle
 
-from neuroinfer.code.run_bayesian import (
+from neuroinfer.code.python.run_bayesian import (
     run_bayesian_analysis_coordinates,
     run_bayesian_analysis_area,
 )
 from neuroinfer import TEMPLATE_FOLDER, DATA_FOLDER, RESULTS_FOLDER
-from neuroinfer.code.utils import generate_nifti_mask
+from neuroinfer.code.python.utils import generate_nifti_mask
 from nilearn.image import coord_transform
 
 atlas_path = (

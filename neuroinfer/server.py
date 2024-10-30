@@ -4,7 +4,7 @@ import threading
 import webbrowser
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from neuroinfer.code.rendering_manager import (
+from neuroinfer.code.python.rendering_manager import (
     main_analyse_and_render,
     create_mask_region,
     update_overlay,
@@ -107,7 +107,7 @@ if __name__ == "__main__":
     http_server_thread.join(1)  # Adjust the wait time as needed
 
     # Update HOMEPAGE_URL with the actual port number
-    homepage_url = f"http://localhost:{actual_port}/neuroinfer/html/index.html"
+    homepage_url = f"http://localhost:{actual_port}/neuroinfer"
     print(f"Open the following URL in your browser: {homepage_url}")
 
     # Open the updated homepage URL in a web browser

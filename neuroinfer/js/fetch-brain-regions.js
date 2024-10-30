@@ -1,7 +1,7 @@
 // Event listener for when the DOM content is loaded
 document.addEventListener("DOMContentLoaded", function () {
   // Fetching the list of files from the '../data/' directory
-  fetch("../data/")
+  fetch("./data/")
     .then((response) => response.text()) // Convert the response to text
     .then((data) => {
       // Split the text response by newline to get a list of files
@@ -57,7 +57,7 @@ function fetch_brain_regions(selectedFile) {
 
 document.addEventListener("DOMContentLoaded", function () {
   // Fetching the list of files from the '../data/' directory
-  fetch("../results/")
+  fetch("./results/")
     .then((response) => response.text()) // Convert the response to text
     .then((data) => {
       // Split the text response by newline to get a list of files

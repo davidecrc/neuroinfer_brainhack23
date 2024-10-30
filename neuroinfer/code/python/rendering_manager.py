@@ -6,11 +6,11 @@ import os
 import matplotlib.pyplot as plt
 
 from neuroinfer import DATA_FOLDER, TEMPLATE_FOLDER, RESULTS_FOLDER
-from neuroinfer.code.BayesianAnalysis import load_or_calculate_variables
-from neuroinfer.code.DataLoading import load_data_and_create_dataframe
-from neuroinfer.code.generate_nifti_heatmap import generate_nifti_bf_heatmap
-from neuroinfer.code.run_bayesian import run_bayesian_analysis_area
-from neuroinfer.code.utils import (
+from neuroinfer.code.python.BayesianAnalysis import load_or_calculate_variables
+from neuroinfer.code.python.DataLoading import load_data_and_create_dataframe
+from neuroinfer.code.python.generate_nifti_heatmap import generate_nifti_bf_heatmap
+from neuroinfer.code.python.run_bayesian import run_bayesian_analysis_area
+from neuroinfer.code.python.utils import (
     get_combined_overlays,
     create_hist,
     generate_nifti_mask,

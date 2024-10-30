@@ -70,6 +70,32 @@ def get_sphere_coords(coords, vx_radius, overlay_results):
     return template_indices
 
 
+# def get_sphere_coords(coords, vx_radius, overlay_results):
+#     volume_shape = overlay_results.shape
+#
+#     # Define bounds within vx_radius to avoid generating full meshgrid
+#     x_min, x_max = max(0, coords[0] - vx_radius), min(volume_shape[0], coords[0] + vx_radius + 1)
+#     y_min, y_max = max(0, coords[1] - vx_radius), min(volume_shape[1], coords[1] + vx_radius + 1)
+#     z_min, z_max = max(0, coords[2] - vx_radius), min(volume_shape[2], coords[2] + vx_radius + 1)
+#
+#     # Create grids within this smaller bounding box
+#     X, Y, Z = np.ogrid[x_min:x_max, y_min:y_max, z_min:z_max]
+#
+#     # Calculate squared distances to avoid using np.sqrt
+#     squared_distances = (X - coords[0]) ** 2 + (Y - coords[1]) ** 2 + (Z - coords[2]) ** 2
+#
+#     # Mask where the squared distance is within the square of the radius
+#     template_3D = squared_distances <= vx_radius
+#
+#     # Get the indices within the sphere and adjust for bounding box offset
+#     template_indices = np.nonzero(template_3D)
+#     sphere_coords = (template_indices[0] + x_min,
+#                      template_indices[1] + y_min,
+#                      template_indices[2] + z_min)
+#
+#     return sphere_coords
+
+
 def create_hist(overlay_results, cog_list):
     overlay_results = np.reshape(overlay_results, (-1, overlay_results.shape[-1]))
     num_items = overlay_results.shape[-1]
