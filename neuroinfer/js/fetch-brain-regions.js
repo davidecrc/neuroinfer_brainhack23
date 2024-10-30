@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function fetch_brain_regions(selectedFile) {
   // Fetching brain region data from a JSON file
-  fetch("../data/" + selectedFile)
+  fetch("./data/" + selectedFile)
     .then((response) => response.json())
     .then((data) => {
       console.log(data);
