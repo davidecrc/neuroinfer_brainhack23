@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import json
 from neuroinfer import PKG_FOLDER
+from neuroinfer.code.python.utils import send_progress
 
 """
 Script to run_bayesian_analysis_coordinates
@@ -267,12 +268,8 @@ def run_bayesian_analysis_area(
             )
 
             if i % 5 == 0:
-                # create the folder if not existing
-                os.makedirs(PKG_FOLDER / "neuroinfer" / ".tmp", exist_ok=True)
-                with open(
-                    PKG_FOLDER / "neuroinfer" / ".tmp" / "processing_progress.txt", "w"
-                ) as f_tmp:
-                    f_tmp.write(str((i + 1) / len(coordinates_area)))
+                send_progress((i + 1) / len(coordinates_area))
+
             print(get_distance((x_target, y_target, z_target), coordinates_area[i + 1]))
             # Call run_bayesian_analysis_coordinates with the current coordinates
             results = run_bayesian_analysis_coordinates(

@@ -1,4 +1,5 @@
 import base64
+import os
 import random
 from io import BytesIO
 
@@ -8,6 +9,8 @@ from matplotlib import pyplot as plt
 from nilearn import image
 from scipy.ndimage import convolve
 from sklearn.mixture import GaussianMixture
+
+from neuroinfer import PKG_FOLDER
 
 
 def smooth_mask(mask_3d, n):
@@ -52,48 +55,30 @@ def get_combined_overlays(bool_list, file_list, out_file):
 
 def get_sphere_coords(coords, vx_radius, overlay_results):
     volume_shape = overlay_results.shape
-    X, Y, Z = np.meshgrid(
-        np.arange(volume_shape[0]),
-        np.arange(volume_shape[1]),
-        np.arange(volume_shape[2]),
-        indexing="ij",
-    )
 
-    distances = np.sqrt(
-        (X - coords[0]) ** 2 + (Y - coords[1]) ** 2 + (Z - coords[2]) ** 2
-    )
+    vx_radius = int(vx_radius)
+    # Define bounds within vx_radius to avoid generating full meshgrid
+    x_min, x_max = max(0, coords[0] - vx_radius), min(volume_shape[0], coords[0] + vx_radius + 1)
+    y_min, y_max = max(0, coords[1] - vx_radius), min(volume_shape[1], coords[1] + vx_radius + 1)
+    z_min, z_max = max(0, coords[2] - vx_radius), min(volume_shape[2], coords[2] + vx_radius + 1)
 
-    template_3D = distances <= vx_radius
+    # Create grids within this smaller bounding box
+    X, Y, Z = np.ogrid[x_min:x_max, y_min:y_max, z_min:z_max]
+    # X, Y, Z = np.meshgrid[np.arange(x_min,x_max), np.arange(y_min,y_max), np.arange(z_min,z_max)]
 
+    # Calculate squared distances to avoid using np.sqrt
+    squared_distances2 = (X - coords[0]) ** 2 + (Y - coords[1]) ** 2 + (Z - coords[2]) ** 2
+
+    # Mask where the squared distance is within the square of the radius
+    template_3D = squared_distances2 <= (vx_radius ** 2)
+
+    # Get the indices within the sphere and adjust for bounding box offset
     template_indices = np.nonzero(template_3D)
+    sphere_coords = (template_indices[0] + x_min,
+                     template_indices[1] + y_min,
+                     template_indices[2] + z_min)
 
-    return template_indices
-
-
-# def get_sphere_coords(coords, vx_radius, overlay_results):
-#     volume_shape = overlay_results.shape
-#
-#     # Define bounds within vx_radius to avoid generating full meshgrid
-#     x_min, x_max = max(0, coords[0] - vx_radius), min(volume_shape[0], coords[0] + vx_radius + 1)
-#     y_min, y_max = max(0, coords[1] - vx_radius), min(volume_shape[1], coords[1] + vx_radius + 1)
-#     z_min, z_max = max(0, coords[2] - vx_radius), min(volume_shape[2], coords[2] + vx_radius + 1)
-#
-#     # Create grids within this smaller bounding box
-#     X, Y, Z = np.ogrid[x_min:x_max, y_min:y_max, z_min:z_max]
-#
-#     # Calculate squared distances to avoid using np.sqrt
-#     squared_distances = (X - coords[0]) ** 2 + (Y - coords[1]) ** 2 + (Z - coords[2]) ** 2
-#
-#     # Mask where the squared distance is within the square of the radius
-#     template_3D = squared_distances <= vx_radius
-#
-#     # Get the indices within the sphere and adjust for bounding box offset
-#     template_indices = np.nonzero(template_3D)
-#     sphere_coords = (template_indices[0] + x_min,
-#                      template_indices[1] + y_min,
-#                      template_indices[2] + z_min)
-#
-#     return sphere_coords
+    return sphere_coords
 
 
 def create_hist(overlay_results, cog_list):
@@ -186,3 +171,12 @@ def generate_nifti_mask(region_id, atlas_target_path, smooth_factor=0):
         mask = smooth_mask(mask, 1)
 
     return mask, atlas_img.affine
+
+
+def send_progress(prop):
+    # create the folder if not existing
+    os.makedirs(PKG_FOLDER / "neuroinfer" / ".tmp", exist_ok=True)
+    with open(
+            PKG_FOLDER / "neuroinfer" / ".tmp" / "processing_progress.txt", "w"
+    ) as f_tmp:
+        f_tmp.write(str(prop))
