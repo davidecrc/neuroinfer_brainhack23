@@ -12,12 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Make port 5000 available to the world outside this container
 EXPOSE 5000
-EXPOSE 8000
-EXPOSE 8001
-EXPOSE 8002
-EXPOSE 8003
-EXPOSE 8004
-EXPOSE 8005
+EXPOSE 8000:8010
 
 # Define environment variable
 ENV FLASK_APP=neuroinfer.server

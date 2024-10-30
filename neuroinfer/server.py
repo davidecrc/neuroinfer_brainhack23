@@ -25,7 +25,7 @@ from neuroinfer.code.rendering_manager import (
 
 # Create a Flask app instance and enable Cross-Origin Resource Sharing (CORS)
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})  # Allow all origins
 
 # Define constants for the server configuration
 PORT = 8000
