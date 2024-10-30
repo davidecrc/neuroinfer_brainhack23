@@ -206,10 +206,6 @@ def is_visited(current_index, visited_indices, radius):
         bool: True if the coordinate has been visited, False otherwise.
     """
     X, Y, Z = get_cubic_mesh(current_index, radius, visited_indices)
-    # Convert mesh grid coordinates to integer type
-    X = X.astype(int)
-    Y = Y.astype(int)
-    Z = Z.astype(int)
 
     distances = np.linalg.norm(np.array([X - current_index[0], Y - current_index[1], Z - current_index[2]]), axis=0)
 
@@ -248,8 +244,14 @@ def update_visited_coord(visited_coords, x_norm, y_norm, z_norm, padding):
     # Compute the Euclidean distance from the center (x_norm, y_norm, z_norm)
     distances = np.linalg.norm(np.array([X - x_norm, Y - y_norm, Z - z_norm]), axis=0)
 
+    within_indices = distances <= padding
+    # Extract the coordinates within the radius and convert to global coordinates in visited_indices
+    X_within = X[within_indices]
+    Y_within = Y[within_indices]
+    Z_within = Z[within_indices]
+
     # Mark points within the spherical radius (padding) as visited
-    visited_coords[min(X):max(X), min(Y):max(Y), min(Z):max(Z)][distances <= padding] = 1
+    visited_coords[X_within, Y_within, Z_within] = 1
 
     return visited_coords
 
@@ -265,12 +267,19 @@ def get_cubic_mesh(coords, half_edge, control_dims):
     z_max = min(control_dims.shape[2], z + half_edge + 1)
 
     # Create a meshgrid of the local coordinates
-    return np.meshgrid(
+    X, Y, Z = np.meshgrid(
         np.arange(x_min, x_max),
         np.arange(y_min, y_max),
         np.arange(z_min, z_max),
         indexing="ij",
     )
+
+    # Convert mesh grid coordinates to integer type
+    X = X.astype(int)
+    Y = Y.astype(int)
+    Z = Z.astype(int)
+
+    return X, Y, Z
 
 
 def normalize_coord(x_target, y_target, z_target, coord_ranges):
