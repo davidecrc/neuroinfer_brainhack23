@@ -89,7 +89,7 @@ def run_bayesian_analysis_coordinates(
         else:
             cog_all.append(cog)
             prior_all.append(prior)
-            print(f'Processing "{cog}" (step {q + 1} out of {len(cog_list)})')
+            # print(f'Processing "{cog}" (step {q + 1} out of {len(cog_list)})')
 
             ids_cog_nq = feature_df.index[
                 feature_df[cog] > frequency_threshold
@@ -165,10 +165,10 @@ def run_bayesian_analysis_coordinates(
         )
 
     df_data_all = pd.DataFrame(data_all, columns=df_columns)
-    print(df_data_all)
+    #print(df_data_all)
 
     elapsed = time.time() - t
-    print("time elapsed:", elapsed)
+    #print("time elapsed:", elapsed)
 
     results = {
         "df_data_all": df_data_all,
@@ -192,6 +192,104 @@ def get_atlas_coordinates_json(json_path):
         coordinates_atlas = json.load(infile)
 
     return coordinates_atlas
+
+
+def is_visited(current_index, visited_indices, radius):
+    """
+    Check if a coordinate has been visited.
+
+    Args:
+        current_coord (tuple): Tuple containing x, y, and z coordinates.
+        visited_coords (ndarray): 3D array of visited coordinates.
+
+    Returns:
+        bool: True if the coordinate has been visited, False otherwise.
+    """
+    X, Y, Z = get_cubic_mesh(current_index, radius, visited_indices)
+    # Convert mesh grid coordinates to integer type
+    X = X.astype(int)
+    Y = Y.astype(int)
+    Z = Z.astype(int)
+
+    distances = np.linalg.norm(np.array([X - current_index[0], Y - current_index[1], Z - current_index[2]]), axis=0)
+
+    within_indices = distances <= radius
+
+    # Extract the coordinates within the radius and convert to global coordinates in visited_indices
+    X_within = X[within_indices]
+    Y_within = Y[within_indices]
+    Z_within = Z[within_indices]
+
+    # Check if any of the within-radius global coordinates are visited
+    visited_within_radius = visited_indices[X_within, Y_within, Z_within]
+
+    # Return True if any of these within-radius coordinates are visited
+    return np.any(visited_within_radius)
+
+
+
+def update_visited_coord(visited_coords, x_norm, y_norm, z_norm, padding):
+    """
+    Update the array of visited coordinates with the given normalized coordinates,
+    marking a spherical region of 1s around the specified point.
+
+    Args:
+        visited_coords (ndarray): 3D array of visited coordinates.
+        x_norm (int): Normalized x-coordinate.
+        y_norm (int): Normalized y-coordinate.
+        z_norm (int): Normalized z-coordinate.
+        padding (int): Radius of the spherical region to be updated around the coordinates.
+
+    Returns:
+        None
+    """
+    X, Y, Z = get_cubic_mesh([x_norm, y_norm, z_norm], padding, visited_coords)
+
+    # Compute the Euclidean distance from the center (x_norm, y_norm, z_norm)
+    distances = np.linalg.norm(np.array([X - x_norm, Y - y_norm, Z - z_norm]), axis=0)
+
+    # Mark points within the spherical radius (padding) as visited
+    visited_coords[min(X):max(X), min(Y):max(Y), min(Z):max(Z)][distances <= padding] = 1
+
+    return visited_coords
+
+
+def get_cubic_mesh(coords, half_edge, control_dims):
+    x, y, z = coords
+
+    x_min = max(0, x - half_edge)
+    x_max = min(control_dims.shape[0], x + half_edge + 1)
+    y_min = max(0, y - half_edge)
+    y_max = min(control_dims.shape[1], y + half_edge + 1)
+    z_min = max(0, z - half_edge)
+    z_max = min(control_dims.shape[2], z + half_edge + 1)
+
+    # Create a meshgrid of the local coordinates
+    return np.meshgrid(
+        np.arange(x_min, x_max),
+        np.arange(y_min, y_max),
+        np.arange(z_min, z_max),
+        indexing="ij",
+    )
+
+
+def normalize_coord(x_target, y_target, z_target, coord_ranges):
+    """
+    Normalize target coordinates based on specified coordinate ranges.
+
+    Args:
+        x_target (int): Target x-coordinate.
+        y_target (int): Target y-coordinate.
+        z_target (int): Target z-coordinate.
+        coord_ranges (dict): Dictionary containing coordinate range information.
+
+    Returns:
+        tuple: Normalized x, y, and z coordinates.
+    """
+    xnorm = x_target - coord_ranges["xmin"]
+    ynorm = y_target - coord_ranges["ymin"]
+    znorm = z_target - coord_ranges["zmin"]
+    return xnorm, ynorm, znorm
 
 
 def run_bayesian_analysis_area(
@@ -221,75 +319,74 @@ def run_bayesian_analysis_area(
 
     t_area = time.time()
 
-    coordinates_area = np.where(mask == 1)
+    coordinates_area_list = np.where(mask == 1)
     coordinates_area = [
-        [coordinates_area[0][a], coordinates_area[1][a], coordinates_area[2][a]]
-        for a in range(len(coordinates_area[0]))
+        [coordinates_area_list[0][a], coordinates_area_list[1][a], coordinates_area_list[2][a]]
+        for a in range(len(coordinates_area_list[0]))
     ]  # list of coordinated in the mask with value 1
 
     # Initialize an empty list to store results and coordinates
     result_all = []
     coord = []
 
+    padding = max(1, int(radius * 2 / 3))
+
+
+    # Initialize visited_coord array
+    visited_coord = np.zeros(
+        (
+            np.max(coordinates_area_list[0]) - np.min(coordinates_area_list[0]) + 1,
+            np.max(coordinates_area_list[1]) - np.min(coordinates_area_list[1]) + 1,
+            np.max(coordinates_area_list[2]) - np.min(coordinates_area_list[2]) + 1,
+        )
+    )
+
+    coord_ranges = {
+        "xmax": max([a[0] for a in coordinates_area]),
+        "xmin": min([a[0] for a in coordinates_area]),
+        "ymax": max([a[1] for a in coordinates_area]),
+        "ymin": min([a[1] for a in coordinates_area]),
+        "zmax": max([a[2] for a in coordinates_area]),
+        "zmin": min([a[2] for a in coordinates_area]),
+    }
+
     # Iterate through the coordinates_area
-    for i in range(
-        len(coordinates_area) - 1
-    ):  # -1 in order to have the last coordinates_area[i+1]) #TODO improve
-
+    for i in range(len(coordinates_area)):
         x_target, y_target, z_target = coordinates_area[i]
-        coord.append([x_target, y_target, z_target])
-        if i == 0:
-            results = run_bayesian_analysis_coordinates(
-                cog_list,
-                prior_list,
-                x_target,
-                y_target,
-                z_target,
-                radius,
-                feature_df,
-                cm,
-                xyz_coords,
-                dt_papers_nq_id_list,
-                nb_unique_paper,
-            )
-            # Append a tuple containing the BF value and the coordinates to result_with_coordinates
-            result_all.append(results)
-        # df_data_all, cm, cog_all, prior_all, x_target, y_target, z_target, radius
+        x_norm, y_norm, z_norm = normalize_coord(
+            x_target, y_target, z_target, coord_ranges
+        )
+        if is_visited((x_norm, y_norm, z_norm), visited_coord, radius):
+            continue
 
-        # Check if next_coord is distant > rescaled_radius * 0.98 from all previous coordinates
-
-        # if all(get_distance((x_target, y_target, z_target), coordinate) > rescaled_radius * 0.98 for coordinate in coord):
-        if (
-            get_distance((x_target, y_target, z_target), coordinates_area[i + 1])
-            > radius
-        ):  # TODO upload checking all the distance from the ROIS
+        if i % 50 == 0:
+            send_progress((i + 1) / len(coordinates_area))
             print(
                 f"Calculating cm for the {i + 1} ROI out of {len(coordinates_area)}, {((i + 1) / len(coordinates_area)) * 100:.2f}%"
             )
+        results = run_bayesian_analysis_coordinates(
+            cog_list,
+            prior_list,
+            x_target,
+            y_target,
+            z_target,
+            radius,
+            feature_df,
+            cm,
+            xyz_coords,
+            dt_papers_nq_id_list,
+            nb_unique_paper,
+        )
+        result_all.append(results)
 
-            if i % 5 == 0:
-                send_progress((i + 1) / len(coordinates_area))
+        visited_coord = update_visited_coord(
+            visited_coord, x_norm, y_norm, z_norm, padding
+        )
 
-            print(get_distance((x_target, y_target, z_target), coordinates_area[i + 1]))
-            # Call run_bayesian_analysis_coordinates with the current coordinates
-            results = run_bayesian_analysis_coordinates(
-                cog_list,
-                prior_list,
-                x_target,
-                y_target,
-                z_target,
-                radius,
-                feature_df,
-                cm,
-                xyz_coords,
-                dt_papers_nq_id_list,
-                nb_unique_paper,
-            )
-            # Append a tuple containing the BF value and the coordinates to result_with_coordinates
-            result_all.append(results)
+        # Append a tuple containing the BF value and the coordinates to result_with_coordinates
+        result_all.append(results)
 
     os.remove(PKG_FOLDER / "neuroinfer" / ".tmp" / "processing_progress.txt")
     elapsed_area = time.time() - t_area
     print(f"Time in min: {round(elapsed_area / 60, 2)}")
-    print(result_all)
     return result_all
