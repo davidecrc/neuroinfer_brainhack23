@@ -246,6 +246,21 @@ def update_visited_coord(visited_coords, x_norm, y_norm, z_norm, padding):
     z_min = max(0, z_norm - padding)
     z_max = min(visited_coords.shape[2], z_norm + padding + 1)
 
+    # print x_norm and padding
+
+    # print shape and type
+    print("x_norm shape:", x_norm.shape)
+    print("x_norm. type:", type(x_norm))
+    print(x_norm)
+    # repeat for padding
+    print(padding)
+    # print("padding shape:", padding)
+    print("padding. type:", type(padding))
+
+    # repeat for visited_coords
+    print("visited_coords shape:", visited_coords.shape)
+    print("visited_coords. type:", type(visited_coords))
+
     # Create a meshgrid of the local coordinates
     X, Y, Z = np.meshgrid(
         np.arange(x_min, x_max),
@@ -254,11 +269,30 @@ def update_visited_coord(visited_coords, x_norm, y_norm, z_norm, padding):
         indexing="ij",
     )
 
+    # print X, Y, Z
+    # PRINT TYPE, DIMENSION OF X, Y, Z
+    print(type(X))
+    print(X.shape)
+    print(X)
+
     # Compute the Euclidean distance from the center (x_norm, y_norm, z_norm)
     distances = np.linalg.norm(np.array([X - x_norm, Y - y_norm, Z - z_norm]), axis=0)
 
+    # PRINT TYPE, DIMENSION OF distances
+    print(type(distances))
+    print(distances.shape)
+    print(distances)
+
     # Mark points within the spherical radius (padding) as visited
     visited_coords[x_min:x_max, y_min:y_max, z_min:z_max][distances <= padding] = 1
+
+    # print visited_coords and dimension
+    print(type(visited_coords))
+    print(visited_coords.shape)
+    print(visited_coords)
+
+    time.sleep(300)
+    return visited_coords
 
 
 def normalize_coord(x_target, y_target, z_target, coord_ranges):
@@ -316,7 +350,11 @@ def run_bayesian_analysis_area(
     # Initialize an empty list to store results and coordinates
     result_all = []
     # Define padding
-    padding = int(radius / 3)
+    padding = int(radius / 3)  # mm --> voxel
+
+    # convert padding to voxel
+    resolution = 1  # mm #TODO: check if this is the correct resolution!
+    padding = int(padding / resolution)  # mm --> voxel
 
     # Initialize visited_coord array
     visited_coord = np.zeros(
@@ -386,7 +424,9 @@ def run_bayesian_analysis_area(
                     result_all.append(
                         results
                     )  # Append a tuple containing the BF value and the coordinates to result_with_coordinates
-                    update_visited_coord(visited_coord, x_norm, y_norm, z_norm, padding)
+                    visited_coord = update_visited_coord(
+                        visited_coord, x_norm, y_norm, z_norm, padding
+                    )
 
     os.remove(PKG_FOLDER / "neuroinfer" / ".tmp" / "processing_progress.txt")
     elapsed_area = time.time() - t_area
