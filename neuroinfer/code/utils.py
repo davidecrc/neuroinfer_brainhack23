@@ -1,4 +1,5 @@
 import base64
+import os
 from io import BytesIO
 
 import nibabel as nib
@@ -7,6 +8,8 @@ from matplotlib import pyplot as plt
 from nilearn import image
 from scipy.ndimage import convolve
 from sklearn.mixture import GaussianMixture
+
+from neuroinfer import PKG_FOLDER
 
 
 def smooth_mask(mask_3d, n):
@@ -193,3 +196,12 @@ def generate_nifti_mask(region_id, atlas_target_path, smooth_factor=0):
         mask = smooth_mask(mask, 1)
 
     return mask, atlas_img.affine
+
+
+def send_progress(prop):
+    # create the folder if not existing
+    os.makedirs(PKG_FOLDER / "neuroinfer" / ".tmp", exist_ok=True)
+    with open(
+            PKG_FOLDER / "neuroinfer" / ".tmp" / "processing_progress.txt", "w"
+    ) as f_tmp:
+        f_tmp.write(str(prop))
