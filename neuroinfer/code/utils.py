@@ -202,6 +202,6 @@ def send_progress(prop):
     # create the folder if not existing
     os.makedirs(PKG_FOLDER / "neuroinfer" / ".tmp", exist_ok=True)
     with open(
-            PKG_FOLDER / "neuroinfer" / ".tmp" / "processing_progress.txt", "w"
+        PKG_FOLDER / "neuroinfer" / ".tmp" / "processing_progress.txt", "w"
     ) as f_tmp:
         f_tmp.write(str(prop))

@@ -211,7 +211,10 @@ def is_visited(current_index, visited_indices, radius):
     """
     X, Y, Z = get_cubic_mesh(current_index, radius, visited_indices)
 
-    distances = np.linalg.norm(np.array([X - current_index[0], Y - current_index[1], Z - current_index[2]]), axis=0)
+    distances = np.linalg.norm(
+        np.array([X - current_index[0], Y - current_index[1], Z - current_index[2]]),
+        axis=0,
+    )
 
     within_indices = distances <= radius
 
@@ -225,7 +228,6 @@ def is_visited(current_index, visited_indices, radius):
 
     # Return True if any of these within-radius coordinates are visited
     return np.any(visited_within_radius)
-
 
 
 def update_visited_coord(visited_coords, x_norm, y_norm, z_norm, padding):
@@ -334,7 +336,11 @@ def run_bayesian_analysis_area(
 
     coordinates_area_list = np.where(mask == 1)
     coordinates_area = [
-        [coordinates_area_list[0][a], coordinates_area_list[1][a], coordinates_area_list[2][a]]
+        [
+            coordinates_area_list[0][a],
+            coordinates_area_list[1][a],
+            coordinates_area_list[2][a],
+        ]
         for a in range(len(coordinates_area_list[0]))
     ]  # list of coordinated in the mask with value 1
 
@@ -342,7 +348,6 @@ def run_bayesian_analysis_area(
     result_all = []
 
     padding = max(1, int(radius * 2 / 3))
-
 
     # Initialize visited_coord array
     visited_coord = np.zeros(
