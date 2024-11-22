@@ -63,7 +63,7 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius, cog_list, 
 
         sc_0, sc_1, sc_2 = sphere_coords[0], sphere_coords[1], sphere_coords[2]
         sc_length = sc_0.shape[0]  # Store shape once
-        bf_j = bf[j]  # Cache bf[j] for fewer accesses
+        bf_j = bf[j]  # Cache bf[j] for fewer accesse
 
         for sc_i in range(sc_length):
             overlay_results[sc_0[sc_i], sc_1[sc_i], sc_2[sc_i], :] += bf_j  # TODO: this depends on the type of analysis done!
