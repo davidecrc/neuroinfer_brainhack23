@@ -16,8 +16,8 @@ It offers two analysis pathways:
 -`run_bayesian_analysis_coordinates`: performs analysis at specified coordinates.
 
 The script calculates various statistics including likelihood, prior, posterior, and Bayesian Factor (BF).
-It uses the functions get_atlas_coordinates_json e get_distance to obtain the coordinates in an atlas and the distance 
-between pair of coordinates.
+It uses the functions get_atlas_coordinates_json e get_distance to obtain the coordinates in an atlas and the distance between pair of coordinates.
+
 """
 
 
@@ -148,16 +148,20 @@ def run_bayesian_analysis_coordinates(
         data_all = list(
             zip(cog_all, lik_cog_nq_all, lik_ratio_nq_all, prior_all, post_cog_nq_all)
         )
+        sort_column = "BF"
+
     elif cm == "b":
         df_columns.extend(["Difference", "Prior", "Posterior"])
         data_all = list(
             zip(cog_all, lik_cog_nq_all, df_nq_all, prior_all, post_cog_nq_all)
         )
+
     elif cm == "c":
         df_columns.extend(["Ratio", "Prior", "Posterior"])
         data_all = list(
             zip(cog_all, lik_cog_nq_all, rm_nq_all, prior_all, post_cog_nq_all)
         )
+
     elif cm == "d":
         df_columns.extend(["Z-measure", "Prior", "Posterior"])
         data_all = list(
@@ -165,10 +169,10 @@ def run_bayesian_analysis_coordinates(
         )
 
     df_data_all = pd.DataFrame(data_all, columns=df_columns)
-    #print(df_data_all)
+    # toLog(df_data_all)
 
-    elapsed = time.time() - t
-    #print("time elapsed:", elapsed)
+    # elapsed = time.time() - t
+    # toLog("time elapsed:", elapsed)
 
     results = {
         "df_data_all": df_data_all,
@@ -207,7 +211,10 @@ def is_visited(current_index, visited_indices, radius):
     """
     X, Y, Z = get_cubic_mesh(current_index, radius, visited_indices)
 
-    distances = np.linalg.norm(np.array([X - current_index[0], Y - current_index[1], Z - current_index[2]]), axis=0)
+    distances = np.linalg.norm(
+        np.array([X - current_index[0], Y - current_index[1], Z - current_index[2]]),
+        axis=0,
+    )
 
     within_indices = distances <= radius
 
@@ -221,7 +228,6 @@ def is_visited(current_index, visited_indices, radius):
 
     # Return True if any of these within-radius coordinates are visited
     return np.any(visited_within_radius)
-
 
 
 def update_visited_coord(visited_coords, x_norm, y_norm, z_norm, padding):
@@ -330,16 +336,18 @@ def run_bayesian_analysis_area(
 
     coordinates_area_list = np.where(mask == 1)
     coordinates_area = [
-        [coordinates_area_list[0][a], coordinates_area_list[1][a], coordinates_area_list[2][a]]
+        [
+            coordinates_area_list[0][a],
+            coordinates_area_list[1][a],
+            coordinates_area_list[2][a],
+        ]
         for a in range(len(coordinates_area_list[0]))
     ]  # list of coordinated in the mask with value 1
 
     # Initialize an empty list to store results and coordinates
     result_all = []
-    coord = []
 
     padding = max(1, int(radius * 2 / 3))
-
 
     # Initialize visited_coord array
     visited_coord = np.zeros(
@@ -396,6 +404,6 @@ def run_bayesian_analysis_area(
         result_all.append(results)
 
     os.remove(PKG_FOLDER / "neuroinfer" / ".tmp" / "processing_progress.txt")
-    elapsed_area = time.time() - t_area
-    print(f"Time in min: {round(elapsed_area / 60, 2)}")
+    # elapsed_area = time.time() - t_area
+    # toLog(f"Time in min: {round(elapsed_area / 60, 2)}")
     return result_all

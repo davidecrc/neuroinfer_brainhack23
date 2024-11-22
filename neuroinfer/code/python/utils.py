@@ -13,6 +13,11 @@ from neuroinfer import PKG_FOLDER
 
 
 def smooth_mask(mask_3d, n):
+    """
+    Smooths a 3D binary mask using a convolutional kernel with size based on the smoothing factor `n`.
+    The resulting mask is returned as a smoothed binary array.
+    """
+
     # Define the size of the kernel based on the smoothing factor
     kernel_size = 2 * n + 1
 
@@ -34,6 +39,10 @@ def smooth_mask(mask_3d, n):
 
 
 def get_combined_overlays(bool_list, file_list, out_file):
+    """
+    Combines multiple NIfTI images (3D brain scans) into a single overlay by taking the
+    maximum value at each voxel across the selected images. Saves the combined overlay as a NIfTI file.
+    """
     print(bool_list)
     print(file_list)
     print(out_file)
@@ -53,34 +62,51 @@ def get_combined_overlays(bool_list, file_list, out_file):
 
 
 def get_sphere_coords(coords, vx_radius, overlay_results):
+    """
+    Finds all voxel indices within a spherical region around the given coordinates in a 3D volume.
+    The radius of the sphere is defined by `vx_radius`, and the volume is based on `overlay_results`.
+    """
     volume_shape = overlay_results.shape
+    X, Y, Z = np.meshgrid(
+        np.arange(volume_shape[0]),
+        np.arange(volume_shape[1]),
+        np.arange(volume_shape[2]),
+        indexing="ij",
+    )
 
-    vx_radius = int(vx_radius)
-    # Define bounds within vx_radius to avoid generating full meshgrid
-    x_min, x_max = max(0, coords[0] - vx_radius), min(volume_shape[0], coords[0] + vx_radius + 1)
-    y_min, y_max = max(0, coords[1] - vx_radius), min(volume_shape[1], coords[1] + vx_radius + 1)
-    z_min, z_max = max(0, coords[2] - vx_radius), min(volume_shape[2], coords[2] + vx_radius + 1)
+    distances = np.sqrt(
+        (X - coords[0]) ** 2 + (Y - coords[1]) ** 2 + (Z - coords[2]) ** 2
+    )
 
-    # Create grids within this smaller bounding box
-    X, Y, Z = np.ogrid[x_min:x_max, y_min:y_max, z_min:z_max]
-    # X, Y, Z = np.meshgrid[np.arange(x_min,x_max), np.arange(y_min,y_max), np.arange(z_min,z_max)]
+    template_3D = distances <= vx_radius
 
-    # Calculate squared distances to avoid using np.sqrt
-    squared_distances2 = (X - coords[0]) ** 2 + (Y - coords[1]) ** 2 + (Z - coords[2]) ** 2
-
-    # Mask where the squared distance is within the square of the radius
-    template_3D = squared_distances2 <= (vx_radius ** 2)
-
-    # Get the indices within the sphere and adjust for bounding box offset
     template_indices = np.nonzero(template_3D)
-    sphere_coords = (template_indices[0] + x_min,
-                     template_indices[1] + y_min,
-                     template_indices[2] + z_min)
 
-    return sphere_coords
+    return template_indices
 
 
 def create_hist(overlay_results, cog_list):
+    """
+    This function creates histograms of non-zero values in the `overlay_results` data
+    for each cognitive region in `cog_list` and fits a Gaussian Mixture Model (GMM)
+    to these values, visualizing both the histogram and the GMM fit.
+
+    Inputs:
+    - overlay_results: A 2D array where each column corresponds to data from a cognitive region.
+    - cog_list: A list of cognitive region labels, used for the plot legend.
+
+    Steps:
+    1. Reshape `overlay_results` into a 2D array where rows are samples and columns are the different regions.
+    2. Calculate the optimal number of bins for the histograms based on the data size.
+    3. For each cognitive region:
+    - Filter non-zero values from `overlay_results` for that region.
+    - Fit a Gaussian Mixture Model (GMM) with 3 components to the non-zero data.
+    - Plot the histogram of the data with corresponding GMM curve for visual comparison.
+    4. Customize the plot with labels, a legend, and different colors for each region.
+    5. Save the plot as a PNG image in memory (using a BytesIO object) and encode it as a base64 string.
+    6. Return the base64-encoded image for further use (e.g., displaying it on a web interface).
+    """
+
     overlay_results = np.reshape(overlay_results, (-1, overlay_results.shape[-1]))
     num_items = overlay_results.shape[-1]
     nbins = min(int(len(overlay_results.flatten()) / num_items / 20), 200)
@@ -176,6 +202,6 @@ def send_progress(prop):
     # create the folder if not existing
     os.makedirs(PKG_FOLDER / "neuroinfer" / ".tmp", exist_ok=True)
     with open(
-            PKG_FOLDER / "neuroinfer" / ".tmp" / "processing_progress.txt", "w"
+        PKG_FOLDER / "neuroinfer" / ".tmp" / "processing_progress.txt", "w"
     ) as f_tmp:
         f_tmp.write(str(prop))

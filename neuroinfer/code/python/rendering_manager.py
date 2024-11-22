@@ -1,8 +1,9 @@
+import os
 import pickle
 
 import numpy as np
 import nibabel as nib
-import os
+
 import matplotlib.pyplot as plt
 
 from neuroinfer import DATA_FOLDER, TEMPLATE_FOLDER, RESULTS_FOLDER
