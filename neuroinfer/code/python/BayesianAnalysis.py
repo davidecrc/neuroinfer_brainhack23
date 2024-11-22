@@ -4,7 +4,7 @@ import pickle
 import numpy as np
 import pandas as pd
 
-from neuroinfer.code.run_bayesian import (
+from neuroinfer.code.python.run_bayesian import (
     run_bayesian_analysis_coordinates,
     run_bayesian_analysis_area,
 )

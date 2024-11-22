@@ -347,7 +347,7 @@ def run_bayesian_analysis_area(
     # Initialize an empty list to store results and coordinates
     result_all = []
 
-    padding = max(1, int(radius * 2 / 3))
+    padding = min(1, int(radius * 2 / 3))
 
     # Initialize visited_coord array
     visited_coord = np.zeros(
