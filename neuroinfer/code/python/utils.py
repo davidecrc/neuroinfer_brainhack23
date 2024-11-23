@@ -75,11 +75,22 @@ def get_sphere_coords(coords, vx_radius, overlay_results):
     z_min, z_max = max(0, coords[2] - vx_radius), min(volume_shape[2], coords[2] + vx_radius + 1)
 
     # Create grids within this smaller bounding box
-    X, Y, Z = np.ogrid[x_min:x_max, y_min:y_max, z_min:z_max]
-    # X, Y, Z = np.meshgrid[np.arange(x_min,x_max), np.arange(y_min,y_max), np.arange(z_min,z_max)]
+    # X, Y, Z = np.ogrid[x_min:x_max, y_min:y_max, z_min:z_max]
+    ## X, Y, Z = np.meshgrid[np.arange(x_min,x_max), np.arange(y_min,y_max), np.arange(z_min,z_max)]
+    # Generate ranges for the bounding box
+    x_range = np.arange(x_min, x_max)
+    y_range = np.arange(y_min, y_max)
+    z_range = np.arange(z_min, z_max)
 
+    # Calculate squared distances efficiently using broadcasting
+    x_diff = (x_range - coords[0])[:, None, None]
+    y_diff = (y_range - coords[1])[None, :, None]
+    z_diff = (z_range - coords[2])[None, None, :]
+
+    # Squared distances to avoid using np.sqrt
+    squared_distances2 = x_diff**2 + y_diff**2 + z_diff**2
     # Calculate squared distances to avoid using np.sqrt
-    squared_distances2 = (X - coords[0]) ** 2 + (Y - coords[1]) ** 2 + (Z - coords[2]) ** 2
+    # squared_distances2 = (X - coords[0]) ** 2 + (Y - coords[1]) ** 2 + (Z - coords[2]) ** 2
 
     # Mask where the squared distance is within the square of the radius
     template_3D = squared_distances2 <= (vx_radius ** 2)

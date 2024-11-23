@@ -56,6 +56,7 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius, cog_list, 
 
     num_words = len(result_dict[0]["cog_list"])
 
+
     for j, coord in enumerate(coords):
         sphere_coords = get_sphere_coords(
             [int(coord[0]), int(coord[1]), int(coord[2])], vx_radius, overlay_results
@@ -64,9 +65,8 @@ def generate_nifti_bf_heatmap(result_dict, atlas_target_path, radius, cog_list, 
         sc_0, sc_1, sc_2 = sphere_coords[0], sphere_coords[1], sphere_coords[2]
         sc_length = sc_0.shape[0]  # Store shape once
         bf_j = bf[j]  # Cache bf[j] for fewer accesses
-
+        overlay_results[sc_0, sc_1, sc_2] += bf_j.values  # TODO: this depends on the type of analysis done!
         for sc_i in range(sc_length):
-            overlay_results[sc_0[sc_i], sc_1[sc_i], sc_2[sc_i], :] += bf_j  # TODO: this depends on the type of analysis done!
             for cog_counter in range(num_words):
                 if bf[j][cog_counter] != 0:
                     counter[
