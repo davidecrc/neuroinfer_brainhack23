@@ -15,7 +15,7 @@ function autocompleteWords() {
       autocompleteContainer.style.left = `${textareaRect.left}px`;
       autocompleteContainer.style.top = `${textareaRect.bottom}px`;
 
-      fetch("../data/vocabulary7.txt")
+      fetch("./data/vocabulary7.txt")
         .then((response) => response.text())
         .then((data) => {
           const dictionaryWords = data.split("\n");

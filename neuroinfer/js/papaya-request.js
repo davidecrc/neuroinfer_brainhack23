@@ -1,4 +1,6 @@
 // Function to show the overlay
+const port = 5000;
+
 function showOverlay() {
   const overlay = document.getElementById("overlay");
   overlay.classList.remove("hidden");
@@ -44,7 +46,7 @@ function updateSecondLoading(progress) {
 }
 
 function fetchPercentageProgress() {
-  const url = `/.tmp/processing_progress.txt?cacheBuster=${Math.random()}`;
+  const url = `.tmp/processing_progress.txt?cacheBuster=${Math.random()}`;
   fetch(url)
     .then((response) => response.text())
     .then((data) => {
@@ -94,7 +96,7 @@ window.changeRegionMask = function () {
 
   // Creating an XMLHttpRequest for the POST request to the server
   var xhr = new XMLHttpRequest();
-  xhr.open("POST", "http://127.0.0.1:5000/", true);
+  xhr.open("POST", `http://localhost:${port}/`, true);
   xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 
   // Handling the response to update the Papaya viewer
@@ -186,7 +188,7 @@ window.submitForm = function () {
 
   // Creating an XMLHttpRequest for the POST request to the server
   var xhr = new XMLHttpRequest();
-  xhr.open("POST", "http://127.0.0.1:5000/", true);
+  xhr.open("POST", `http://localhost:${port}/`, true);
   xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 
   // Handling the response after the POST request
@@ -292,7 +294,7 @@ function update_overlays() {
 
   // Creating an XMLHttpRequest for the POST request to the server
   var xhr = new XMLHttpRequest();
-  xhr.open("POST", "http://127.0.0.1:5000/", true);
+  xhr.open("POST", `http://localhost:${port}/`, true);
   xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 
   // Handling the response to update the Papaya viewer
@@ -414,9 +416,14 @@ window.load_prev = function () {
 
   // Creating an XMLHttpRequest for the POST request to the server
   var xhr = new XMLHttpRequest();
-  xhr.open("POST", "http://127.0.0.1:5000/", true);
+  xhr.open("POST", `http://localhost:${port}/`, true);
   xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
   showOverlay();
+
+  // Call fetchPercentageProgress initially
+  fetchPercentageProgress();
+  init_loader = 1;
+  var intervalId = setInterval(fetchPercentageProgress, 500);
 
   // Handling the response after the POST request
   xhr.onreadystatechange = function () {
@@ -426,6 +433,8 @@ window.load_prev = function () {
       if (xhr.status == 200) {
         // Parsing the JSON response and displaying the plot
         hideOverlay();
+        clearInterval(intervalId);
+
         var response = JSON.parse(xhr.responseText);
         displayPlot(response.image);
         words = response.words;

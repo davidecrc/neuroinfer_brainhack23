@@ -89,7 +89,7 @@ def run_bayesian_analysis_coordinates(
         else:
             cog_all.append(cog)
             prior_all.append(prior)
-            # toLog(f'Processing "{cog}" (step {q + 1} out of {len(cog_list)})')
+            # print(f'Processing "{cog}" (step {q + 1} out of {len(cog_list)})')
 
             ids_cog_nq = feature_df.index[
                 feature_df[cog] > frequency_threshold
@@ -347,7 +347,7 @@ def run_bayesian_analysis_area(
     # Initialize an empty list to store results and coordinates
     result_all = []
 
-    padding = max(1, int(radius * 2 / 3))
+    padding = min(1, int(radius * 2 / 3))
 
     # Initialize visited_coord array
     visited_coord = np.zeros(
@@ -404,6 +404,6 @@ def run_bayesian_analysis_area(
         result_all.append(results)
 
     os.remove(PKG_FOLDER / "neuroinfer" / ".tmp" / "processing_progress.txt")
-    elapsed_area = time.time() - t_area
+    # elapsed_area = time.time() - t_area
     # toLog(f"Time in min: {round(elapsed_area / 60, 2)}")
     return result_all

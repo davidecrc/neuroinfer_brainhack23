@@ -356,3 +356,37 @@ button:hover {
   cursor: pointer;
   border-radius: 50%;
 }
+
+.help-container {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.deeper_help {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  padding: 30px;
+  border: 3px solid #ccc;
+  border-radius: 5px;
+  z-index: 1;
+  padding-top: 30px;
+  padding-bottom: 40px;
+  margin: 30px;
+  top: 40px;
+  left: 40px;
+  right: 40px;
+  bottom: 20%;
+}
+
+.close-button {
+  cursor: pointer;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 36px;
+}

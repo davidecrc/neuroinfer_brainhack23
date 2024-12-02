@@ -1,12 +1,9 @@
+# MainScript.py
 import argparse
-import os
-import pickle
-
-import pandas as pd
-from neuroinfer import RESULTS_FOLDER, DATA_FOLDER
 from neuroinfer.code.BayesianAnalysis import run_bayesian_analysis_router
-from neuroinfer.code.DataLoading import load_data_and_create_dataframe
 from neuroinfer.code.UserInputs import get_user_inputs
+from neuroinfer.code.DataLoading import load_data_and_create_dataframe
+import os
 
 """
 Main Script- executes Bayesian analysis given NPZ, metadata, and vocabulary files based on user-defined parameters. 

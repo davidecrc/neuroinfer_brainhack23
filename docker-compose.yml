@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  neuroinfer:
+    build: .
+    ports:
+      - "5000:5000"  # maps the port for xhr
+      - "8000-8010:8000-8010"  # Map ports for the server
+    environment:
+      - FLASK_APP=neuroinfer.server
+    command: ["python", "-m", "neuroinfer.server"]
