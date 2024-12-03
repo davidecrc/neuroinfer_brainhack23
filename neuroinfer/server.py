@@ -93,6 +93,12 @@ def run_http_server():
             else:
                 raise
 
+@app.after_request
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
+    response.headers["Access-Control-Allow-Methods"] = "POST,GET,OPTIONS"
+    return response
 
 # Entry point of the script
 if __name__ == "__main__":
