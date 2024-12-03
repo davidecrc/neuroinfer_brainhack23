@@ -47,7 +47,6 @@ def create_mask_region(atlas, brain_region, smooth_factor):
     )
     tot_vx = np.sum(mask_3d)
 
-
     # Check if the '.tmp/' directory exists, if not, create it
     if not os.path.isdir(".tmp/"):
         os.mkdir(".tmp/")
@@ -106,18 +105,25 @@ def main_analyse_and_render(data):
     """
 
     # Extracting data from the form using 'parse_input_args'
-    cog_list, prior_list, x_target, y_target, z_target, radius, brain_region, upload_image = (
-        parse_input_args(data)
-    )
+    (
+        cog_list,
+        prior_list,
+        x_target,
+        y_target,
+        z_target,
+        radius,
+        brain_region,
+        upload_image,
+    ) = parse_input_args(data)
 
     is_coord_input = all([isinstance(x, float) for x in [x_target, y_target, z_target]])
     is_upload_input = len(upload_image) > 0
     is_mask_input = len(brain_region) > 0
 
-    if (sum([is_coord_input, is_mask_input, is_upload_input]) != 1):
+    if sum([is_coord_input, is_mask_input, is_upload_input]) != 1:
         raise Exception(
-            "you selected multiple or none input methods, please refresh the page and use only one between coordinate, mask, and upload file")
-
+            "you selected multiple or none input methods, please refresh the page and use only one between coordinate, mask, and upload file"
+        )
 
     if is_coord_input or is_upload_input:
         raise Exception("Method not implemented")
@@ -162,7 +168,7 @@ def main_analyse_and_render(data):
         )
 
     with open(
-            RESULTS_FOLDER / f"results_area_cm_{brain_region}_{cog_list}.pkl", "wb"
+        RESULTS_FOLDER / f"results_area_cm_{brain_region}_{cog_list}.pkl", "wb"
     ) as f:
         pickle.dump(result_dict, f)
 
@@ -248,7 +254,7 @@ def parse_input_args(data):
     priors = [prior.strip() for prior in priors]
 
     # Type conversion and validation checks
-    if (len(brain_region) > 0):
+    if len(brain_region) > 0:
         try:
             if len(brain_region[0]) > 0:
                 brain_region = [np.int32(a) for a in brain_region]
@@ -301,7 +307,11 @@ def parse_input_args(data):
             f"Illegal prior length {len(priors)} with words length {len(words)}"
         )
 
-    if mask_upload_mask != None and len(mask_upload_mask) > 0 and ~os.path.isfile(mask_upload_mask):
+    if (
+        mask_upload_mask != None
+        and len(mask_upload_mask) > 0
+        and ~os.path.isfile(mask_upload_mask)
+    ):
         raise Exception(
             f"mask upload given but file could not be found: {mask_upload_mask}"
         )
