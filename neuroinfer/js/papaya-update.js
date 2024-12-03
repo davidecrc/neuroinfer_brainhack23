@@ -1,6 +1,9 @@
 // Function to update the Papaya viewer with or without a mask
-window.update_papaya_viewer = function (mask = false, minvalue=0, maxvalue=5) {
-
+window.update_papaya_viewer = function (
+  mask = false,
+  minvalue = 0,
+  maxvalue = 5,
+) {
   params["coordinate"] = currentCoords;
   set_range = false;
 
@@ -8,15 +11,13 @@ window.update_papaya_viewer = function (mask = false, minvalue=0, maxvalue=5) {
     // If mask is an array, read the first element
     overlays = mask;
     current_overlay = overlays[0];
-    overlayFilename = current_overlay.split('/').pop(); // Extract filename
+    overlayFilename = current_overlay.split("/").pop(); // Extract filename
     set_range = true;
-
   } else if (typeof mask === "string") {
     // If mask is a string, keep it as a string
     current_overlay = mask;
-    overlayFilename = current_overlay.split('/').pop(); // Extract filename
+    overlayFilename = current_overlay.split("/").pop(); // Extract filename
     set_range = true;
-
   } else if (mask) {
     current_overlay = "/.tmp/mask.nii.gz";
   }
@@ -34,7 +35,7 @@ window.update_papaya_viewer = function (mask = false, minvalue=0, maxvalue=5) {
       current_overlay,
     ];
     if (set_range) {
-      params[overlayFilename] = {"min": minvalue, "max": maxvalue};
+      params[overlayFilename] = { min: minvalue, max: maxvalue };
     }
   }
 
