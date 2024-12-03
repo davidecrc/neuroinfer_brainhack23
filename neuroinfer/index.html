@@ -17,21 +17,34 @@
     <title>NEUROINFER - Papaya Viewer</title>
     <script type="text/javascript" src="js/papaya.js"></script>
     <script>
-        function toggleInputType() {
+        function toggleInputType(inputType) {
             var atlasRegionDiv = document.getElementById('atlasRegions');
             var coordsDiv = document.getElementById('coords');
+            var uploadDiv = document.getElementById('upload');
             var areanav = document.getElementById('mask-input');
             var coordnav = document.getElementById('coord-input');
-            if (document.getElementById('radioAtlas').checked) {
+            var uploadnav = document.getElementById('upload-input');
+            if (inputType=='mask') {
                 atlasRegionDiv.style.display = '';
                 coordsDiv.style.display = 'none';
+                uploadDiv.style.display = 'none';
                 coordnav.style.backgroundColor = 'grey';
                 areanav.style.backgroundColor = '#f3f3f3';
-            } else if (document.getElementById('radioCoords').checked) {
+                uploadnav.style.backgroundColor = 'grey';
+            } else if (inputType=='coord') {
                 atlasRegionDiv.style.display = 'none';
+                uploadDiv.style.display = 'none';
                 coordsDiv.style.display = '';
                 areanav.style.backgroundColor = 'grey';
                 coordnav.style.backgroundColor = '#f3f3f3';
+                uploadnav.style.backgroundColor = 'grey';
+            } else if (inputType=='upload') {
+                atlasRegionDiv.style.display = 'none';
+                uploadDiv.style.display = '';
+                coordsDiv.style.display = 'none';
+                areanav.style.backgroundColor = 'grey';
+                coordnav.style.backgroundColor = 'grey';
+                uploadnav.style.backgroundColor = '#f3f3f3';
             }
         }
     </script>
@@ -39,16 +52,15 @@
     #input-option-container {
         display: flex;
         flex-direction: row;
+        margin-bottom: 20px;
     }
     .input-type-radio {
         flex: 1;  /* This makes each child expand to fill the available space */
           background: aliceblue;
-          border-radius: 100px 100px 0 0;
           padding-left: 10px;
           padding-right: 10px;
           border-top-style: solid;
           border-top-width: 1px;
-          border-right-width: 1px;
           border-left-width: 1px;
           border-left-style: solid;
     }
@@ -59,7 +71,7 @@
 </style>
 
   </head>
-  <body onload="toggleInputType()">>
+  <body onload="toggleInputType('mask')">>
     <div id="overlay" class="overlay hidden">
       <div class="loading-bar"></div>
       <div class="second-loading-bar">
@@ -86,13 +98,14 @@
         <!-- Radio buttons to select input type -->
             <label>Choose between:</label>
         <span id="input-option-container">
-        <span id="mask-input" class="input-type-radio">
-            <input type="radio" id="radioAtlas" name="inputType" value="atlas" checked onclick="toggleInputType()">
+        <span id="mask-input" class="input-type-radio" onclick="toggleInputType('mask')">
             <label for="radioAtlas">Mask Inputs</label>
         </span>
-        <span id="coord-input" class="input-type-radio">
-            <input type="radio" id="radioCoords" name="inputType" value="coordinate" onclick="toggleInputType()">
-            <label for="radioCoords">Single Coordinate:</label>
+        <span id="coord-input" class="input-type-radio" onclick="toggleInputType('coord')">
+            <label for="radioCoords">Single Coordinate</label>
+        </span>
+        <span id="upload-input" class="input-type-radio" onclick="toggleInputType('upload')">
+            <label for="radioCoords">Upload a mask</label>
         </span>
         </span>
 
@@ -133,6 +146,15 @@
             <label for="z">z:</label>
             <input type="number" id="z" name="z" required />
             <div class="help-container">Set the MNI coordinates of your ROI</div>
+        </div>
+
+        <!-- Upload mask Inputs -->
+        <div id="upload" class="form_subcontent">
+            <img src="icons/help_icon.png" class="help-caller" />
+            <label for="upload_file">Input file (.nii.gz):</label>
+            <input type="file" id="upload_file" name="upload_file" accept=".nii.gz" />
+
+            <div class="help-container">Upload your custom mask (in MNI space)</div>
         </div>
 
           <div id="radiuscontainer">
