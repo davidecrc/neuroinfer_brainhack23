@@ -50,6 +50,11 @@ body {
   flex-direction: column;
 }
 
+.container form .form_subcontent{
+  display:flex;
+  flex-direction: column;
+}
+
 .container label {
   margin-bottom: 8px;
 }

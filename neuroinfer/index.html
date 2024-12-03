@@ -55,16 +55,21 @@
           <hr class="hr-text" data-content="" />
 
         <!-- Radio buttons to select input type -->
-        <input type="radio" id="radioAtlas" name="inputType" value="atlas" checked onclick="toggleInputType()">
-        <label for="radioAtlas">Display Atlas and Regions Inputs</label>
-
-        <input type="radio" id="radioCoords" name="inputType" value="coordinate" onclick="toggleInputType()">
-        <label for="radioCoords">Show Coordinates</label>
+        <span>
+        <span>
+            <input type="radio" id="radioAtlas" name="inputType" value="atlas" checked onclick="toggleInputType()">
+            <label for="radioAtlas">Mask Inputs</label>
+        </span>
+        <span>
+            <input type="radio" id="radioCoords" name="inputType" value="coordinate" onclick="toggleInputType()">
+            <label for="radioCoords">Single Coordinate</label>
+        </span>
+        </span>
 
         <hr class="hr-text" data-content="" />
 
         <!-- Atlas and Region Selection -->
-        <div id="atlasRegions">
+        <div id="atlasRegions" class="form_subcontent">
             <label for="atlasList">Atlas List:</label>
             <select id="atlasList" name="atlasList">
                 <option>-- SELECT ONE DATASET --</option>
@@ -89,7 +94,7 @@
         </div>
 
         <!-- Coordinate Inputs -->
-        <div id="coords" class="hidden">
+        <div id="coords" class="form_subcontent">
             <img src="icons/help_icon.png" class="help-caller" />
             Coordinates<label for="x">x:</label>
             <input type="number" id="x" name="x" required />
