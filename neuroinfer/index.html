@@ -16,11 +16,10 @@
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <title>NEUROINFER - Papaya Viewer</title>
     <script type="text/javascript" src="js/papaya.js"></script>
-      <script type="text/javascript" src="js/toggletabnav.js"></script>
-
-
+    <script type="text/javascript" src="js/toggletabnav.js"></script>
   </head>
-  <body onload="toggleInputType('mask')">>
+  <body onload="toggleInputType('mask')">
+    >
     <div id="overlay" class="overlay hidden">
       <div class="loading-bar"></div>
       <div class="second-loading-bar">
@@ -44,47 +43,76 @@
 
           <hr class="hr-text" data-content="OR" />
 
-        <!-- Radio buttons to select input type -->
-            <label>Choose between:</label>
-        <span id="input-option-container">
-        <span id="mask-input" class="input-type-radio" onclick="toggleInputType('mask')">
-            <label for="radioAtlas">Mask Inputs</label>
-        </span>
-        <span id="coord-input" class="input-type-radio" onclick="toggleInputType('coord')">
-            <label for="radioCoords">Single Coordinate</label>
-        </span>
-        <span id="upload-input" class="input-type-radio" onclick="toggleInputType('upload')">
-            <label for="radioCoords">Upload a mask</label>
-        </span>
-        </span>
+          <!-- Radio buttons to select input type -->
+          <label>Choose between:</label>
+          <span id="input-option-container">
+            <span
+              id="mask-input"
+              class="input-type-radio"
+              onclick="toggleInputType('mask')"
+            >
+              <label for="radioAtlas">Mask Inputs</label>
+            </span>
+            <span
+              id="coord-input"
+              class="input-type-radio"
+              onclick="toggleInputType('coord')"
+            >
+              <label for="radioCoords">Single Coordinate</label>
+            </span>
+            <span
+              id="upload-input"
+              class="input-type-radio"
+              onclick="toggleInputType('upload')"
+            >
+              <label for="radioCoords">Upload a mask</label>
+            </span>
+          </span>
 
-        <!-- Atlas and Region Selection -->
-        <div id="atlasRegions" class="form_subcontent">
+          <!-- Atlas and Region Selection -->
+          <div id="atlasRegions" class="form_subcontent">
             <label for="atlasList">Atlas List:</label>
             <select id="atlasList" name="atlasList">
-                <option>-- SELECT ONE DATASET --</option>
+              <option>-- SELECT ONE DATASET --</option>
             </select>
 
-            <label for="brainRegion" style="margin-top: 10px">Brain Region:</label>
+            <label for="brainRegion" style="margin-top: 10px"
+              >Brain Region:</label
+            >
             <div id="brainregionselector">
-                <div class="regionselector">
-                    <select id="brainRegion" name="brainRegion" onchange="changeRegionMask()"></select>
-                </div>
+              <div class="regionselector">
+                <select
+                  id="brainRegion"
+                  name="brainRegion"
+                  onchange="changeRegionMask()"
+                ></select>
+              </div>
             </div>
-            <button type="button" class="add-icon" style="background-color: #aaa; margin-top: 10px" onclick="addBrainRegion()">
-                Add Region
+            <button
+              type="button"
+              class="add-icon"
+              style="background-color: #aaa; margin-top: 10px"
+              onclick="addBrainRegion()"
+            >
+              Add Region
             </button>
 
             <div id="smoothcontainer" style="margin-top: 10px">
-                <label for="smooth">Smooth Factor:</label>
-                <input type="number" id="smooth" name="smooth" value="0" onchange="changeRegionMask()"/>
+              <label for="smooth">Smooth Factor:</label>
+              <input
+                type="number"
+                id="smooth"
+                name="smooth"
+                value="0"
+                onchange="changeRegionMask()"
+              />
             </div>
 
             <div id="totalnumberofvoxel"></div>
-        </div>
+          </div>
 
-        <!-- Coordinate Inputs -->
-        <div id="coords" class="form_subcontent">
+          <!-- Coordinate Inputs -->
+          <div id="coords" class="form_subcontent">
             <img src="icons/help_icon.png" class="help-caller" />
             Coordinates<label for="x">x:</label>
             <input type="number" id="x" name="x" required />
@@ -94,20 +122,32 @@
 
             <label for="z">z:</label>
             <input type="number" id="z" name="z" required />
-            <div class="help-container">Set the MNI coordinates of your ROI</div>
-        </div>
+            <div class="help-container">
+              Set the MNI coordinates of your ROI
+            </div>
+          </div>
 
-        <!-- Upload mask Inputs -->
-        <div id="upload" class="form_subcontent">
+          <!-- Upload mask Inputs -->
+          <div id="upload" class="form_subcontent">
             <img src="icons/help_icon.png" class="help-caller" />
             <label for="upload_file">Input file (.nii.gz):</label>
-            <input type="file" id="upload_file" name="upload_file" accept=".nii.gz" />
+            <input
+              type="file"
+              id="upload_file"
+              name="upload_file"
+              accept=".nii.gz"
+            />
 
-            <div class="help-container">Upload your custom mask (in MNI space)</div>
-        </div>
+            <div class="help-container">
+              Upload your custom mask (in MNI space)
+            </div>
+          </div>
 
           <div id="radiuscontainer">
-            <img src="icons/help_icon.png" class="help-caller" /><label for="radius">Radius (mm):</label>
+            <img src="icons/help_icon.png" class="help-caller" /><label
+              for="radius"
+              >Radius (mm):</label
+            >
             <input
               type="number"
               id="radius"
@@ -120,7 +160,8 @@
           </div>
 
           <div id="nvx_incontainer">
-            <img src="icons/help_icon.png" class="help-caller" /><label for="nvx"
+            <img src="icons/help_icon.png" class="help-caller" /><label
+              for="nvx"
               >minimum portion of sphere in mask:</label
             >
             <input
@@ -137,7 +178,8 @@
             mask
           </div>
 
-          <img src="icons/help_icon.png" class="help-caller" /><label for="words"
+          <img src="icons/help_icon.png" class="help-caller" /><label
+            for="words"
             >List of Words (comma-separated):</label
           >
           <textarea
@@ -153,8 +195,10 @@
             analysis (e.g. visual, auditory, music)
           </div>
 
-          <img src="icons/help_icon.png" class="help-caller helpdeep-caller" /><label
-            for="probabilities"
+          <img
+            src="icons/help_icon.png"
+            class="help-caller helpdeep-caller"
+          /><label for="probabilities"
             >Priors probabilities (comma-separated):</label
           >
           <input type="text" id="probabilities" name="probabilities" required />

@@ -50,8 +50,8 @@ body {
   flex-direction: column;
 }
 
-.container form .form_subcontent{
-  display:flex;
+.container form .form_subcontent {
+  display: flex;
   flex-direction: column;
 }
 
@@ -397,21 +397,22 @@ button:hover {
 }
 
 #input-option-container {
-    display: flex;
-    flex-direction: row;
-    margin-bottom: 20px;
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 20px;
 }
 .input-type-radio {
-    flex: 1;  /* This makes each child expand to fill the available space */
-      background: aliceblue;
-      padding-left: 10px;
-      padding-right: 10px;
-      border-top-style: solid;
-      border-top-width: 1px;
-      border-left-width: 1px;
-      border-left-style: solid;
+  flex: 1; /* This makes each child expand to fill the available space */
+  background: aliceblue;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-left-width: 1px;
+  border-left-style: solid;
 }
-.input-type-radio label, .input-type-radio input {
-    margin: 0;
-    padding: 0;
+.input-type-radio label,
+.input-type-radio input {
+  margin: 0;
+  padding: 0;
 }
