@@ -109,9 +109,10 @@ def main_analyse_and_render(data):
     """
 
     # Extracting data from the form using 'parse_input_args'
-    cog_list, prior_list, x_target, y_target, z_target, radius, brain_region = (
+    cog_list, prior_list, x_target, y_target, z_target, radius, brain_region, upload_image = (
         parse_input_args(data)
     )
+
 
     # Generating a NIfTI mask for the selected region
     mask, affine = generate_nifti_mask(
@@ -229,17 +230,21 @@ def parse_input_args(data):
     z = data.get("z")
 
     words = data.get("words")
-    words = [word.strip() for word in words]
     words = words.split(",")
+    words = [word.strip() for word in words]
 
     priors = data.get("probabilities")
     priors = priors.split(",")
     priors = [prior.strip() for prior in priors]
 
     # Type conversion and validation checks
-    if (len(brain_region) > 0) and (str(type(brain_region)) != "int"):
+    if (len(brain_region) > 0):
         try:
-            brain_region = [np.int32(a) for a in brain_region]
+            if len(brain_region[0]) > 0:
+                brain_region = [np.int32(a) for a in brain_region]
+            else:
+                brain_region = []
+
         except ValueError:
             raise Exception(f"Cannot convert {brain_region} to an int")
 
@@ -292,7 +297,7 @@ def parse_input_args(data):
         )
 
     # Return the parsed values
-    return words, priors, x, y, z, radius, brain_region
+    return words, priors, x, y, z, radius, brain_region, mask_upload_mask
 
 
 if __name__ == "__main__":

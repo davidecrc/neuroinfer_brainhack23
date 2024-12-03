@@ -164,7 +164,7 @@ window.submitForm = function () {
   words = words_str.split(",");
   var probabilities = document.getElementById("probabilities").value;
   var smoothfactor = document.getElementById("smooth").value;
-
+  var uploadfile = document.getElementById("upload_file").value;
   // Creating form data with the analysis parameters
   var formData = {
     atlas: selected_atlas,
@@ -177,6 +177,7 @@ window.submitForm = function () {
     probabilities: probabilities,
     func: "do_analysis",
     smooth: smoothfactor,
+    upload: uploadfile,
   };
 
   showOverlay();
