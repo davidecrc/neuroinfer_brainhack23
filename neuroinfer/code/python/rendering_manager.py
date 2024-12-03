@@ -47,9 +47,6 @@ def create_mask_region(atlas, brain_region, smooth_factor):
     )
     tot_vx = np.sum(mask_3d)
 
-    print(type(mask_3d))
-    print(type(mask_3d[1, 1, 1]))
-    print(mask_3d.shape)
 
     # Check if the '.tmp/' directory exists, if not, create it
     if not os.path.isdir(".tmp/"):
@@ -113,46 +110,59 @@ def main_analyse_and_render(data):
         parse_input_args(data)
     )
 
+    is_coord_input = all([isinstance(x, float) for x in [x_target, y_target, z_target]])
+    is_upload_input = len(upload_image) > 0
+    is_mask_input = len(brain_region) > 0
 
-    # Generating a NIfTI mask for the selected region
-    mask, affine = generate_nifti_mask(
-        data["brainRegion"], atlas_path / data["atlas"], data["smooth"]
-    )
-    affine_inv = np.linalg.inv(affine)
+    if (sum([is_coord_input, is_mask_input, is_upload_input]) != 1):
+        raise Exception(
+            "you selected multiple or none input methods, please refresh the page and use only one between coordinate, mask, and upload file")
 
-    # Perform Bayesian analysis to obtain coordinates (coords) and Bayesian factor values (bf)
-    # The run_bayesian_analysis function takes parameters such as brain_region, words, radius, and priors,
-    # and returns the computed coordinates and Bayesian factor values.
-    result_df, _ = load_data_and_create_dataframe(
-        DATA_FOLDER / "features7.npz",
-        DATA_FOLDER / "metadata7.tsv",
-        DATA_FOLDER / "vocabulary7.txt",
-    )
-    dt_papers_nq_id_list, nb_unique_paper, xyz_coords = load_or_calculate_variables(
-        DATA_FOLDER, affine_inv
-    )
-    xyz_coords = np.array(xyz_coords, dtype=np.float32)
-    result_dict = run_bayesian_analysis_area(
-        cog_list,
-        prior_list,
-        mask,
-        radius,
-        result_df,
-        "a",
-        dt_papers_nq_id_list,
-        nb_unique_paper,
-        xyz_coords,
-    )
-    result_dict[0].update(
-        {
-            "atlas": atlas_path / data["atlas"],
-            "radius": radius,
-            "cog_list": cog_list,
-            "mask": mask,
-        }
-    )
+
+    if is_coord_input or is_upload_input:
+        raise Exception("Method not implemented")
+
+    elif is_mask_input:
+        # Generating a NIfTI mask for the selected region
+        mask, affine = generate_nifti_mask(
+            data["brainRegion"], atlas_path / data["atlas"], data["smooth"]
+        )
+        affine_inv = np.linalg.inv(affine)
+
+        # Perform Bayesian analysis to obtain coordinates (coords) and Bayesian factor values (bf)
+        # The run_bayesian_analysis function takes parameters such as brain_region, words, radius, and priors,
+        # and returns the computed coordinates and Bayesian factor values.
+        result_df, _ = load_data_and_create_dataframe(
+            DATA_FOLDER / "features7.npz",
+            DATA_FOLDER / "metadata7.tsv",
+            DATA_FOLDER / "vocabulary7.txt",
+        )
+        dt_papers_nq_id_list, nb_unique_paper, xyz_coords = load_or_calculate_variables(
+            DATA_FOLDER, affine_inv
+        )
+        xyz_coords = np.array(xyz_coords, dtype=np.float32)
+        result_dict = run_bayesian_analysis_area(
+            cog_list,
+            prior_list,
+            mask,
+            radius,
+            result_df,
+            "a",
+            dt_papers_nq_id_list,
+            nb_unique_paper,
+            xyz_coords,
+        )
+        result_dict[0].update(
+            {
+                "atlas": atlas_path / data["atlas"],
+                "radius": radius,
+                "cog_list": cog_list,
+                "mask": mask,
+            }
+        )
+
     with open(
-        RESULTS_FOLDER / f"results_area_cm_{brain_region}_{cog_list}.pkl", "wb"
+            RESULTS_FOLDER / f"results_area_cm_{brain_region}_{cog_list}.pkl", "wb"
     ) as f:
         pickle.dump(result_dict, f)
 
@@ -291,7 +301,7 @@ def parse_input_args(data):
             f"Illegal prior length {len(priors)} with words length {len(words)}"
         )
 
-    if len(mask_upload_mask) > 0 and ~os.path.isfile(mask_upload_mask):
+    if mask_upload_mask != None and len(mask_upload_mask) > 0 and ~os.path.isfile(mask_upload_mask):
         raise Exception(
             f"mask upload given but file could not be found: {mask_upload_mask}"
         )
