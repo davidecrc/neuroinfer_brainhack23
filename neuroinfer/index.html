@@ -16,9 +16,21 @@
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <title>NEUROINFER - Papaya Viewer</title>
     <script type="text/javascript" src="js/papaya.js"></script>
-
+    <script>
+        function toggleInputType() {
+            var atlasRegionDiv = document.getElementById('atlasRegions');
+            var coordsDiv = document.getElementById('coords');
+            if (document.getElementById('radioAtlas').checked) {
+                atlasRegionDiv.style.display = '';
+                coordsDiv.style.display = 'none';
+            } else if (document.getElementById('radioCoords').checked) {
+                atlasRegionDiv.style.display = 'none';
+                coordsDiv.style.display = '';
+            }
+        }
+    </script>
   </head>
-  <body>
+  <body onload="toggleInputType()">>
     <div id="overlay" class="overlay hidden">
       <div class="loading-bar"></div>
       <div class="second-loading-bar">
@@ -42,52 +54,44 @@
 
           <hr class="hr-text" data-content="" />
 
-          <label for="atlasList">Atlas List:</label>
-          <select id="atlasList" name="atlasList">
-            <option>-- SElECT ONE DATASET --</option>
-          </select>
+        <!-- Radio buttons to select input type -->
+        <input type="radio" id="radioAtlas" name="inputType" value="atlas" checked onclick="toggleInputType()">
+        <label for="radioAtlas">Display Atlas and Regions Inputs</label>
 
-          <label for="brainRegion" style="margin-top: 10px"
-            >Brain Region:</label
-          >
-          <div id="brainregionselector">
-            <div class="regionselector">
-              <select
-                id="brainRegion"
-                name="brainRegion"
-                onchange="changeRegionMask()"
-              ></select>
+        <input type="radio" id="radioCoords" name="inputType" value="coordinate" onclick="toggleInputType()">
+        <label for="radioCoords">Show Coordinates</label>
+
+        <hr class="hr-text" data-content="" />
+
+        <!-- Atlas and Region Selection -->
+        <div id="atlasRegions">
+            <label for="atlasList">Atlas List:</label>
+            <select id="atlasList" name="atlasList">
+                <option>-- SELECT ONE DATASET --</option>
+            </select>
+
+            <label for="brainRegion" style="margin-top: 10px">Brain Region:</label>
+            <div id="brainregionselector">
+                <div class="regionselector">
+                    <select id="brainRegion" name="brainRegion" onchange="changeRegionMask()"></select>
+                </div>
             </div>
-          </div>
-          <button
-            type="button"
-            class="add-icon"
-            style="background-color: #aaa; margin-top: 10px"
-            onclick="addBrainRegion()"
-          >
-            Add Region
-          </button>
+            <button type="button" class="add-icon" style="background-color: #aaa; margin-top: 10px" onclick="addBrainRegion()">
+                Add Region
+            </button>
 
-          <div id="smoothcontainer" style="margin-top: 10px">
-            <label for="smooth">Smooth Factor:</label>
-            <input
-              type="number"
-              id="smooth"
-              name="smooth"
-              value="0"
-              onchange="changeRegionMask()"
-            />
-          </div>
+            <div id="smoothcontainer" style="margin-top: 10px">
+                <label for="smooth">Smooth Factor:</label>
+                <input type="number" id="smooth" name="smooth" value="0" onchange="changeRegionMask()"/>
+            </div>
 
-          <div id="totalnumberofvoxel"></div>
+            <div id="totalnumberofvoxel"></div>
+        </div>
 
-          <hr class="hr-text" data-content="OR" />
-
-          <div id="coords">
-            <img src="icons/help_icon.png" class="help-caller" />Coordinates<label
-              for="x"
-              >x:</label
-            >
+        <!-- Coordinate Inputs -->
+        <div id="coords" class="hidden">
+            <img src="icons/help_icon.png" class="help-caller" />
+            Coordinates<label for="x">x:</label>
             <input type="number" id="x" name="x" required />
 
             <label for="y">y:</label>
@@ -95,8 +99,8 @@
 
             <label for="z">z:</label>
             <input type="number" id="z" name="z" required />
-          </div>
-          <div class="help-container">Set the MNI coordinates of you ROI</div>
+            <div class="help-container">Set the MNI coordinates of your ROI</div>
+        </div>
 
           <div id="radiuscontainer">
             <img src="icons/help_icon.png" class="help-caller" /><label for="radius"
