@@ -20,15 +20,44 @@
         function toggleInputType() {
             var atlasRegionDiv = document.getElementById('atlasRegions');
             var coordsDiv = document.getElementById('coords');
+            var areanav = document.getElementById('mask-input');
+            var coordnav = document.getElementById('coord-input');
             if (document.getElementById('radioAtlas').checked) {
                 atlasRegionDiv.style.display = '';
                 coordsDiv.style.display = 'none';
+                coordnav.style.backgroundColor = 'grey';
+                areanav.style.backgroundColor = '#f3f3f3';
             } else if (document.getElementById('radioCoords').checked) {
                 atlasRegionDiv.style.display = 'none';
                 coordsDiv.style.display = '';
+                areanav.style.backgroundColor = 'grey';
+                coordnav.style.backgroundColor = '#f3f3f3';
             }
         }
     </script>
+      <style>
+    #input-option-container {
+        display: flex;
+        flex-direction: row;
+    }
+    .input-type-radio {
+        flex: 1;  /* This makes each child expand to fill the available space */
+          background: aliceblue;
+          border-radius: 100px 100px 0 0;
+          padding-left: 10px;
+          padding-right: 10px;
+          border-top-style: solid;
+          border-top-width: 1px;
+          border-right-width: 1px;
+          border-left-width: 1px;
+          border-left-style: solid;
+    }
+    .input-type-radio label, .input-type-radio input {
+        margin: 0;
+        padding: 0;
+    }
+</style>
+
   </head>
   <body onload="toggleInputType()">>
     <div id="overlay" class="overlay hidden">
@@ -52,21 +81,20 @@
             LOAD
           </button>
 
-          <hr class="hr-text" data-content="" />
+          <hr class="hr-text" data-content="OR" />
 
         <!-- Radio buttons to select input type -->
-        <span>
-        <span>
+            <label>Choose between:</label>
+        <span id="input-option-container">
+        <span id="mask-input" class="input-type-radio">
             <input type="radio" id="radioAtlas" name="inputType" value="atlas" checked onclick="toggleInputType()">
             <label for="radioAtlas">Mask Inputs</label>
         </span>
-        <span>
+        <span id="coord-input" class="input-type-radio">
             <input type="radio" id="radioCoords" name="inputType" value="coordinate" onclick="toggleInputType()">
-            <label for="radioCoords">Single Coordinate</label>
+            <label for="radioCoords">Single Coordinate:</label>
         </span>
         </span>
-
-        <hr class="hr-text" data-content="" />
 
         <!-- Atlas and Region Selection -->
         <div id="atlasRegions" class="form_subcontent">
@@ -108,9 +136,7 @@
         </div>
 
           <div id="radiuscontainer">
-            <img src="icons/help_icon.png" class="help-caller" /><label for="radius"
-              >Radius (mm):</label
-            >
+            <img src="icons/help_icon.png" class="help-caller" /><label for="radius">Radius (mm):</label>
             <input
               type="number"
               id="radius"
