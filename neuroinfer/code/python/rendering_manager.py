@@ -222,13 +222,19 @@ def parse_input_args(data):
     # Extract values from the dictionary
     brain_region = data.get("brainRegion")
     radius = data.get("radius")
+    mask_upload_mask = data.get("upload")
+
     x = data.get("x")
     y = data.get("y")
     z = data.get("z")
+
     words = data.get("words")
+    words = [word.strip() for word in words]
     words = words.split(",")
+
     priors = data.get("probabilities")
     priors = priors.split(",")
+    priors = [prior.strip() for prior in priors]
 
     # Type conversion and validation checks
     if (len(brain_region) > 0) and (str(type(brain_region)) != "int"):
@@ -278,6 +284,11 @@ def parse_input_args(data):
     if (len(priors) > 1) and (len(priors) != len(words)):
         raise Exception(
             f"Illegal prior length {len(priors)} with words length {len(words)}"
+        )
+
+    if len(mask_upload_mask) > 0 and ~os.path.isfile(mask_upload_mask):
+        raise Exception(
+            f"mask upload given but file could not be found: {mask_upload_mask}"
         )
 
     # Return the parsed values
