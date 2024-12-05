@@ -96,7 +96,8 @@ window.changeRegionMask = function () {
 
   // Creating an XMLHttpRequest for the POST request to the server
   var xhr = new XMLHttpRequest();
-  xhr.open("POST", `http://localhost:${port}/`, true);
+  xhr.open("POST", "http://127.0.0.1:5000/", true);
+
   xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 
   // Handling the response to update the Papaya viewer
@@ -188,7 +189,7 @@ window.submitForm = function () {
 
   // Creating an XMLHttpRequest for the POST request to the server
   var xhr = new XMLHttpRequest();
-  xhr.open("POST", `http://localhost:${port}/`, true);
+  xhr.open("POST", "http://127.0.0.1:5000/", true);
   xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 
   // Handling the response after the POST request
@@ -294,7 +295,8 @@ function update_overlays() {
 
   // Creating an XMLHttpRequest for the POST request to the server
   var xhr = new XMLHttpRequest();
-  xhr.open("POST", `http://localhost:${port}/`, true);
+  xhr.open("POST", "http://127.0.0.1:5000/", true);
+
   xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 
   // Handling the response to update the Papaya viewer
@@ -416,7 +418,8 @@ window.load_prev = function () {
 
   // Creating an XMLHttpRequest for the POST request to the server
   var xhr = new XMLHttpRequest();
-  xhr.open("POST", `http://localhost:${port}/`, true);
+  xhr.open("POST", "http://127.0.0.1:5000/", true);
+
   xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
   showOverlay();
 
