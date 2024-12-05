@@ -198,7 +198,13 @@ def get_atlas_coordinates_json(json_path):
     return coordinates_atlas
 
 
-def is_visited(current_index, visited_indices, radius):
+def is_center_candidate(current_index, visited_indices):
+
+    # Check if any of the within-radius global coordinates are visited
+    return ~bool(visited_indices[current_index[0], current_index[1], current_index[2]])
+
+
+def is_in_mask(current_index, visited_indices, radius):
     """
     Check if a coordinate has been visited.
 
@@ -332,8 +338,6 @@ def run_bayesian_analysis_area(
     - results: list of BF and coordinates.
     """
 
-    t_area = time.time()
-
     coordinates_area_list = np.where(mask == 1)
     coordinates_area = [
         [
@@ -350,13 +354,15 @@ def run_bayesian_analysis_area(
     padding = min(1, int(radius * 2 / 3))
 
     # Initialize visited_coord array
-    visited_coord = np.zeros(
+    mask_coord = np.zeros(
         (
             np.max(coordinates_area_list[0]) - np.min(coordinates_area_list[0]) + 1,
             np.max(coordinates_area_list[1]) - np.min(coordinates_area_list[1]) + 1,
             np.max(coordinates_area_list[2]) - np.min(coordinates_area_list[2]) + 1,
         )
     )
+
+    visited_centers = mask_coord
 
     coord_ranges = {
         "xmax": max([a[0] for a in coordinates_area]),
@@ -373,8 +379,12 @@ def run_bayesian_analysis_area(
         x_norm, y_norm, z_norm = normalize_coord(
             x_target, y_target, z_target, coord_ranges
         )
-        if is_visited((x_norm, y_norm, z_norm), visited_coord, radius):
+
+        if ~is_center_candidate((x_norm, y_norm, z_norm), visited_centers):
             continue
+
+        # if is_in_mask((x_norm, y_norm, z_norm), mask_coord, radius):
+        #     continue
 
         if i % 50 == 0:
             send_progress((i + 1) / len(coordinates_area))
@@ -396,8 +406,8 @@ def run_bayesian_analysis_area(
         )
         result_all.append(results)
 
-        visited_coord = update_visited_coord(
-            visited_coord, x_norm, y_norm, z_norm, padding
+        visited_centers = update_visited_coord(
+            visited_centers, x_norm, y_norm, z_norm, padding
         )
 
         # Append a tuple containing the BF value and the coordinates to result_with_coordinates
