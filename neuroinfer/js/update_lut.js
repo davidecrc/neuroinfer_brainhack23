@@ -52,7 +52,7 @@ window.updateLUT = function () {
   );
 
   params[getFileName(current_overlay)] = { lut: lut_id };
-  update_papaya_viewer(current_overlay);
+  update_papaya_viewer(current_overlay, minvalue, maxvalue);
 };
 
 function getFileName(path) {
